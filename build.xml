@@ -8,7 +8,6 @@
   <!-- set global properties for this build -->
   <property name="src.dir" location="src"/>
   <property name="build.dir" location="build"/>
-  <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="lib.dir" location="lib"/>
 
   <path id="lib.path">
@@ -24,6 +23,7 @@
     <!-- Create the build directory structure used by compile -->
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.dir}/classes"/>
+    <mkdir dir="${build.dir}/dist"/>
   </target>
 
   <target name="compile" depends="init"
@@ -94,22 +94,34 @@
     </genkey>
   </target>
 
-  <target name="dist" depends="compile"
+  <target name="dist.src" depends="init">
+    <property name="prefix" value="BlipBox-${version.num}-src"/>
+    <zip destfile="${build.dir}/dist/BlipBox-${version.num}-src.zip">
+      <zipfileset dir="." prefix="BlipBox-${version.num}-src">
+        <include name="build.properties build.xml"/>
+        <include name="src/**"/>
+        <include name="firmware/**"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="dist.bin" depends="compile"
         description="generate the distribution" >
     <!-- Create the distribution directory -->
-    <mkdir dir="${dist.dir}"/>
-    <jar jarfile="${dist.dir}/BlipBox-${DSTAMP}.jar">
+    <jar jarfile="${build.dir}/dist/BlipBox-${version.num}-bin.jar">
       <fileset dir="${build.dir}/classes" includes="**/*.class"/>
-      <fileset dir="${lib.dir}" includes="*.jnilib"/>
-      <zipfileset src="${lib.dir}/mmj.jar"/>
-      <zipfileset src="${lib.dir}/RXTXcomm.jar"/>
-      <zipfileset src="${lib.dir}/log4j.jar"/>
+<!--       <fileset dir="${lib.dir}" includes="*.jnilib"/> -->
+<!--       <zipfileset src="${lib.dir}/mmj.jar"/> -->
+<!--       <zipfileset src="${lib.dir}/RXTXcomm.jar"/> -->
+<!--       <zipfileset src="${lib.dir}/log4j.jar"/> -->
       <manifest>
         <attribute name="Main-Class" value="${java.main.class}" />
         <attribute name="Bundle-NativeCode" value="librxtxSerial.jnilib;libmmj.jnilib osname=mac os x;processor=x86;processor=ppc"/>
       </manifest>
     </jar>
   </target>
+
+  <target name="dist" depends="dist.src, dist.bin"/>
 
   <target name="run.class" depends="init">
     <java fork="true" classname="${class}"
