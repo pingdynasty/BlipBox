@@ -1,0 +1,75 @@
+<article>
+
+  <title>project name: BlipBox</title>
+
+  <xi:include href="blipbox-menubar.xml"
+              xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+  <para>What is it? The BlipBox is all of the following:</para>
+
+  <itemizedlist>
+    <listitem><para>a creative tool and musical instrument</para></listitem>
+    <listitem><para>a large, high definition x/y controller with visual feedback</para></listitem>
+    <listitem><para>a uniquely versatile <ulink url="http://en.wikipedia.org/wiki/Midi">MIDI</ulink> and <ulink url="http://en.wikipedia.org/wiki/OpenSound_Control">OSC</ulink> controller</para></listitem>
+    <listitem><para>a <ulink url="http://monome.org/">monome</ulink> emulator</para></listitem>
+  </itemizedlist>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="images/DSC00125.JPG"/>
+    </imageobject>
+    <caption>
+      <para>BlipBox second prototype</para>
+    </caption>
+  </mediaobject>
+
+  <para>What does it do? Anything you want it to! They say that a video is worth a thousand pictures, so here's some action footage:</para>
+
+<html>
+    <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object>
+    <br/>
+</html>
+<para><ulink url="http://vimeo.com/2746159">click</ulink> to view video</para>
+<para>or see more videos from <ulink url="http://vimeo.com/user1093053">pingdynasty</ulink></para>
+
+<section>
+  <title>BlipBlog</title>
+  <para>We now have a <ulink url="http://blipbox.wordpress.com">blog</ulink>! Check it out for the latest news and updates.</para>
+</section>
+
+<section>
+  <title>Inside the Box</title>
+  <para>The BlipBox consists of a few simple elements cleverly put together. At the core there is a 10x8 matrix of super-bright LED's with individually adjustable brightness. Overlaying this is a precision touch screen. On the side you will find some more controls; in the current incarnation there is one button and one knob.</para>
+  <para>The box plugs straight into a computer's USB port. Being bus-powered, it doesn't require batteries or power adaptor.</para>
+  <para>The current prototypes use an <ulink url="http://www.arduino.cc">arduino</ulink> board which has an ATMega168 microprocessor and USB connection. We are planning to provide DIY kits quite soon, allowing anyone to build their own box.</para>
+</section>
+ 
+<!-- <section> -->
+<!--   <title>Inside the Box</title> -->
+<!--   <para>The BlipBox consists of a precision touch screen backed by a 10x8 matrix of ultra-bright LED's with individually adjustable brightness. On the side you have a knob and a button. The current prototype uses an <ulink url="http://www.arduino.cc">arduino</ulink> board which has an ATMega168 microprocessor and USB connection. The whole unit is bus-powered, meaning it doesn't require batteries or power adaptor.</para> -->
+<!-- </section> -->
+
+<section>
+  <title>Links</title>
+  <para>Read more about the functionality and <ulink url="blipbox-functionality.html">how to use the BlipBox</ulink>.</para>
+</section>
+
+<!-- <section> -->
+<!--   <title>Other Projects</title> -->
+<!--   <para>More information on the BlipBox will be coming soon. In the meantime, be sure to check out the <ulink url="polynome.html">Polynome</ulink>!</para> -->
+<!-- </section> -->
+
+<!--   <para><emphasis>more information coming soon!</emphasis></para> -->
+
+<!--   <para>the BlipBox as a MIDI controller (with NI Massive soft synth) <ulink url="..">view</ulink></para> -->
+<!--   <para>the BlipBox running mlr in monome emulation mode <ulink url="..">view</ulink></para> -->
+
+<!--   <para>the BlipBox is progressing as a project and more information will be coming soon (Jan 2009)</para> -->
+
+<!-- <html> -->
+<!--     <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2670155&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2670155&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object> -->
+<!--     <br/> -->
+<!--     <i><a href="http://vimeo.com/2670155">click to view video on vimeo</a></i> -->
+<!-- </html> -->
+
+</article>

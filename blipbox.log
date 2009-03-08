@@ -1,0 +1,51 @@
+2009-03-08 23:29:22,454  INFO SerialDataHandler:213 - usage: 	-l		list ports
+	-o file		log serial output to file
+	-p port		specify port
+	-b rate		specify baud rate (default 115200)
+	-s FILE		send FILE across the connection
+	-h		print help info (this message)
+2009-03-08 23:29:26,560  INFO SerialDataHandler:199 - available serial ports: 
+2009-03-08 23:29:26,562  INFO SerialDataHandler:201 - /dev/tty.SerialAdaptor-DevB-1
+2009-03-08 23:29:26,562  INFO SerialDataHandler:201 - /dev/cu.SerialAdaptor-DevB-1
+2009-03-08 23:29:26,562  INFO SerialDataHandler:201 - /dev/tty.Bluetooth-Modem
+2009-03-08 23:29:26,562  INFO SerialDataHandler:201 - /dev/cu.Bluetooth-Modem
+2009-03-08 23:29:26,563  INFO SerialDataHandler:201 - /dev/tty.Bluetooth-PDA-Sync
+2009-03-08 23:29:26,563  INFO SerialDataHandler:201 - /dev/cu.Bluetooth-PDA-Sync
+2009-03-08 23:29:31,716  INFO SerialDataHandler:199 - available serial ports: 
+2009-03-08 23:29:31,718  INFO SerialDataHandler:201 - /dev/tty.SerialAdaptor-DevB-1
+2009-03-08 23:29:31,719  INFO SerialDataHandler:201 - /dev/cu.SerialAdaptor-DevB-1
+2009-03-08 23:29:31,719  INFO SerialDataHandler:201 - /dev/tty.Bluetooth-Modem
+2009-03-08 23:29:31,719  INFO SerialDataHandler:201 - /dev/cu.Bluetooth-Modem
+2009-03-08 23:29:31,719  INFO SerialDataHandler:201 - /dev/tty.Bluetooth-PDA-Sync
+2009-03-08 23:29:31,720  INFO SerialDataHandler:201 - /dev/cu.Bluetooth-PDA-Sync
+2009-03-08 23:29:45,327  INFO SerialDataHandler:141 - Opening serial port: foo at 115200 baud
+2009-03-08 23:29:45,343 ERROR SerialDataHandler:247 - Failed to open serial port foo
+java.lang.RuntimeException: Port in Use
+	at com.pingdynasty.blipbox.SerialDataHandler.openSerialPort(SerialDataHandler.java:178)
+	at com.pingdynasty.blipbox.SerialDataHandler.main(SerialDataHandler.java:245)
+Caused by: gnu.io.NoSuchPortException
+	at gnu.io.CommPortIdentifier.getPortIdentifier(CommPortIdentifier.java:218)
+	at com.pingdynasty.blipbox.SerialDataHandler.openSerialPort(SerialDataHandler.java:146)
+	... 1 more
+2009-03-08 23:30:03,490  INFO SerialDataHandler:141 - Opening serial port: foo at 115200 baud
+2009-03-08 23:30:03,506 ERROR CommandLine:68 - Failed to open serial port foo
+java.lang.RuntimeException: Port in Use
+	at com.pingdynasty.blipbox.SerialDataHandler.openSerialPort(SerialDataHandler.java:178)
+	at com.pingdynasty.blipbox.CommandLine.main(CommandLine.java:66)
+Caused by: gnu.io.NoSuchPortException
+	at gnu.io.CommPortIdentifier.getPortIdentifier(CommPortIdentifier.java:218)
+	at com.pingdynasty.blipbox.SerialDataHandler.openSerialPort(SerialDataHandler.java:146)
+	... 1 more
+2009-03-08 23:30:06,867 DEBUG MidiOutputEventHandler:272 - Setting CROSS mode to play notes (true) pitch bend (false) aftertouch (false)
+2009-03-08 23:30:06,869 DEBUG MidiOutputEventHandler:248 - Setting CROSS:X_SENSOR to unassigned
+2009-03-08 23:30:06,869 DEBUG MidiOutputEventHandler:248 - Setting CROSS:X_SENSOR to unassigned
+2009-03-08 23:30:06,871 DEBUG MidiOutputEventHandler:253 - Setting CROSS:Y_SENSOR to CC 21 (0-127)
+2009-03-08 23:30:06,871 DEBUG MidiOutputEventHandler:253 - Setting CROSS:Y_SENSOR to CC 18 (0-127)
+2009-03-08 23:30:06,875 DEBUG MidiOutputEventHandler:253 - Setting CROSS:POT_SENSOR to CC 21 (0-127)
+2009-03-08 23:30:06,875 DEBUG MidiOutputEventHandler:253 - Setting CROSS:POT_SENSOR to CC 1 (0-127)
+2009-03-08 23:30:06,876 DEBUG MidiOutputEventHandler:272 - Setting CRISS mode to play notes (false) pitch bend (false) aftertouch (false)
+2009-03-08 23:30:06,876 DEBUG MidiOutputEventHandler:253 - Setting CRISS:X_SENSOR to CC 21 (0-127)
+2009-03-08 23:30:06,877 DEBUG MidiOutputEventHandler:253 - Setting CRISS:X_SENSOR to CC 20 (0-127)
+2009-03-08 23:30:06,877 DEBUG MidiOutputEventHandler:253 - Setting CRISS:Y_SENSOR to CC 21 (0-127)
+2009-03-08 23:30:06,878 DEBUG MidiOutputEventHandler:253 - Setting CRISS:POT_SENSOR to CC 21 (0-127)
+2009-03-08 23:30:06,878 DEBUG MidiOutputEventHandler:253 - Setting CRISS:POT_SENSOR to CC 1 (0-127)

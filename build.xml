@@ -1,0 +1,147 @@
+<project name="BlipBox" default="all" basedir=".">
+    <description>
+      Simple build file for the Java side of the BlipBox project
+    </description>
+
+  <property file="build.properties"/>
+
+  <!-- set global properties for this build -->
+  <property name="src.dir" location="src"/>
+  <property name="build.dir" location="build"/>
+  <property name="dist.dir" location="${build.dir}/dist"/>
+  <property name="lib.dir" location="lib"/>
+
+  <path id="lib.path">
+    <pathelement location="${lib.dir}"/>
+    <fileset dir="lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.dir}/classes"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src.dir}" destdir="${build.dir}/classes"
+           debug="${java.debug}"
+           source="${java.source}"
+           target="${java.target}">
+      <classpath>
+	<path refid="lib.path"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar jarfile="${build.dir}/blipbox.jar">
+      <fileset dir="${build.dir}/classes" includes="**/*.class"/>
+      <manifest>
+        <attribute name="Main-Class" value="${java.main.class}" />
+        <attribute name="Class-Path" value="lib/RXTXcomm.jar lib/log4j.jar lib/mmj.jar lib/log4j.jar"/>
+<!--         <attribute name="java.library.path" value="lib/librxtxSerial.jnilib"/> -->
+<!--         <attribute name="Bundle-NativeCode" value="lib/librxtxSerial.jnilib;lib/libmmj.jnilib osname=mac os x;processor=x86;processor=ppc"/> -->
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="native.jar" depends="init">
+    <jar jarfile="${build.dir}/native-macos.jar">
+      <fileset dir="${lib.dir}" includes="*.jnilib"/>
+    </jar>
+  </target>
+
+  <target name="webstart" depends="jar, native.jar">
+    <copy todir="${build.dir}/webstart">
+      <fileset dir="${build.dir}" includes="blipbox.jar native-macos.jar"/>
+      <fileset dir="webstart"/>
+<!--       <fileset dir="webstart" includes="BlipBox.icns BlipBox.jnlp icon.jpg"/> -->
+    </copy>
+    <copy todir="${build.dir}/webstart/lib">
+      <fileset dir="${lib.dir}"
+               includes="mmj.jar RXTXcomm.jar log4j.jar libmmj.jnilib librxtxSerial.jnilib"/>
+    </copy>
+    <signjar storepass="secret" 
+             alias="blipbox" 
+             keystore="${java.keystore.dir}">
+      <path>
+        <fileset dir="${build.dir}/webstart" includes="*.jar"/>
+        <fileset dir="${build.dir}/webstart/lib" includes="*.jar"/>
+      </path>
+    </signjar>
+    <copy todir="${build.dir}/lib">
+      <fileset dir="${lib.dir}" includes="*.jnilib"/>
+    </copy>
+  </target>
+
+  <target name="key.generate" depends="init">
+    <!-- to generate a new key, first remove the existing one -->
+    <genkey alias="blipbox" storepass="secret"
+            keystore="keystore/pingdynasty.keystore"
+            validity="356">
+      <dname>
+        <param name="CN" value="www.blipbox.org"/>
+        <param name="OU" value="BlipBox"/>
+        <param name="O"  value="Pingdynasty"/>
+        <param name="C"  value="UK"/>
+      </dname>
+    </genkey>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist.dir}"/>
+    <jar jarfile="${dist.dir}/BlipBox-${DSTAMP}.jar">
+      <fileset dir="${build.dir}/classes" includes="**/*.class"/>
+      <fileset dir="${lib.dir}" includes="*.jnilib"/>
+      <zipfileset src="${lib.dir}/mmj.jar"/>
+      <zipfileset src="${lib.dir}/RXTXcomm.jar"/>
+      <zipfileset src="${lib.dir}/log4j.jar"/>
+      <manifest>
+        <attribute name="Main-Class" value="${java.main.class}" />
+        <attribute name="Bundle-NativeCode" value="librxtxSerial.jnilib;libmmj.jnilib osname=mac os x;processor=x86;processor=ppc"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="run.class" depends="init">
+    <java fork="true" classname="${class}"
+          failonerror="true">
+      <classpath path="${build.dir}/classes"/>
+      <classpath refid="lib.path" />
+      <arg line="${args}"/>
+      <assertions>
+        <enable package="com.pingdynasty"/>
+      </assertions>          
+<!--       <sysproperty key="java.util.logging.config.file" file="${etc.dir}/logging.properties"/> -->
+<!--       <sysproperty key="java.endorsed.dirs" file="${lib.dir}/endorsed"/> -->
+      <sysproperty key="java.library.path" file="${lib.dir}"/>
+<!--       <sysproperty key="java.library.path" file="lib"/> -->
+    </java>
+  </target>
+
+  <target name="all" depends="init">
+    <antcall target="jar"/>
+<!--     <antcall target="dist"/> -->
+  </target>
+
+  <target name="blip" depends="compile">
+    <antcall target="run.class">
+      <param name="class" value="com.pingdynasty.blipbox.BlipBoxDataHandler"/>
+      <param name="args" value="${args}"/>
+    </antcall>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <delete dir="${build.dir}"/>
+  </target>
+
+</project>

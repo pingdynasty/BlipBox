@@ -1,0 +1,44 @@
+<article>
+
+  <title>project name: Polynome</title>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="images/DSC00099.JPG"/>
+    </imageobject>
+    <caption>
+      <para>Polynome first blink</para>
+    </caption>
+  </mediaobject>
+
+  <para>The Polynome prototype in these pictures uses Sparkfun components, an Arduino and some other components to make an RGB <ulink url="http://monome.org/">monome</ulink> clone. The LED's are driven by TLC5940's, multiplexed by a 4017 Johnson decade counter. An MCP23017 16x GPIO is used for the key matrix.</para>
+  <para>The main problem with the design is, when using the Sparkfun boards, that the number of cables required is a little bit out of control!</para>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="images/DSC00103.JPG"/>
+    </imageobject>
+    <textobject>
+      <phrase>Polynome: 20 Meters of Cable!</phrase>
+    </textobject>
+    <caption>
+      <para>20 meters of cable!</para>
+    </caption>
+  </mediaobject>
+
+  <para>After wiring it all up the breadboard prototype was functionally successful, though somewhat unwieldy. Not something you stick in your gig bag. It implements the monome series protocol in firmware and is happy talking through MonomeSerial to any and all monome applications it was tested on.</para>
+
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref="images/DSC00107.JPG"/>
+    </imageobject>
+    <caption>
+      <para>June 2007: It's alive!</para>
+    </caption>
+  </mediaobject>
+
+  <para>One difficulty was to make the device recognised by MonomeSerial. Because the Arduino uses (for USB comms) an FTDI chip with default serial number, the identifier is not recognised by MonomeSerial. We simply hacked the MonomeSerial code to recognise our device, and everything worked fine. As an alternative the FTDI chip could be reprogrammed, as explained here: <ulink url="http://bricktable.wordpress.com/30/instructions/">Flash Arduino FTDI Serial</ulink>.</para>
+
+  <para>The circuit design would be better suited for a 16x16 implementation with 256 buttons and LED's - this is what the original intention was. In this configuration, there would be one TLC5940 for each colour, each controlling 16 columns at a time, and one MCP23017 (or two decade counters) to multiplex them over 16 rows. Key scanning 16x16 buttons would require another two MCP23017's. However the idea of multiplying the number of connections required is frankly terrifying! Until a clever connection solution has been cooked up, the project is on hold. Yes, ribbon cables and IDC connectors would be a good start. Even better would be a real 16x16 PCB instead of the Sparkfun ones which are interconnected 4x4.</para>
+
+</article>

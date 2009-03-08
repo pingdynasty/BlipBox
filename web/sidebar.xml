@@ -1,0 +1,18 @@
+<sidebar>
+  <para>
+    <ulink url="blipbox.html">BlipBox</ulink>
+<!--     <itemizedlist> -->
+<!--       <listitem><para><ulink url="blipbox.html">about</ulink></para></listitem> -->
+<!--       <listitem><para><ulink url="blipbox-functionality.html">functionality</ulink></para></listitem> -->
+<!--     </itemizedlist> -->
+  </para>
+  <para>
+    <ulink url="polynome.html">Polynome</ulink>
+  </para>
+  <para>
+    <ulink url="taquito.html">Taquito</ulink>
+  </para>
+  <para>
+    <ulink url="contact.html">Contact</ulink>
+  </para>
+</sidebar>

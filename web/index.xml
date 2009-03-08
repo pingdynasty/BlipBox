@@ -1,0 +1,93 @@
+<article>
+
+  <title>project name: BlipBox</title>
+
+  <para>>the BlipBox is all of the following:</para>
+
+  <itemizedlist>
+    <listitem><para>a creative tool and musical instrument</para></listitem>
+    <listitem><para>a high definition (10 bits) x/y controller</para></listitem>
+    <listitem><para>a uniquely versatile <ulink url="http://en.wikipedia.org/wiki/Midi">MIDI</ulink> and <ulink url="http://en.wikipedia.org/wiki/OpenSound_Control">OSC</ulink> controller</para></listitem>
+    <listitem><para>a <ulink url="http://monome.org/">monome</ulink> emulator</para></listitem>
+  </itemizedlist>
+
+
+  <para>they say that a video is worth a thousand pictures, so here's some action footage:</para>
+
+<html>
+    <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object>
+    <br/>
+</html>
+<para><ulink url="http://vimeo.com/2746159">click</ulink> to view video</para>
+<para>or see more videos from <ulink url="http://vimeo.com/user1093053">pingdynasty</ulink></para>
+
+<section>
+  <title>Inside the Box</title>
+  <para>What makes a BlipBox? There is a precision touch screen backed by a 10x8 matrix of ultra-bright LED's with individually adjustable brightness. On the side you have a knob and a button. The current prototype uses an <ulink url="http://www.arduino.cc">arduino</ulink> board which has an ATMega168 microprocessor and USB connection. The whole unit is bus-powered, meaning it doesn't require batteries or power adaptor.</para>
+</section>
+
+
+  <para>The BlipBox has a number of operating modes, each providing a different set of functionality.</para>
+ 
+
+<!-- <section> -->
+<!--   <title>Overview</title> -->
+<!--   <para>The BlipBox consists of a few simple elements cleverly put together. At the core there is a 10x8 matrix of super-bright LED's with individually adjustable brightness. Overlaying this is a precision touch screen. On the side you will find some more controls; in the current incarnation there is one button and one knob.</para> -->
+<!--   <para>The box plugs straight into a computer's USB port. Being bus-powered, it doesn't require batteries or power adaptor.</para> -->
+<!--   <para>The BlipBox has a number of operating modes, each providing a different set of functionality.</para> -->
+<!-- </section> -->
+
+<section>
+  <title>Playing Notes</title>
+  <para>The <emphasis>cross</emphasis> mode lets you play notes on a software instrument by pressing points on the touch screen. A straight cross follows your finger to indicate the current position. Any MIDI or OSC enabled instrument can be played this way. Used this way, the BlipBox could be compared to having a Kaossilator connected to your computer.</para>
+  <para>The box also allows simultaneous control of a couple of parameters that can be mapped to your instrument or filters. One parameter can be adjusted by sliding your finger vertically up and down the surface, another by tweaking the side-mounted knob.</para>
+  <para>A simple setup lets you choose the musical scale and base note that the surface maps to. Setup mode is accessed by a double click on the side button - i.e. pressing it twice in quick succession.</para>
+</section>
+
+<section>
+  <title>Manipulating Sounds</title>
+  <para>By pressing the button on the side once, you enter <emphasis>criss</emphasis> mode. Well we had to call it something. It is recognised by a diagonal, as oppposed to a straight, cross.</para>
+  <para>In this mode, the box is a configurable x/y control surface, meaning that your finger's position on the screen can be translated to any number of software parameters. The position is sensed with 10 bits precision, allowing much finer control than most MIDI controllers. Parameter outputs and ranges can be set as you want them - inversed, amplified or attenuated.</para>
+<!--   <para>Typically this mode is used to adjust instrument and/or filter settings, to animate the sound and provide precise control of the timbre. However there are no real limitations to what you can use the criss mode for. As well as controlling music and audio, it can be used for video and stage light software which accepts MIDI or OSC inputs.</para> -->
+</section>
+
+<section>
+  <title>Hold It</title>
+  <para>So the button on the side is used to switch back and forth between <emphasis>cross</emphasis> and <emphasis>criss</emphasis> modes. Furthermore, if you press it while using the touch screen, the current position will be held and indicated with a single dot. To release it, the button is pressed again.</para>
+  <para>This means that when in <emphasis>cross</emphasis> mode, by holding a note down and pressing the button, you will be put into <emphasis>criss</emphasis> mode while the current note is still playing. To stop the racket, press the button again.</para>
+</section>
+
+
+<!-- blastoff windup -->
+<section>
+  <title>Fader Box</title>
+  <para>Another function the BlipBox will serve with gusto is as a straightforward fader box. It provides up to 10 faders which are adjusted by simply pressing or sliding the indicator to the level you want. The LED's indicate the current position of each fader. Each virtual fader's range can be set individually if so desired, making use of the 10-bit resolution that the touch screen provides.</para>
+  <para>Note that since the touch screen is not multi-touch, you can only adjust one virtual fader at a time.</para>
+<!--   <para>One nice use of this is as an envelope control or graphic EQ - both applications where a curve can simply be drawn across the surface.</para> -->
+</section>
+
+<section>
+  <title>Monome Emulation</title>
+  <para>The box can also emulate a <ulink url="http://monome.org/">monome</ulink>. The only restriction, apart from the 8x8 size, is that only one <quote>button</quote> can be pressed at one time. The lack of tactile feedback will be missed by some, while others may enjoy sliding their fingers across the smooth touch screen.</para>
+  <para>In addition to an 8x8 grid of virtual buttons, the BlipBox as a monome provides three analog inputs. Each extra column of LED's on each side can be used as a virtual fader, the third input is provided by the knob on the side.</para>
+</section>
+
+<section>
+  <title>Other Projects</title>
+  <para>Be sure to check out the <ulink url="polynome.html">Polynome</ulink> while you're here!</para>
+</section>
+
+<!--   <para><emphasis>more information coming soon!</emphasis></para> -->
+
+<!--   <para>the BlipBox as a MIDI controller (with NI Massive soft synth) <ulink url="..">view</ulink></para> -->
+<!--   <para>the BlipBox running mlr in monome emulation mode <ulink url="..">view</ulink></para> -->
+
+<!--   <para>the BlipBox is progressing as a project and more information will be coming soon (Jan 2009)</para> -->
+
+<!-- <html> -->
+<!--     <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2670155&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2670155&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object> -->
+<!--     <br/> -->
+<!--     <i><a href="http://vimeo.com/2670155">click to view video on vimeo</a></i> -->
+<!-- </html> -->
+
+</article>

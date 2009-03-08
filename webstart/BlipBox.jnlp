@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+    spec="1.0+"
+    codebase="http://www.blipbox.org/webstart"
+    href="BlipBox.jnlp">
+  <information>
+    <title>BlipBox</title>
+    <vendor>pingdynasty</vendor>
+    <homepage href="http://www.blipbox.org"/>
+
+    <description>BlipBox </description>
+    <description kind="short">BlipBox </description>
+    <icon href="icon.jpg"/>
+    <icon kind="splash" href="splash.jpg"/>
+    <offline-allowed/>
+  </information>
+
+  <security>
+    <all-permissions/>
+  </security>
+
+  <resources>
+    <j2se href="http://java.sun.com/products/autodl/j2se" version="1.5+"/>
+    <jar href="blipbox.jar"/>
+    <jar href="lib/mmj.jar"/>
+    <jar href="lib/log4j.jar"/>
+    <jar href="lib/RXTXcomm.jar"/>
+  </resources>
+
+<!--   <resources os="Windows"> -->
+<!--     <j2se href="http://java.sun.com/products/autodl/j2se" version="1.4+"/> -->
+<!--     <jar href="lib/jogl-win32.jar"/> -->
+<!--     <nativelib href="lib/jogl-win32-native.jar"/>     -->
+<!--     <nativelib href="lib/gagetimer-native.jar"/> -->
+<!--   </resources> -->
+
+<!--   <resources os="SunOS" arch="sparc"> -->
+<!--     <j2se href="http://java.sun.com/products/autodl/j2se" version="1.4+"/> -->
+<!--     <jar href="lib/jogl-solsparc.jar"/> -->
+<!--     <nativelib href="lib/jogl-solsparc-native.jar"/> -->
+<!--   </resources> -->
+
+<!--   <resources os="Linux"> -->
+<!--     <j2se href="http://java.sun.com/products/autodl/j2se" version="1.4+"/> -->
+<!--     <jar href="lib/jogl-linux.jar"/> -->
+<!--     <nativelib href="lib/jogl-linux-native.jar"/> -->
+<!--   </resources> -->
+
+  <resources os="Mac OS">
+    <j2se href="http://java.sun.com/products/autodl/j2se" version="1.5+"/>
+    <!--     <jar href="jogl-macos.jar"/> -->
+    <nativelib href="native-macos.jar"/>
+  </resources>
+
+  <application-desc main-class="com.pingdynasty.blipbox.BlipBoxDataHandler"/>
+
+</jnlp>
