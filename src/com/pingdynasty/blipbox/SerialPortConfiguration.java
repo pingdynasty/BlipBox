@@ -9,6 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import com.pingdynasty.midi.SpringUtilities;
 import org.apache.log4j.Logger;
+import net.miginfocom.swing.MigLayout;
 
 public class SerialPortConfiguration {
     private static final Logger log = Logger.getLogger(BlipBoxDataHandler.class);
@@ -30,6 +31,9 @@ public class SerialPortConfiguration {
     }
 
     public JPanel getPanel(){
+
+        JPanel content = new JPanel();
+        content.setLayout(new MigLayout());
 
         // create serial port combo box
         List<String> ports = SerialDataHandler.getSerialPorts();
@@ -53,30 +57,22 @@ public class SerialPortConfiguration {
                 }
             });
 
-        JPanel content = new JPanel();
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-
         JLabel label = new JLabel("Port");
         label.setLabelFor(serialport);
-        JPanel panel = new JPanel();
-        panel.add(label);
-        panel.add(serialport);
-        panel.add(button);
-        content.add(panel);
+        content.add(label, "label");
+        content.add(serialport);
+        content.add(button, "wrap");
 
         label = new JLabel("Speed");
         label.setLabelFor(serialspeed);
-        panel = new JPanel();
-        panel.add(label);
-        panel.add(serialspeed);
-        content.add(panel);
+        content.add(label, "label");
+        content.add(serialspeed);
 
         return content;
     }
 
     public JFrame getFrame(){
         if(frame == null){
-            JComponent panel = getPanel();
             Box box = Box.createHorizontalBox();
             JButton button = new JButton("update");
             if(updateAction != null)
@@ -103,9 +99,12 @@ public class SerialPortConfiguration {
                     }
                 });
             box.add(button);
-            panel.add(box);
+
+            JPanel content = new JPanel(new MigLayout());
+            content.add(getPanel(), "wrap");
+            content.add(box, "align center");
             frame = new JFrame("Serial port configuration");
-            frame.setContentPane(panel);
+            frame.setContentPane(content);
             frame.pack();
         }
         return frame;

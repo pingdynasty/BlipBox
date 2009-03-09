@@ -14,6 +14,7 @@ import javax.sound.midi.*;
 import org.apache.log4j.Logger;
 import com.pingdynasty.midi.*;
 import com.pingdynasty.midi.SpringUtilities;
+import net.miginfocom.swing.MigLayout;
 
 public class MidiConfigurationCanvas extends JPanel {
     private static final Logger log = Logger.getLogger(MidiOutputEventHandler.class);
@@ -43,10 +44,13 @@ public class MidiConfigurationCanvas extends JPanel {
 //             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 //             add(Box.createHorizontalGlue());
 //             add(Box.createVerticalGlue());
-            setLayout(new SpringLayout());
 
-            JPanel panel = new JPanel();
-            panel.add(new Label("Scale"));
+//             setLayout(
+
+            JPanel panel = new JPanel(new MigLayout());
+            add(panel);
+
+            panel.add(new Label("Scale"), "label");
             scale = new JComboBox(blipbox.getScaleNames());
             scale.setSelectedItem(blipbox.getCurrentScale());
             scale.addActionListener(new AbstractAction(){
@@ -55,11 +59,9 @@ public class MidiConfigurationCanvas extends JPanel {
                         blipbox.setScale(scalename);
                     }
                 });
-            panel.add(scale);
-            add(panel);
+            panel.add(scale, "wrap");
 
-            panel = new JPanel();
-            panel.add(new Label("Basenote"));
+            panel.add(new Label("Basenote"), "label");
             basenote = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
             basenote.setValue(blipbox.getBasenote());
             basenote.addChangeListener(new ChangeListener(){
@@ -68,11 +70,9 @@ public class MidiConfigurationCanvas extends JPanel {
                         blipbox.setBasenote(value);
                     }
                 });
-            panel.add(basenote);
-            add(panel);
+            panel.add(basenote, "wrap");
 
-            panel = new JPanel();
-            panel.add(new Label("Note Range"));
+            panel.add(new Label("Note Range"), "label");
             range = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
             range.setValue(10);
             range.addChangeListener(new ChangeListener(){
@@ -81,11 +81,9 @@ public class MidiConfigurationCanvas extends JPanel {
                         blipbox.setNumberOfColumns(value);
                     }
                 });
-            panel.add(range);
-            add(panel);
+            panel.add(range, "wrap");
 
-            panel = new JPanel();
-            panel.add(new Label("Sensitivity"));
+            panel.add(new Label("Sensitivity"), "label");
             JSpinner spinner = new JSpinner(new SpinnerNumberModel(200, 20, 600, 20));
             spinner.addChangeListener(new ChangeListener(){
                     public void stateChanged(ChangeEvent event){
@@ -95,11 +93,9 @@ public class MidiConfigurationCanvas extends JPanel {
                         service.setSensitivity(value);
                     }
                 });
-            panel.add(spinner);
-            add(panel);
+            panel.add(spinner, "wrap");
 
-            panel = new JPanel();
-            panel.add(new Label("Follow Mode"));
+            panel.add(new Label("Follow Mode"), "label");
             JComboBox box = new JComboBox(service.getFollowModes());
             box.setSelectedItem("Cross");
             box.addActionListener(new AbstractAction(){
@@ -109,8 +105,7 @@ public class MidiConfigurationCanvas extends JPanel {
                         service.setFollowMode(name);
                     }
                 });
-            panel.add(box);
-            add(panel);
+            panel.add(box, "wrap");
 
             JButton button = new JButton("Configure MIDI");
             button.addActionListener(new AbstractAction(){
@@ -120,7 +115,7 @@ public class MidiConfigurationCanvas extends JPanel {
                         }catch(Exception exc){log.error("Failed to open MIDI configuration", exc);}
                     }
                 });
-            add(button);
+            panel.add(button, "span, align r, wrap");
 
             button = new JButton("Configure serial port");
             button.addActionListener(new AbstractAction(){
@@ -130,12 +125,7 @@ public class MidiConfigurationCanvas extends JPanel {
                         }catch(Exception exc){log.error("Failed to open serial configuration", exc);}
                     }
                 });
-            add(button);
-
-            add(Box.createVerticalGlue());
-
-            SpringUtilities.makeCompactGrid(this, 7, 1, 
-                                            15, 15, 5, 5);
+            panel.add(button, "span, align r, wrap");
         }
     }
 
