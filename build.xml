@@ -41,6 +41,7 @@
 
   <target name="jar" depends="compile">
     <jar jarfile="${build.dir}/blipbox.jar">
+      <fileset dir="." includes="licence.txt"/>
       <fileset dir="${build.dir}/classes" includes="**/*.class"/>
       <manifest>
         <attribute name="Main-Class" value="${java.main.class}" />
@@ -98,7 +99,9 @@
     <property name="prefix" value="BlipBox-${version.num}-src"/>
     <zip destfile="${build.dir}/dist/BlipBox-${version.num}-src.zip">
       <zipfileset dir="." prefix="BlipBox-${version.num}-src">
-        <include name="build.properties build.xml"/>
+        <include name="build.properties"/>
+        <include name="build.xml"/>
+        <include name="licence.txt"/>
         <include name="src/**"/>
         <include name="firmware/**"/>
       </zipfileset>
@@ -109,6 +112,7 @@
         description="generate the distribution" >
     <!-- Create the distribution directory -->
     <jar jarfile="${build.dir}/dist/BlipBox-${version.num}-bin.jar">
+      <fileset dir="." includes="licence.txt"/>
       <fileset dir="${build.dir}/classes" includes="**/*.class"/>
 <!--       <fileset dir="${lib.dir}" includes="*.jnilib"/> -->
 <!--       <zipfileset src="${lib.dir}/mmj.jar"/> -->
