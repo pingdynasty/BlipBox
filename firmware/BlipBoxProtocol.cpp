@@ -8,6 +8,7 @@
 #include "Greeting.h"
 #include "MessageSender.h"
 #include "MessageReceiver.h"
+#include "Characters.h"
 
 // pins
 #define POT_PIN 5
@@ -146,6 +147,12 @@ void BlipBoxProtocol::readMessage(){
                   receiver.getMessageData()[1] % COLS, 
                   receiver.getMessageData()[2]);
     }
+    break;
+  case WRITE_CHARACTER_MESSAGE:
+    leds.printCharacter(getCharacter(receiver.getMessageData()[1]).d, receiver.getMessageData()[0] & 0x0f, 2);
+    break;
+  case SHIFT_LEDS_MESSAGE:
+    leds.shift(receiver.getMessageData()[0] & 0x0f);
     break;
 //       // 1: blipbox mode
 //       // 2: monome series

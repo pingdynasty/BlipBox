@@ -18,6 +18,7 @@
 // configure sensors: bitmask setting sensors on/off - 12 bit sensor mask
 // configure fade time: 12 bits fade time or speed
 // configure sensitivity: 10 bits sensitivity value : 0011ssss ssssssss
+// write character message: 4 bits position, 8 bits character (fits in 7 or 6 bits?)
 
 // 3 byte messages
 // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
@@ -46,6 +47,8 @@
 #define FOLLOW_MODE_MESSAGE       0x20
 #define SET_SENSITIVITY_MESSAGE   0x30
 #define SET_LED_MESSAGE           0x40
+#define WRITE_CHARACTER_MESSAGE   0x50
+#define SHIFT_LEDS_MESSAGE        0x60
 
 #define MESSAGE_ID_MASK           0xf0
 #define MESSAGE_VALUE_MASK        0x0f
@@ -65,15 +68,20 @@ public:
     if(serialAvailable()){
       messagedata[pos++] = serialRead();
       switch(getMessageType()){
+        // 3 byte messages
       case SET_LED_MESSAGE:
         if(pos == 3)
           pos = 0;
         break;
+        // 2 byte messages
+      case WRITE_CHARACTER_MESSAGE:
       case SET_SENSITIVITY_MESSAGE:
         if(pos == 2)
           pos = 0;
         break;
+        // 1 byte messages
       case CLEAR_MESSAGE:
+      case SHIFT_LEDS_MESSAGE:
       case FOLLOW_MODE_MESSAGE:
         pos = 0;
         break;

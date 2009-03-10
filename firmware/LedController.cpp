@@ -116,6 +116,16 @@ void LedController::setLed(uint8_t row, uint8_t col, uint8_t value){
   }
 }
 
+uint8_t LedController::getLed(uint8_t row, uint8_t col){
+  if(col < 8){
+    if(row < 5)
+      return leds[rowOffsets[row]].values[colOffsets[col]];
+    else if(row < 10)
+      return leds[rowOffsets[row]].values[colOffsets[col+8]];
+  }
+  return 0;
+}
+
 /* set the dot correction value for all pins to a value between 0 and 63 */
 void LedController::setGlobalDotCorrection(uint8_t value) {
   TLC_PORT |= _BV(VPRG_PIN);
@@ -188,6 +198,58 @@ void LedController::clear(){
 void LedRow::clear(){
   for(uint8_t i=0;i<FRAME_LENGTH;i++)
     values[i] = 0;
+}
+
+
+  // shifts the led data in the given direction
+void LedController::shift(uint8_t direction){
+  // the leftmost 2 bits determine the direction: 0: left, 1: right, 2: up, 3: down
+  // the rightmost 2 bits determines the number of steps: 1-4
+  switch(direction & 0xc){
+  case 0x0: // shift left
+    for(uint8_t col=0; col<7; ++col)
+      for(uint8_t row=0; row<10; ++row)
+        setLed(row, col, getLed(row, col+1));
+    for(uint8_t row=0; row<10; ++row)
+      setLed(row, 7, 0);
+    break;
+  case 0x4: // shift right
+    for(uint8_t col=7; col>0; --col)
+      for(uint8_t row=0; row<10; ++row)
+        setLed(row, col, getLed(row, col-1));
+    for(uint8_t row=0; row<10; ++row)
+      setLed(row, 0, 0);
+    break;
+  case 0x8:
+    for(uint8_t col=0; col<8; ++col)
+      for(uint8_t row=0; row<9; ++row)
+        setLed(row, col, getLed(row+1, col));
+    for(uint8_t col=0; col<8; ++col)
+      setLed(9, col, 0);
+    break;
+  case 0xc:
+    for(uint8_t col=0; col<8; ++col)
+      for(uint8_t row=9; row>0; --row)
+        setLed(row, col, getLed(row-1, col));
+    for(uint8_t col=0; col<8; ++col)
+      setLed(0, col, 0);
+    break;
+  }
+}
+
+void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col){
+  // assumes a uint8_t[5] array of 8 bit character data
+  // row goes from 0-9, col from 0-7
+  for(int i=0; i<5; ++i){
+//     for(int j=7; j>=0; --j){
+//     for(int j=0; j<8; ++j){ 
+    for(int j=2; j<7; ++j){ 
+      if(character[i] & _BV(j))
+        setLed(j+row-2, i+col, 0xff);
+      else
+        setLed(j+row-2, i+col, 0x00);
+    }
+  }
 }
 
 void LedController::displayCurrentRow() {

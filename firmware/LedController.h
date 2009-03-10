@@ -27,7 +27,15 @@ public:
   void init();
   void clear();
   void displayCurrentRow();
+
+  // shifts the led data in the given direction
+  void shift(uint8_t direction);
+
+  void printCharacter(uint8_t* character, uint8_t row, uint8_t col);
+
+  // row goes from 0-9, col from 0-7
   void setLed(uint8_t row, uint8_t col, uint8_t value);
+  uint8_t getLed(uint8_t row, uint8_t col);
   void fade(uint8_t factor);
   void brighten(uint8_t factor);
   void setCross(uint8_t row, uint8_t col, uint8_t value);
