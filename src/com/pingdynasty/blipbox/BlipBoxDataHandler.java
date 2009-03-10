@@ -21,6 +21,8 @@ public class BlipBoxDataHandler extends SerialDataHandler {
     private static final int SET_FOLLOW_MODE_MESSAGE       = 0x20;
     private static final int SET_SENSITIVITY_MESSAGE       = 0x30;
     private static final int SET_LED_MESSAGE               = 0x40;
+    private static final int WRITE_CHARACTER_MESSAGE       = 0x50;
+    private static final int SHIFT_LEDS_MESSAGE            = 0x60;
 
     private int[] data = new int[3]; // length of longest message: 3 bytes
 
@@ -31,19 +33,15 @@ public class BlipBoxDataHandler extends SerialDataHandler {
         "None", "Dot", "Cross", "Criss", "Star", "Blob", "Square"
     };
 
-    public BlipBoxDataHandler(String config){
-        eventhandler = new LoggingEventHandler();
-        sensors = SensorConfiguration.createSensorConfiguration(config);
+    public BlipBoxDataHandler(){
     }
 
-    public MidiOutputEventHandler createMidiOutput(){
-        eventhandler = new MidiOutputEventHandler();
-        return (MidiOutputEventHandler)eventhandler;
+    public void setSensorConfiguration(SensorConfiguration sensors){
+        this.sensors = sensors;
     }
 
-    public void createGraph(){
-        // todo: fix grapher to use new i/f
-//         eventhandler = new GraphingEventHandler();
+    public void setSensorEventHandler(SensorEventHandler eventhandler){
+        this.eventhandler = eventhandler;
     }
 
     public void serialEvent(SerialPortEvent event) {
@@ -121,6 +119,7 @@ public class BlipBoxDataHandler extends SerialDataHandler {
     }
 
     public void clear(){
+        log.debug("Clear");
         try{
             outStream.write(CLEAR_MESSAGE);
         }catch(Exception exc){
@@ -128,11 +127,52 @@ public class BlipBoxDataHandler extends SerialDataHandler {
         }
     }
 
+    public void sendCharacter(int pos, char c){
+        log.debug("Sending character "+c+" at pos "+pos);
+        try{
+//             outStream.write(WRITE_CHARACTER_MESSAGE);
+            outStream.write(WRITE_CHARACTER_MESSAGE | (pos & 0xf));
+            outStream.write(c);
+            outStream.flush();
+        }catch(Exception exc){
+            log.error("Failed to send character message", exc);
+        }
+    }
+
+    protected void shift(int direction, int steps){
+        try{
+            outStream.write(SHIFT_LEDS_MESSAGE | ((direction & 0x3) << 2) | (steps & 0x3));
+        }catch(Exception exc){
+            log.error("Failed to send shift message", exc);
+        }
+    }
+
+    public void shiftLeft(int steps){
+        log.debug("Shift left");
+        shift(3, steps);
+    }
+
+    public void shiftRight(int steps){
+        log.debug("Shift right");
+        shift(2, steps);
+    }
+
+    public void shiftUp(int steps){
+        log.debug("Shift up");
+        shift(0, steps);
+    }
+
+    public void shiftDown(int steps){
+        log.debug("Shift down");
+        shift(1, steps);
+    }
+
     public String[] getFollowModes(){
         return followModes;
     }
 
     public void setFollowMode(String mode){
+        log.debug("Set follow mode "+mode);
         for(int i=0; i<followModes.length; ++i){
             if(followModes[i].equals(mode)){
                 setFollowMode(i);
@@ -152,6 +192,7 @@ public class BlipBoxDataHandler extends SerialDataHandler {
     }
 
     public void setSensitivity(int level){
+        log.debug("Set sensitivity "+level);
         try{
             outStream.write(SET_SENSITIVITY_MESSAGE|(level << 8));
             outStream.write(level & 0xff);

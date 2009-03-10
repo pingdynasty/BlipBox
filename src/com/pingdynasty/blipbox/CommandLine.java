@@ -18,7 +18,7 @@ public class CommandLine {
 
         boolean graph = false;
         boolean midi = false;
-        boolean monome = false;
+        boolean text = false;
         String config = "blipbox";
 
         for(int i=0; i<args.length; ++i){
@@ -26,15 +26,15 @@ public class CommandLine {
                 log.info("usage: \t-l\t\tlist ports\n"+
                          "\t-g\t\tgraph output\n"+
                          "\t-m\t\tmidi output\n"+
+                         "\t--text\ttext processing mode\n"+
                          "\t-t\t\ttaquito configuration (default: blipbox)\n"+
                          "\t-o file\t\tlog serial output to file\n"+
                          "\t-p port\t\tspecify port\n"+
                          "\t-b rate\t\tspecify baud rate (default 115200)\n"+
-                         "\t--monome\treset device into monome mode\n"+
                          "\t-h\t\tprint help info (this message)");
                 return;
-            }else if(args[i].equals("--monome")){
-                monome = true;
+            }else if(args[i].equals("--text")){
+                text = true;
             }else if(args[i].equals("-l")){
                 SerialDataHandler.listports();
                 return;
@@ -58,9 +58,35 @@ public class CommandLine {
             return;
         }
 
-        BlipBoxDataHandler service = new BlipBoxDataHandler(config);
+        BlipBoxDataHandler service = new BlipBoxDataHandler();
+        service.setSensorConfiguration(SensorConfiguration.createSensorConfiguration(config));
+
         if(logStream != null)
             service.setLogStream(logStream);
+
+        if(graph){
+//             service.setSensorEventHandler(new GraphingEventHandler());
+        }else if(midi){
+            MidiOutputEventHandler midihandler = new MidiOutputEventHandler();
+            service.setSensorEventHandler(midihandler);
+            MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(midihandler, service);
+            JFrame frame = new JFrame();
+            frame.add(canvas);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 400);
+            frame.setVisible(true);
+        }else if(text){
+            TextProcessingEventHandler texthandler = new TextProcessingEventHandler(service);
+            service.setSensorEventHandler(texthandler);
+            TextProcessingCanvas canvas = new TextProcessingCanvas(texthandler, service);
+            JFrame frame = new JFrame();
+            frame.add(canvas);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 400);
+            frame.setVisible(true);
+        }else{
+            service.setSensorEventHandler(new LoggingEventHandler());
+        }
 
         try{
             service.openSerialPort(serialport, serialspeed);
@@ -68,39 +94,6 @@ public class CommandLine {
             log.error("Failed to open serial port "+serialport, exc);
         }
         Thread.sleep(100); // wait for serial line to settle / device to reset
-
-        MidiOutputEventHandler midihandler = null;
-
-        if(monome){
-            log.debug("Resetting into monome mode");
-            Thread.sleep(2000);
-            service.getSerialPort().setDTR(true);
-            // diagnostics...
-            for(int i=0; i<80; i+=2)
-                service.setLed(i, i % 4 == 0 ? 255 : 127);
-            Thread.sleep(6000);
-            // todo: this doesn't work
-//             service.reset(BlipBoxDataHandler.BlipBoxMode.MONOME_MODE);
-            service.getSerialPort().setDTR(false);
-            Thread.sleep(6000);
-            return;
-        }
-        if(graph)
-            service.createGraph();
-
-        if(midi)
-            midihandler = service.createMidiOutput();
-
-        if(midihandler != null){
-            MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(midihandler, service);
-            JFrame frame = new JFrame();
-            frame.add(canvas);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 400);
-            frame.setVisible(true);
-        }
-
-//         service.initialiseBlipBox();
 
         for(;;);
     }

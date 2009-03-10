@@ -152,8 +152,8 @@ public class SerialDataHandler implements SerialPortEventListener {
                                             serialport.DATABITS_8,
                                             serialport.STOPBITS_1,
                                             serialport.PARITY_NONE);
-                // hardware flow control
-                serialport.setFlowControlMode(serialport.FLOWCONTROL_RTSCTS_OUT);
+//                 // hardware flow control
+//                 serialport.setFlowControlMode(serialport.FLOWCONTROL_RTSCTS_OUT);
             } catch (UnsupportedCommOperationException e){
                 throw new RuntimeException("Probably an unsupported baud rate", e);
             }
@@ -251,12 +251,12 @@ public class SerialDataHandler implements SerialPortEventListener {
         if(file != null){
             try{
 //         Thread.sleep(100); // wait for serial line to settle / device to reset
-                Thread.sleep(1000);
+                Thread.sleep(4000);
                 System.out.println("Sending file "+file);
                 InputStream in = new FileInputStream(file);
                 for(int ch = in.read(); ch != -1; ch = in.read()){
                     service.send(ch);
-                    Thread.sleep(100);
+                    Thread.sleep(800);
                     System.out.print('.');
                     System.out.flush();
                 }
@@ -267,6 +267,7 @@ public class SerialDataHandler implements SerialPortEventListener {
         }else{
             for(;;);
         }
-        service.closeSerialPort();
+//         Thread.sleep(4000);
+//         service.closeSerialPort();
     }
 }
