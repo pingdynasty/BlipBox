@@ -36,11 +36,6 @@ void BlipBoxProtocol::init(){
   keys.init();
   leds.init();
   sender.init();
-
-  // greeting
-  bounce(leds);
-  explode(leds);
-
 }
 
 void BlipBoxProtocol::process(){
@@ -130,6 +125,9 @@ void BlipBoxProtocol::readMessage(){
   switch(receiver.getMessageType()){
   case CLEAR_MESSAGE:
     leds.clear();
+    break;
+  case DISPLAY_EFFECT_MESSAGE:
+    displayEffect(receiver.getMessageData()[0] & 0x0f);
     break;
   case FOLLOW_MODE_MESSAGE:
     follow = receiver.getMessageData()[0] & 0x0f;

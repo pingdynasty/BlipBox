@@ -13,6 +13,7 @@
 // 1 byte messages
 // clear : 00010000 / 0x10
 // follow mode: 4 bits marker type : 0010tttt
+// display effect: 4 bits effect type
 
 // 2 byte messages
 // configure sensors: bitmask setting sensors on/off - 12 bit sensor mask
@@ -41,17 +42,18 @@
 #include "globals.h"
 #endif // MESSAGE_RECEIVER_TEST
 
-#define MAX_MESSAGE_LENGTH 3
-
 #define CLEAR_MESSAGE             0x10
 #define FOLLOW_MODE_MESSAGE       0x20
 #define SET_SENSITIVITY_MESSAGE   0x30
 #define SET_LED_MESSAGE           0x40
 #define WRITE_CHARACTER_MESSAGE   0x50
 #define SHIFT_LEDS_MESSAGE        0x60
+#define DISPLAY_EFFECT_MESSAGE    0x70
 
 #define MESSAGE_ID_MASK           0xf0
 #define MESSAGE_VALUE_MASK        0x0f
+
+#define MAX_MESSAGE_LENGTH 3
 
 class MessageReceiver {
 
@@ -61,53 +63,13 @@ private:
 
 public:
 
-  bool receiveMessage(){
-    // one byte is read per iteration,
-    // and true is only returned once a full message is read.
-    // otherwise return false to read another byte on the next call
-    if(serialAvailable()){
-      messagedata[pos++] = serialRead();
-      switch(getMessageType()){
-        // 3 byte messages
-      case SET_LED_MESSAGE:
-        if(pos == 3)
-          pos = 0;
-        break;
-        // 2 byte messages
-      case WRITE_CHARACTER_MESSAGE:
-      case SET_SENSITIVITY_MESSAGE:
-        if(pos == 2)
-          pos = 0;
-        break;
-        // 1 byte messages
-      case CLEAR_MESSAGE:
-      case SHIFT_LEDS_MESSAGE:
-      case FOLLOW_MODE_MESSAGE:
-        pos = 0;
-        break;
-      default:
-        pos = 0;
-//         serialFlush();
-        error(MESSAGE_READ_ERROR);
-        return false;
-      }
-      // pos == 0 iff a full message has been read
-      return pos == 0;
-    }
-    return false;
-  }
+  bool receiveMessage();
 
-  uint8_t getMessageType(){
-    return messagedata[0] & MESSAGE_ID_MASK;
-  }
+  uint8_t getMessageType();
 
-  uint16_t getTwoByteValue(){
-    return ((messagedata[0] & MESSAGE_VALUE_MASK) << 8) | messagedata[1];
-  }
+  uint16_t getTwoByteValue();
 
-  uint8_t* getMessageData(){
-    return messagedata;
-  }
+  uint8_t* getMessageData();
 
 };
 

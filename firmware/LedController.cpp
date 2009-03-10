@@ -241,13 +241,13 @@ void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col)
   // assumes a uint8_t[5] array of 8 bit character data
   // row goes from 0-9, col from 0-7
   for(int i=0; i<5; ++i){
-//     for(int j=7; j>=0; --j){
-//     for(int j=0; j<8; ++j){ 
-    for(int j=2; j<7; ++j){ 
+    for(int j=2; j<7; ++j){
+      // only shift out the relevant bits
+      // characters are padded 1 bit on the left and 2 on the right
       if(character[i] & _BV(j))
-        setLed(j+row-2, i+col, 0xff);
+        setLed(6-j+row, col+i, 0xff);
       else
-        setLed(j+row-2, i+col, 0x00);
+        setLed(6-j+row, col+i, 0x00);
     }
   }
 }

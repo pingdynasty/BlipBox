@@ -16,11 +16,17 @@
 // #define CHAR_8 { 0x2, 0x5, 0x2, 0x5, 0x2 }
 // #define CHAR_9 { 0x2, 0x5, 0x3, 0x1, 0x6 }
 
+// class Character { 
+// public:
+//   char c;
+//   uint8_t d[5];
+// };
+
 struct Character { char c; uint8_t d[5]; };
 
 // class Characters {
 // public:
-Character& getCharacter(char c);
+  Character& getCharacter(char c);
 // };
 
 #endif /* _CHARACTERS_H_ */

@@ -11,8 +11,8 @@ void bounce(LedController& leds){
     6,4, 7,3, 8,2, 9,1, 8,0, 7,1, 6,2, 5,3,
     4,4
   };
-//   for(int i=0; i<33; ++i){
-  for(int i=0; i<6; ++i){
+  for(int i=0; i<33; ++i){
+//   for(int i=0; i<6; ++i){
     leds.fade(1);
     leds.setCross(coords[i*2], 7 - coords[i*2+1], 0xff);
     delay(80);
@@ -39,7 +39,7 @@ void rain(LedController& leds){
 
 void fade(LedController& leds){
   for(int i=0; i<8; ++i){
-    delay(200);
+    delay(160);
     leds.fade(1);
   }    
 }
