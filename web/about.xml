@@ -1,0 +1,13 @@
+<article>
+
+  <title>About Us</title>
+
+  <para>Welcome to the BlipBox website. The BlipBox is a physical computing project that publishes open source software and hardware.</para>
+
+  <para>Our aim is to develop an open hardware platform that will inspire developers, designers, musicians, techies and artists alike. The ultimate goal is to create a device that is unique, fun to use, truly useful and highly creative. We hope our hard work will help to establish a diverse and creative community that will push these simple ideas further.</para>
+
+  <para>All our software is available from our <ulink url="http://download.pingdynasty.com/BlipBox/">download server</ulink> and <ulink url="http://cvs.pingdynasty.com/viewcvs/BlipBox/">CVS server</ulink>. We also have a <ulink url="http://blipbox.wordpress.com">blog</ulink> which is the best place to get project news and updates.</para>
+
+  <para>All software and hardware that we publish is made available under the <ulink url="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</ulink>, know to its friends as the GPL.</para>
+
+</article>
