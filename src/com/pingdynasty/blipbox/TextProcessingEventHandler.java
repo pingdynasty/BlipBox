@@ -22,9 +22,9 @@ public class TextProcessingEventHandler extends KeyPressManager {
     public void keyChange(int oldCol, int oldRow, int newCol, int newRow){
         System.out.println("key change:\t "+oldCol+"\t  "+oldRow+"\t  "+newCol+"\t  "+newRow);
         if(oldCol < newCol)
-            service.shiftLeft(newCol - oldCol);
+            service.shiftRight(newCol - oldCol);
         else if(oldCol > newCol)
-            service.shiftRight(oldCol - newCol);
+            service.shiftLeft(oldCol - newCol);
         if(oldRow < newRow)
             service.shiftUp(newRow - oldRow);
         else if(oldRow > newRow)

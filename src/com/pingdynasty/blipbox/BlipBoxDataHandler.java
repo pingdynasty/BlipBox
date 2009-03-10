@@ -23,6 +23,7 @@ public class BlipBoxDataHandler extends SerialDataHandler {
     private static final int SET_LED_MESSAGE               = 0x40;
     private static final int WRITE_CHARACTER_MESSAGE       = 0x50;
     private static final int SHIFT_LEDS_MESSAGE            = 0x60;
+    private static final int DISPLAY_EFFECT_MESSAGE        = 0x70;
 
     private int[] data = new int[3]; // length of longest message: 3 bytes
 
@@ -31,6 +32,10 @@ public class BlipBoxDataHandler extends SerialDataHandler {
 
     private String[] followModes = new String[]{
         "None", "Dot", "Cross", "Criss", "Star", "Blob", "Square"
+    };
+
+    private String[] displayEffects = new String[]{
+        "Greeting", "Rain", "Bounce", "Fade", "Explode"
     };
 
     public BlipBoxDataHandler(){
@@ -127,13 +132,31 @@ public class BlipBoxDataHandler extends SerialDataHandler {
         }
     }
 
+    protected void sleep(long delay){
+        try{
+            Thread.sleep(delay);
+        }catch(Exception exc){}
+    }
+
+    public void sendString(String str, long delay){
+        str = str.toLowerCase();
+        for(char c: str.toCharArray()){
+            shiftLeft(1);
+            sleep(delay);
+            for(int pos=9; pos>4; --pos){
+                shiftLeft(1);
+                sendCharacter(pos, c);
+                sleep(delay);
+            }
+        }
+    }
+
     public void sendCharacter(int pos, char c){
         log.debug("Sending character "+c+" at pos "+pos);
         try{
-//             outStream.write(WRITE_CHARACTER_MESSAGE);
-            outStream.write(WRITE_CHARACTER_MESSAGE | (pos & 0xf));
-            outStream.write(c);
-            outStream.flush();
+            outStream.write(WRITE_CHARACTER_MESSAGE | (pos & 0x0f));
+            outStream.write((int)c);
+//             outStream.flush();
         }catch(Exception exc){
             log.error("Failed to send character message", exc);
         }
@@ -149,12 +172,12 @@ public class BlipBoxDataHandler extends SerialDataHandler {
 
     public void shiftLeft(int steps){
         log.debug("Shift left");
-        shift(3, steps);
+        shift(2, steps);
     }
 
     public void shiftRight(int steps){
         log.debug("Shift right");
-        shift(2, steps);
+        shift(3, steps);
     }
 
     public void shiftUp(int steps){
@@ -191,6 +214,30 @@ public class BlipBoxDataHandler extends SerialDataHandler {
         }
     }
 
+    public String[] getDisplayEffects(){
+        return displayEffects;
+    }
+
+    public void sendDisplayEffect(String effect){
+        log.debug("Send display effect "+effect);
+        for(int i=0; i<displayEffects.length; ++i){
+            if(displayEffects[i].equals(effect)){
+                sendDisplayEffect(i);
+                return;
+            }
+        }
+        log.error("Unrecognized display effect: "+effect);
+    }
+
+    public void sendDisplayEffect(int effect){
+        try{
+            outStream.write(DISPLAY_EFFECT_MESSAGE|effect);
+            outStream.flush();
+        }catch(Exception exc){
+            log.error("Failed to send display effect", exc);
+        }
+    }
+
     public void setSensitivity(int level){
         log.debug("Set sensitivity "+level);
         try{
@@ -207,6 +254,7 @@ public class BlipBoxDataHandler extends SerialDataHandler {
     }
 
     public void setLed(int led, int value){
+        log.debug("Set led "+led+" to "+value);
         if(((led | value) & 0xff00) != 0)
             throw new IllegalArgumentException("Invalid LED index or brightness: "+led+"/"+value);
         try{

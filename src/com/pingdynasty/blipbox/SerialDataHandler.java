@@ -251,12 +251,12 @@ public class SerialDataHandler implements SerialPortEventListener {
         if(file != null){
             try{
 //         Thread.sleep(100); // wait for serial line to settle / device to reset
-                Thread.sleep(4000);
+                Thread.sleep(1600);
                 System.out.println("Sending file "+file);
                 InputStream in = new FileInputStream(file);
                 for(int ch = in.read(); ch != -1; ch = in.read()){
                     service.send(ch);
-                    Thread.sleep(800);
+                    Thread.sleep(200);
                     System.out.print('.');
                     System.out.flush();
                 }
