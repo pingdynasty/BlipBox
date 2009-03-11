@@ -45,7 +45,7 @@
           img { border: none }
           .header { position: absolute;  top: 30px; left: 180px; width: 520px;  }
           .sidebar { position: absolute;  top: 30px; left: 60px; width: 100px;  }
-          .content { position: absolute; top: 60px; left: 180px; width: 520px; }
+          .content { position: absolute; top: 80px; left: 180px; width: 520px; }
           .menubar { }
 
 	  .example {font-size: small; font-family: 'Courier New', 'Courier'; }
@@ -61,7 +61,8 @@
       </head>
       <body>
         <div class="header">
-          <a href="http://www.pingdynasty.com"><img src="images/pingdynasty.gif"/></a>
+          <a href="http://blipbox.org"><img src="images/blipbox_logo_medium.png"/></a>
+<!--           <a href="http://www.pingdynasty.com"><img src="images/pingdynasty.gif"/></a> -->
         </div>
         <div class="sidebar">
           <xsl:apply-templates select="document('sidebar.xml')/sidebar/*"/>

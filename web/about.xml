@@ -8,6 +8,8 @@
 
   <para>All our software is available from our <ulink url="http://download.pingdynasty.com/BlipBox/">download server</ulink> and <ulink url="http://cvs.pingdynasty.com/viewcvs/BlipBox/">CVS server</ulink>. We also have a <ulink url="http://blipbox.wordpress.com">blog</ulink> which is the best place to get project news and updates.</para>
 
-  <para>All software and hardware that we publish is made available under the <ulink url="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</ulink>, know to its friends as the GPL.</para>
+  <para>The software and hardware that we publish is made available under the <ulink url="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</ulink>, know to its friends as the GPL.</para>
+
+  <para>This project is part of the <ulink url="http://www.pingdynasty.com">pingdynasty</ulink>.</para>
 
 </article>

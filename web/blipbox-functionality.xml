@@ -5,6 +5,15 @@
   <xi:include href="blipbox-menubar.xml"
               xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
+
+  <para>They say that a video is worth a thousand pictures, so here's some action footage:</para>
+
+<html>
+    <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object>
+    <br/>
+</html>
+<para>click to view <ulink url="http://vimeo.com/2746159">this</ulink> or <ulink url="http://vimeo.com/user1093053">other</ulink> videos.</para>
+
   <para>The BlipBox has a number of operating modes, each providing a different set of functionality.</para>
  
 <section>

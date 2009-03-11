@@ -23,14 +23,7 @@
     </caption>
   </mediaobject>
 
-  <para>What does it do? Anything you want it to! They say that a video is worth a thousand pictures, so here's some action footage:</para>
-
-<html>
-    <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2746159&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object>
-    <br/>
-</html>
-<para><ulink url="http://vimeo.com/2746159">click</ulink> to view video</para>
-<para>or see more videos from <ulink url="http://vimeo.com/user1093053">pingdynasty</ulink></para>
+  <para>What does it do? Anything you want it to! Current development is focused on music production, but expect to see many other creative uses.</para>
 
 <section>
   <title>BlipBlog</title>

@@ -7,5 +7,8 @@ all: $(TARGETS)
 %.html: %.xml sidebar.xml web.xsl
 	$(XSLTPROC) web.xsl $*.xml > $@
 
+upload:
+	rsync -rav -e ssh *.html images mars@blipbox.org:/var/www/vhosts/www.blipbox.org/
+
 clean:
 	rm -f $(TARGETS)
