@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 public class SerialDataHandler implements SerialPortEventListener {
     private static final Logger log = Logger.getLogger(SerialDataHandler.class);
 
- SerialPort serialport;
+    protected SerialPort serialport;
     protected InputStream inStream;
     protected OutputStream outStream;
     protected OutputStream logStream;
@@ -29,6 +29,11 @@ public class SerialDataHandler implements SerialPortEventListener {
     private static final String EMPTY = "";
     private String port;
     private int speed;
+    private FlowControlMode flow;
+
+    public enum FlowControlMode {
+        None, Hardware, Software
+            }
 
     public SerialDataHandler(){
         // empty!
@@ -40,6 +45,25 @@ public class SerialDataHandler implements SerialPortEventListener {
 
     public String getSerialPortName(){
         return port;
+    }
+
+    public FlowControlMode getFlowControlMode(){
+        return flow;
+    }
+
+    public void setFlowControlMode(FlowControlMode flow){
+        this.flow = flow;
+    }
+
+    public void setFlowControlMode(String mode){
+        if(mode.equals("hw"))
+            setFlowControlMode(FlowControlMode.Hardware);
+        else if(mode.equals("sw"))
+            setFlowControlMode(FlowControlMode.Software);
+        else if(mode.equals("none"))
+            setFlowControlMode(FlowControlMode.None);
+        else
+            throw new IllegalArgumentException(mode+" not one of hw/sw/none");
     }
 
     public SerialPort getSerialPort(){
@@ -56,6 +80,8 @@ public class SerialDataHandler implements SerialPortEventListener {
     }
 
     public void send(int data[]){
+//         if(flow == FlowControlMode.Hardware)
+//             while(!serialport.isCTS());
         try{
             for(int i : data)
                 outStream.write(i);
@@ -66,6 +92,8 @@ public class SerialDataHandler implements SerialPortEventListener {
     }
 
     public void send(int data){
+//         if(flow == FlowControlMode.Hardware)
+//             while(!serialport.isCTS());
         try{
             outStream.write(data);
             outStream.flush();
@@ -103,6 +131,8 @@ public class SerialDataHandler implements SerialPortEventListener {
                 exc.printStackTrace();
                 System.err.println("serial io error: "+exc);
             }
+        }else{
+            log.info("unhandled serial event "+event);
         }
     }
 	
@@ -149,11 +179,23 @@ public class SerialDataHandler implements SerialPortEventListener {
             //configure the port
             try {
                 serialport.setSerialPortParams(speed,
-                                            serialport.DATABITS_8,
-                                            serialport.STOPBITS_1,
-                                            serialport.PARITY_NONE);
-//                 // hardware flow control
-//                 serialport.setFlowControlMode(serialport.FLOWCONTROL_RTSCTS_OUT);
+                                               serialport.DATABITS_8,
+                                               serialport.STOPBITS_1,
+                                               serialport.PARITY_NONE);
+                // flow control: hardware, software or none
+                switch(flow){
+                case Hardware:
+                    serialport.setFlowControlMode(serialport.FLOWCONTROL_RTSCTS_IN);
+                    serialport.setFlowControlMode(serialport.FLOWCONTROL_RTSCTS_OUT);
+                    break;
+                case Software:
+                    serialport.setFlowControlMode(serialport.FLOWCONTROL_XONXOFF_IN);
+                    serialport.setFlowControlMode(serialport.FLOWCONTROL_XONXOFF_OUT);
+                    break;
+                case None:
+                    serialport.setFlowControlMode(serialport.FLOWCONTROL_NONE);
+                    break;
+                }
             } catch (UnsupportedCommOperationException e){
                 throw new RuntimeException("Probably an unsupported baud rate", e);
             }
@@ -205,8 +247,9 @@ public class SerialDataHandler implements SerialPortEventListener {
         throws Exception {
         String serialport = null;
         int serialspeed = 115200;
-        OutputStream logStream = null;
         File file = null;
+
+        SerialDataHandler service = new SerialDataHandler();
 
         for(int i=0; i<args.length; ++i){
             if(args[i].equals("-h")){
@@ -223,11 +266,13 @@ public class SerialDataHandler implements SerialPortEventListener {
             }else if(args[i].equals("-p") && ++i < args.length){
                 serialport = args[i];
             }else if(args[i].equals("-o") && ++i < args.length){
-                logStream = new FileOutputStream(args[i]);
+                service.setLogStream(new FileOutputStream(args[i]));
             }else if(args[i].equals("-b") && ++i < args.length){
                 serialspeed = Integer.parseInt(args[i]);
             }else if(args[i].equals("-s") && ++i < args.length){
                 file = new File(args[i]);
+            }else if(args[i].equals("-flow") && ++i < args.length){
+                service.setFlowControlMode(args[i]);
             }
         }
         if(serialport == null){
@@ -235,11 +280,6 @@ public class SerialDataHandler implements SerialPortEventListener {
             System.err.println("Please specify which port to connect to");
             return;
         }
-
-        SerialDataHandler service = new SerialDataHandler();
-
-        if(logStream != null)
-            service.setLogStream(logStream);
 
         try{
             service.openSerialPort(serialport, serialspeed);
@@ -267,7 +307,7 @@ public class SerialDataHandler implements SerialPortEventListener {
         }else{
             for(;;);
         }
-//         Thread.sleep(4000);
-//         service.closeSerialPort();
+        Thread.sleep(4000);
+        service.closeSerialPort();
     }
 }
