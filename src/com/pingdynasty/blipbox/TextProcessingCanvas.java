@@ -50,6 +50,17 @@ public class TextProcessingCanvas extends JPanel {
                 });
             panel.add(spinner, "wrap");
 
+            panel.add(new Label("Brightness"), "label");
+            spinner = new JSpinner(new SpinnerNumberModel(0xff, 0, 0xff, 0xf));
+            spinner.addChangeListener(new ChangeListener(){
+                    public void stateChanged(ChangeEvent event){
+                        JSpinner spinner = (JSpinner)event.getSource();
+                        Integer value = (Integer)spinner.getValue();
+                        sender.setBrightness(value);
+                    }
+                });
+            panel.add(spinner, "wrap");
+
             JButton button = new JButton("Clear");
             button.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e){

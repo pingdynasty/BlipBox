@@ -14,7 +14,7 @@ import net.miginfocom.swing.MigLayout;
 public class SerialPortConfiguration {
     private static final Logger log = Logger.getLogger(BlipBoxDataHandler.class);
 
-    private BlipBoxDataHandler service;
+    private BlipBoxApplication service;
     private Integer[] speeds = {9600, 19200, 38400, 57600, 115200};
     private JComboBox serialspeed;
     private JComboBox serialport;
@@ -23,7 +23,7 @@ public class SerialPortConfiguration {
     private Action updateAction; // action to perform when configuration is saved/updated
     private Action cancelAction; // action to perform when configuration is cancelled
 
-    public SerialPortConfiguration(BlipBoxDataHandler service){
+    public SerialPortConfiguration(BlipBoxApplication service){
         this.service = service;
     }
 
@@ -38,8 +38,8 @@ public class SerialPortConfiguration {
         // create serial port combo box
         List<String> ports = SerialDataHandler.getSerialPorts();
         serialport = new JComboBox(ports.toArray());
-        if(ports.contains(service.getSerialPortName()))
-            serialport.setSelectedItem(service.getSerialPortName());
+        if(ports.contains(service.getSerialPort()))
+            serialport.setSelectedItem(service.getSerialPort());
         
         // create serial speed combo box
         serialspeed = new JComboBox(speeds);
@@ -52,8 +52,8 @@ public class SerialPortConfiguration {
                     List<String> ports = SerialDataHandler.getSerialPorts();
                     for(String port : ports)
                         serialport.addItem(port);
-                    if(ports.contains(service.getSerialPortName()))
-                        serialport.setSelectedItem(service.getSerialPortName());
+                    if(ports.contains(service.getSerialPort()))
+                        serialport.setSelectedItem(service.getSerialPort());
                 }
             });
 

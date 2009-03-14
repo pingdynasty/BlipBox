@@ -27,8 +27,6 @@ public class SerialDataHandler implements SerialPortEventListener {
     protected OutputStream logStream;
     private String str = EMPTY;
     private static final String EMPTY = "";
-    private String port;
-    private int speed;
     private FlowControlMode flow = FlowControlMode.None;
 
     public enum FlowControlMode {
@@ -37,14 +35,6 @@ public class SerialDataHandler implements SerialPortEventListener {
 
     public SerialDataHandler(){
         // empty!
-    }
-
-    public int getSerialSpeed(){
-        return speed;
-    }
-
-    public String getSerialPortName(){
-        return port;
     }
 
     public FlowControlMode getFlowControlMode(){
@@ -175,9 +165,6 @@ public class SerialDataHandler implements SerialPortEventListener {
     }
 
     public void openSerialPort(String port, int speed) {
-        this.port = port;
-        this.speed = speed;
-
         closeSerialPort();
 
         log.info("Opening serial port: "+port+" at "+speed+" baud");

@@ -34,7 +34,10 @@ public class BlipBox {
     /**
      * @param outStream: serial line connected to a BlipBox
      */
-    public BlipBox(OutputStream outStream){
+    public BlipBox(){
+    }
+
+    public void setOutputStream(OutputStream outStream){
         this.outStream = outStream;
     }
 

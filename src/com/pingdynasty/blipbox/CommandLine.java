@@ -52,11 +52,13 @@ public class CommandLine {
                 serialspeed = Integer.parseInt(args[i]);
             }
         }
+
         if(serialport == null){
             SerialDataHandler.listports();
             System.err.println("Please specify which port to connect to");
             return;
         }
+
         BlipBoxApplication application = null;
         if(graph){
 //             service.setSensorEventHandler(new GraphingEventHandler());
@@ -70,12 +72,6 @@ public class CommandLine {
 
         if(logStream != null && application != null)
             application.setLogStream(logStream);
-
-//         }else{
-//             BlipBoxDataHandler service = new BlipBoxDataHandler();
-//             service.setSensorConfiguration(SensorConfiguration.createSensorConfiguration(config));
-//             service.setSensorEventHandler(new LoggingEventHandler());
-//         }
 
         try{
             application.openSerialPort(serialport, serialspeed);

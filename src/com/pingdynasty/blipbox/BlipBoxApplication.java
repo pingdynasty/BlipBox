@@ -16,14 +16,32 @@ public class BlipBoxApplication {
     protected SensorConfiguration configuration;
 //     protected SensorEventHandler eventhandler;
     private SerialPortConfiguration serialconfig;
+    private String serialport;
+    private int serialspeed;
 
     public BlipBoxApplication(String config){
         configuration = SensorConfiguration.createSensorConfiguration(config);
         receiver = new BlipBoxDataHandler();
         receiver.setSensorConfiguration(configuration);
-        serialconfig = new SerialPortConfiguration(receiver);
+        serialconfig = new SerialPortConfiguration(this);
         serialconfig.init();
-        sender = new BlipBox(receiver.getOutputStream());
+        sender = new BlipBox();
+    }
+
+    public int getSerialSpeed(){
+        return serialspeed;
+    }
+
+    public void setSerialSpeed(int serialspeed){
+        this.serialspeed = serialspeed;
+    }
+
+    public String getSerialPort(){
+        return serialport;
+    }
+
+    public void setSerialPort(String port){
+        this.serialport = port;
     }
 
     public void setLogStream(OutputStream logStream){
@@ -59,8 +77,15 @@ public class BlipBoxApplication {
         return menu;
     }
 
+    public void openSerialPort() {
+        receiver.openSerialPort(serialport, serialspeed);
+        sender.setOutputStream(receiver.getOutputStream());
+    }
+
     public void openSerialPort(String port, int speed) {
-        receiver.openSerialPort(port, speed);
+        this.serialport = port;
+        this.serialspeed = speed;
+        openSerialPort();
     }
 
     public void start(){
