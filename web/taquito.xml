@@ -5,13 +5,23 @@
   <para>In the history of electronic wind instruments there are some highlights, though the real classic will always be <ulink url="http://www.synthmuseum.com/stp/stpevi01.html">Nyle Steiner's EVI</ulink>.</para>
   <para>Following on in this great tradition we present el taquito, a humble project that hopes it may have something to contribute. The very first prototype is already being played in the pingdynasty laboratory, to the joy of white coats and neighbours alike.</para>
 
+    <mediaobject>
+    <imageobject>
+      <imagedata fileref="images/taquito_lm400_breadboard.jpg"/>
+    </imageobject>
+    <caption>
+      <para>Taquito with LM400 bluetooth module</para>
+    </caption>
+  </mediaobject>
+<!--   <para><ulink url="http://vimeo.com/2672978">click</ulink> to view video</para> -->
+
+  <para>The device is quite simple, it uses a single, linear, touch-sensitive potentiometer instead of buttons. When pressed, the position is registered. This determines the pitch, and the exact position can also be used to bend the note and alter the timbre. A sensitive air pressure sensor provides breath control. This setup is coupled with two buttons for changing octaves up and down. The prototype plugs straight into an <ulink url="http://www.arduino.cc">Arduino Diecimila</ulink>, or runs standalone with an AtMega8 processor and LM400 Bluetooth module.</para>
+
   <html>
     <object width="400" height="302"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2672978&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=2672978&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=ffffff&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="302"></embed></object>
     <br/>
   </html>
-<!--   <para><ulink url="http://vimeo.com/2672978">click</ulink> to view video</para> -->
 
-  <para>The device is quite simple, it uses a single, linear, touch-sensitive potentiometer instead of buttons. When pressed, the position is registered. This determines the pitch, and the exact position can also be used to bend the note and alter the timbre. A sensitive air pressure sensor provides breath control. This setup is coupled with two buttons for changing octaves up and down. The prototype plugs straight into an <ulink url="http://www.arduino.cc">Arduino Diecimila</ulink>.</para>
 
 <!--   <itemizedlist> -->
 <!--     <listitem><para><ulink url="http://www.synthmuseum.com/stp/stpevi01.html">Nyle Steiner's EVI</ulink></para></listitem> -->
