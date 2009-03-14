@@ -47,12 +47,17 @@ void BlipBoxProtocol::init(){
 void BlipBoxProtocol::process(){
   uint8_t col, row;
 
-  if(keys.keyscan()){
-    // key position has changed
-    if(follow) // if follow mode = none, then the leds aren't cleared so that leds stay lit
-      leds.clear();
-    if(holding)
-      leds.setLed(holdCol, holdRow, holding);
+  if(receiver.receiveMessage())
+    this->readMessage();
+
+//   if(keys.keyscan()){
+//     // key position has changed
+//   }
+  keys.keyscan();
+
+  if(follow){
+    // if follow mode = none, then the leds aren't cleared so that leds stay lit
+    leds.clear();
     if(keys.isPressed()){
       // note: inversed and swapped values!
       col = 7 - keys.getRow();
@@ -80,6 +85,9 @@ void BlipBoxProtocol::process(){
     }
   }
 
+  if(holding)
+    leds.setLed(holdCol, holdRow, holding);
+
   if(keys.getTouch() < sensitivity){
     // inverse X value
     sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getTouch());
@@ -93,9 +101,6 @@ void BlipBoxProtocol::process(){
     sender.sendNextMessage();
     previousMillis = millis();   // remember the last time we did this
   }
-
-  if(receiver.receiveMessage())
-    this->readMessage();
 }
 
 void BlipBoxProtocol::readSensors(){
@@ -107,7 +112,7 @@ void BlipBoxProtocol::readSensors(){
 
   value = digitalRead(BUTTON1_PIN) == HIGH ? SENSOR_MAX : 0;
 
-//   sender.updateSensor(BUTTON1_SENSOR, value);
+  sender.updateSensor(BUTTON1_SENSOR, value);
 //   if(sender.updateSensor(BUTTON1_SENSOR, value) && value){
 //     // button has just been pressed
 //     if(keys.isPressed()){
@@ -131,6 +136,7 @@ void BlipBoxProtocol::readMessage(){
   switch(receiver.getMessageType()){
   case CLEAR_MESSAGE:
     leds.clear();
+    holding = 0;
     break;
   case DISPLAY_EFFECT_MESSAGE:
     displayEffect(receiver.getMessageData()[0] & 0x0f);
