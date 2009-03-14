@@ -24,8 +24,7 @@ public class MidiOutputPlayer extends MidiPlayer {
         throws InvalidMidiDataException{
         byte header = (byte)((msgid << 4) | ((channel-1) & 0xf));
         try{
-            midiout.sendMidi(new byte[] {header, (byte)first, (byte)second});
-//             midiout.sendMidi(new byte[] {(byte)(msgid | (channel-1)), (byte)first, (byte)second}, MidiSystem.getHostTime());
+            midiout.sendMidi(new byte[] {header, (byte)first, (byte)second}, MidiSystem.getHostTime());
         }catch(Exception exc){
             throw new InvalidMidiDataException(exc.getMessage());
         }
@@ -35,7 +34,7 @@ public class MidiOutputPlayer extends MidiPlayer {
         throws InvalidMidiDataException{
         byte header = (byte)((msgid << 4) | ((channel-1) & 0xf));
         try{
-            midiout.sendMidi(new byte[] {header, (byte)data});
+            midiout.sendMidi(new byte[] {header, (byte)data}, MidiSystem.getHostTime());
         }catch(Exception exc){
             throw new InvalidMidiDataException(exc.getMessage());
         }

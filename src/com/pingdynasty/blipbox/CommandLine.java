@@ -57,39 +57,28 @@ public class CommandLine {
             System.err.println("Please specify which port to connect to");
             return;
         }
-
-        BlipBoxDataHandler service = new BlipBoxDataHandler();
-        service.setSensorConfiguration(SensorConfiguration.createSensorConfiguration(config));
-
-        if(logStream != null)
-            service.setLogStream(logStream);
-
+        BlipBoxApplication application = null;
         if(graph){
 //             service.setSensorEventHandler(new GraphingEventHandler());
         }else if(midi){
-            MidiOutputEventHandler midihandler = new MidiOutputEventHandler();
-            service.setSensorEventHandler(midihandler);
-            MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(midihandler, service);
-            JFrame frame = new JFrame();
-            frame.add(canvas);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 400);
-            frame.setVisible(true);
+            application = new BlipBoxMidiApplication(config);
         }else if(text){
-            TextProcessingEventHandler texthandler = new TextProcessingEventHandler(service);
-            service.setSensorEventHandler(texthandler);
-            TextProcessingCanvas canvas = new TextProcessingCanvas(texthandler, service);
-            JFrame frame = new JFrame();
-            frame.add(canvas);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 400);
-            frame.setVisible(true);
+            application = new BlipBoxTextApplication(config);
         }else{
-            service.setSensorEventHandler(new LoggingEventHandler());
+            application = new BlipBoxLoggingApplication(config);
         }
 
+        if(logStream != null && application != null)
+            application.setLogStream(logStream);
+
+//         }else{
+//             BlipBoxDataHandler service = new BlipBoxDataHandler();
+//             service.setSensorConfiguration(SensorConfiguration.createSensorConfiguration(config));
+//             service.setSensorEventHandler(new LoggingEventHandler());
+//         }
+
         try{
-            service.openSerialPort(serialport, serialspeed);
+            application.openSerialPort(serialport, serialspeed);
         }catch(Exception exc){
             log.error("Failed to open serial port "+serialport, exc);
         }

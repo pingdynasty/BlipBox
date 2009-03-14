@@ -1,9 +1,9 @@
 package com.pingdynasty.blipbox;
 
 public class TextProcessingEventHandler extends KeyPressManager {
-    private BlipBoxDataHandler service;
+    private BlipBox service;
 
-    public TextProcessingEventHandler(BlipBoxDataHandler service){
+    public TextProcessingEventHandler(BlipBox service){
         this.service = service;
     }
 

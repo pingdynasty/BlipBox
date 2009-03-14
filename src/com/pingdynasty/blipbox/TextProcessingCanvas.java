@@ -2,7 +2,6 @@ package com.pingdynasty.blipbox;
 
 import java.util.Map;
 import java.util.HashMap;
-import javax.swing.JFrame;
 import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.*;
@@ -19,7 +18,7 @@ import net.miginfocom.swing.MigLayout;
 public class TextProcessingCanvas extends JPanel {
     private static final Logger log = Logger.getLogger(TextProcessingCanvas.class);
     private TextProcessingEventHandler eventhandler;
-    private BlipBoxDataHandler service;
+    private BlipBox sender;
 
     public class ConfigurationPanel extends JPanel {
 
@@ -28,13 +27,13 @@ public class TextProcessingCanvas extends JPanel {
             add(panel);
 
             panel.add(new Label("Follow Mode"), "label");
-            JComboBox box = new JComboBox(service.getFollowModes());
+            JComboBox box = new JComboBox(sender.getFollowModes());
             box.setSelectedItem("Cross");
             box.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e) {
                         JComboBox box = (JComboBox)e.getSource();
                         String name = (String)box.getSelectedItem();
-                        service.setFollowMode(name);
+                        sender.setFollowMode(name);
                     }
                 });
             panel.add(box, "wrap");
@@ -46,7 +45,7 @@ public class TextProcessingCanvas extends JPanel {
                         JSpinner spinner = (JSpinner)event.getSource();
                         Integer value = (Integer)spinner.getValue();
                         eventhandler.setSensitivity(value);
-                        service.setSensitivity(value);
+                        sender.setSensitivity(value);
                     }
                 });
             panel.add(spinner, "wrap");
@@ -54,7 +53,7 @@ public class TextProcessingCanvas extends JPanel {
             JButton button = new JButton("Clear");
             button.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e){
-                        service.clear();
+                        sender.clear();
                     }
                 });
             panel.add(button, "span, align r, wrap");
@@ -101,7 +100,7 @@ public class TextProcessingCanvas extends JPanel {
             JButton button = new JButton("Set");
             button.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e){
-                        service.setLed(col-1, row-1, brightness);
+                        sender.setLed(col-1, row-1, brightness);
                     }
                 });
             panel.add(button, "span, align r, wrap");
@@ -114,12 +113,12 @@ public class TextProcessingCanvas extends JPanel {
             add(panel);
 
             panel.add(new Label("Effect"), "label");
-            JComboBox box = new JComboBox(service.getDisplayEffects());
+            JComboBox box = new JComboBox(sender.getDisplayEffects());
             box.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e) {
                         JComboBox box = (JComboBox)e.getSource();
                         String name = (String)box.getSelectedItem();
-                        service.sendDisplayEffect(name);
+                        sender.sendDisplayEffect(name);
                     }
                 });
             panel.add(box, "wrap");
@@ -159,7 +158,7 @@ public class TextProcessingCanvas extends JPanel {
             JButton button = new JButton("Write");
             button.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e){
-                        service.sendCharacter(col-1, character);
+                        sender.sendCharacter(col-1, character);
                     }
                 });
             panel.add(button, "span, align r, wrap");
@@ -180,7 +179,7 @@ public class TextProcessingCanvas extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         JTextField field = (JTextField)e.getSource();
                         text = (String)field.getText();
-                        service.sendString(text, delay);
+                        sender.sendString(text, delay);
                     }
                 });
             panel.add(field);
@@ -198,17 +197,16 @@ public class TextProcessingCanvas extends JPanel {
 //             JButton button = new JButton("Write");
 //             button.addActionListener(new AbstractAction(){
 //                     public void actionPerformed(ActionEvent e){
-//                         service.sendString(text, delay);
+//                         sender.sendString(text, delay);
 //                     }
 //                 });
 //             panel.add(button, "span, align r, wrap");
         }
     }
 
-    public TextProcessingCanvas(TextProcessingEventHandler eventhandler, 
-                                BlipBoxDataHandler service){
+    public TextProcessingCanvas(TextProcessingEventHandler eventhandler, BlipBox sender){
         this.eventhandler = eventhandler;
-        this.service = service;
+        this.sender = sender;
 
         JTabbedPane tabs = new JTabbedPane();
         

@@ -18,8 +18,8 @@ import net.miginfocom.swing.MigLayout;
 
 public class MidiConfigurationCanvas extends JPanel {
     private static final Logger log = Logger.getLogger(MidiOutputEventHandler.class);
-    private MidiOutputEventHandler blipbox;
-    private BlipBoxDataHandler service;
+    private MidiOutputEventHandler midioutput;
+    private BlipBox sender;
 
     private static final byte Y_NOTES_CC = 18;
     private static final byte X_CC = 20;
@@ -29,8 +29,6 @@ public class MidiConfigurationCanvas extends JPanel {
     private static final byte BUTTON_CC = 22;
 
     private boolean enableSetupMode = false;
-    private SerialPortConfiguration serialconfig;
-    private BlipBoxMidiConfiguration midiconfig;
 
     private static final String[] controlTypes = 
     { "Unassigned", "Control Change", "Pitch Bend", "Basenote", "Scale" };
@@ -51,23 +49,23 @@ public class MidiConfigurationCanvas extends JPanel {
             add(panel);
 
             panel.add(new Label("Scale"), "label");
-            scale = new JComboBox(blipbox.getScaleNames());
-            scale.setSelectedItem(blipbox.getCurrentScale());
+            scale = new JComboBox(midioutput.getScaleNames());
+            scale.setSelectedItem(midioutput.getCurrentScale());
             scale.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e) {
                         String scalename = (String)scale.getSelectedItem();
-                        blipbox.setScale(scalename);
+                        midioutput.setScale(scalename);
                     }
                 });
             panel.add(scale, "wrap");
 
             panel.add(new Label("Basenote"), "label");
             basenote = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
-            basenote.setValue(blipbox.getBasenote());
+            basenote.setValue(midioutput.getBasenote());
             basenote.addChangeListener(new ChangeListener(){
                     public void stateChanged(ChangeEvent e){
                         Integer value = (Integer)basenote.getValue();
-                        blipbox.setBasenote(value);
+                        midioutput.setBasenote(value);
                     }
                 });
             panel.add(basenote, "wrap");
@@ -78,7 +76,7 @@ public class MidiConfigurationCanvas extends JPanel {
             range.addChangeListener(new ChangeListener(){
                     public void stateChanged(ChangeEvent e){
                         Integer value = (Integer)range.getValue();
-                        blipbox.setNumberOfColumns(value);
+                        midioutput.setNumberOfColumns(value);
                     }
                 });
             panel.add(range, "wrap");
@@ -89,51 +87,24 @@ public class MidiConfigurationCanvas extends JPanel {
                     public void stateChanged(ChangeEvent event){
                         JSpinner spinner = (JSpinner)event.getSource();
                         Integer value = (Integer)spinner.getValue();
-                        blipbox.setSensitivity(value);
-                        service.setSensitivity(value);
+                        midioutput.setSensitivity(value);
+                        sender.setSensitivity(value);
                     }
                 });
             panel.add(spinner, "wrap");
 
             panel.add(new Label("Follow Mode"), "label");
-            JComboBox box = new JComboBox(service.getFollowModes());
+            JComboBox box = new JComboBox(sender.getFollowModes());
             box.setSelectedItem("Cross");
             box.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e) {
                         JComboBox box = (JComboBox)e.getSource();
                         String name = (String)box.getSelectedItem();
-                        service.setFollowMode(name);
+                        sender.setFollowMode(name);
                     }
                 });
             panel.add(box, "wrap");
-
-            JButton button = new JButton("Configure MIDI");
-            button.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e){
-                        try{
-                            midiconfig.open();
-                        }catch(Exception exc){log.error("Failed to open MIDI configuration", exc);}
-                    }
-                });
-            panel.add(button, "span, align r, wrap");
-
-            button = new JButton("Configure serial port");
-            button.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e){
-                        try{
-                            serialconfig.open();
-                        }catch(Exception exc){log.error("Failed to open serial configuration", exc);}
-                    }
-                });
-            panel.add(button, "span, align r, wrap");
         }
-    }
-
-    public void updateMidiDevices(){
-        try{
-            blipbox.setMidiPlayer(midiconfig.getMidiOutput());
-            blipbox.setChannel(midiconfig.getChannel());
-        }catch(Exception exc){log.error(exc);}
     }
 
     public class ModeConfigurationPanel extends JPanel {
@@ -253,20 +224,20 @@ public class MidiConfigurationCanvas extends JPanel {
             public void configure(){
                 String type = (String)typeList.getSelectedItem();
                 if("Control Change".equals(type)){
-                    blipbox.configureControlChange(getOperationMode(), this.type, 
+                    midioutput.configureControlChange(getOperationMode(), this.type, 
                                                    (Integer)channel.getValue(), (Integer)cc.getValue(), 
                                                    (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Pitch Bend".equals(type)){
-                    blipbox.configurePitchBend(getOperationMode(), this.type, 
+                    midioutput.configurePitchBend(getOperationMode(), this.type, 
                                                (Integer)channel.getValue(), 
                                                (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Basenote".equals(type)){
-                    blipbox.configureBaseNoteChange(getOperationMode(), this.type, 
+                    midioutput.configureBaseNoteChange(getOperationMode(), this.type, 
                                                     (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Scale".equals(type)){
-                    blipbox.configureScaleChange(getOperationMode(), this.type);
+                    midioutput.configureScaleChange(getOperationMode(), this.type);
                 }else if("Unassigned".equals(type)){
-                    blipbox.configureUnassigned(getOperationMode(), this.type);
+                    midioutput.configureUnassigned(getOperationMode(), this.type);
                 }
             }
 
@@ -350,7 +321,7 @@ public class MidiConfigurationCanvas extends JPanel {
             }
 
             public void configure(){
-                blipbox.configureNotePlayer(getOperationMode(), doPlay, doPb, doAt);
+                midioutput.configureNotePlayer(getOperationMode(), doPlay, doPb, doAt);
             }
 
             public void setup(boolean doPlay, boolean doPb, boolean doAt){
@@ -362,7 +333,6 @@ public class MidiConfigurationCanvas extends JPanel {
                 this.doAt = doAt;
                 configure();
             }
-
         }
 
         public class CombinedParameterConfigurationPanel extends JPanel {
@@ -395,26 +365,9 @@ public class MidiConfigurationCanvas extends JPanel {
 
     private Map<OperationMode, ModeConfigurationPanel> modes = new HashMap<OperationMode, ModeConfigurationPanel>();
 
-    public MidiConfigurationCanvas(MidiOutputEventHandler blipbox, BlipBoxDataHandler service){
-        this.blipbox = blipbox;
-        this.service = service;
-
-        // setup midi configuration
-        midiconfig = new BlipBoxMidiConfiguration();
-        midiconfig.setUpdateAction(new AbstractAction(){
-                public void actionPerformed(ActionEvent e){
-                    updateMidiDevices();
-                }
-            });
-        serialconfig = new SerialPortConfiguration(service);
-        try{
-            // run configuration initialisation - set default serial port, midi config
-            serialconfig.init();
-            midiconfig.init();
-            updateMidiDevices();
-        }catch(Exception exc){
-            log.error(exc, exc);
-        }
+    public MidiConfigurationCanvas(MidiOutputEventHandler midioutput, BlipBox sender){
+        this.midioutput = midioutput;
+        this.sender = sender;
 
         JTabbedPane tabs = new JTabbedPane();
         

@@ -29,7 +29,7 @@ public class SerialDataHandler implements SerialPortEventListener {
     private static final String EMPTY = "";
     private String port;
     private int speed;
-    private FlowControlMode flow;
+    private FlowControlMode flow = FlowControlMode.None;
 
     public enum FlowControlMode {
         None, Hardware, Software
@@ -68,6 +68,18 @@ public class SerialDataHandler implements SerialPortEventListener {
 
     public SerialPort getSerialPort(){
         return serialport;
+    }
+
+    public OutputStream getLogStream(){
+        return logStream;
+    }
+
+    public OutputStream getOutputStream(){
+        return outStream;
+    }
+
+    public InputStream getInputStream(){
+        return inStream;
     }
 
     public void setLogStream(OutputStream logStream){
