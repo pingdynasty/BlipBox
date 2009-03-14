@@ -78,7 +78,7 @@ void LedController::setDiagonalCross(uint8_t row, uint8_t col, uint8_t value){
 
 // todo: set blob with 10 or 8 bit precision location
 void LedController::setBlob(uint8_t row, uint8_t col, uint8_t value){
-  for(uint8_t i=-2; i<2; ++i){
+  for(int8_t i=-2; i<3; ++i){
     setLed(row+i, col+i, value / (2*abs(i) + 1));
     setLed(row-i, col+i, value / (2*abs(i) + 1));
   }

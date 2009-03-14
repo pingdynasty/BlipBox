@@ -7,6 +7,8 @@
 /* #define SENSITIVITY 600 // the lower the value, the less sensitive */
 #define SENSITIVITY 200 // the lower the value, the less sensitive
 
+#define BRIGHTNESS 0xff
+
 /* #define SENSE_DELAY 10 */
 /* sleep time between configuring and reading touch screen values */
 #define SENSE_DELAY 1
@@ -20,8 +22,6 @@
 #define ROWS 5
 #define COLS 16
 #define FRAME_LENGTH 16 // 16 for serial connection
-
-#define BRIGHTNESS 0xff
 
 // eeprom address offsets
 #define EEPROM_SERIAL_SPEED_ADDRESS (uint8_t*)0

@@ -27,10 +27,16 @@ unsigned long previousMillis = 0;        // will store last time write was done
 #define BLOB_MODE      0x05
 #define SQUARE_MODE    0x06
 
+// parameters
+// (at the moment we only have 2 bits for parameter id: need to clear 2 bits from message ID or value)
+#define BRIGHTNESS_PARAMETER_ID   0x04
+#define SENSITIVITY_PARAMETER_ID  0x08
+
 uint8_t follow = CROSS_MODE;
 uint8_t holding;
 uint8_t holdCol, holdRow;
 uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
+uint8_t brightness = BRIGHTNESS; // todo: read/write to eeprom
 
 void BlipBoxProtocol::init(){
   keys.init();
@@ -53,22 +59,22 @@ void BlipBoxProtocol::process(){
       row = 9 - keys.getColumn();
       switch(follow){
       case CROSS_MODE:
-        leds.setCross(row, col, BRIGHTNESS);
+        leds.setCross(row, col, brightness);
         break;
       case CRISS_MODE:
-        leds.setDiagonalCross(row, col, BRIGHTNESS);
+        leds.setDiagonalCross(row, col, brightness);
         break;
       case DOT_MODE:
-        leds.setLed(row, col, BRIGHTNESS);
+        leds.setLed(row, col, brightness);
         break;
       case STAR_MODE:
-        leds.setStar(row, col, BRIGHTNESS);
+        leds.setStar(row, col, brightness);
         break;
       case BLOB_MODE:
-        leds.setBlob(row, col, BRIGHTNESS);
+        leds.setBlob(row, col, brightness);
         break;
       case SQUARE_MODE:
-        leds.setSquare(row, col, BRIGHTNESS);
+        leds.setSquare(row, col, brightness);
         break;
       }
     }
@@ -105,7 +111,7 @@ void BlipBoxProtocol::readSensors(){
 //   if(sender.updateSensor(BUTTON1_SENSOR, value) && value){
 //     // button has just been pressed
 //     if(keys.isPressed()){
-//       holding = BRIGHTNESS >> 2;
+//       holding = brightness >> 2;
 //       holdCol = 9 - keys.getColumn();
 //       holdRow = 7 - keys.getRow();
 //     }else{
@@ -132,8 +138,15 @@ void BlipBoxProtocol::readMessage(){
   case FOLLOW_MODE_MESSAGE:
     follow = receiver.getMessageData()[0] & 0x0f;
     break;
-  case SET_SENSITIVITY_MESSAGE:
-    sensitivity = receiver.getTwoByteValue();
+  case SET_PARAMETER_MESSAGE:
+    switch(receiver.getMessageData()[0] & 0xc){
+    case SENSITIVITY_PARAMETER_ID:
+      sensitivity = receiver.getTwoByteValue();
+      break;
+    case BRIGHTNESS_PARAMETER_ID:
+      brightness = receiver.getTwoByteValue();
+      break;
+    }
     break;
   case SET_LED_MESSAGE:
     if(follow){

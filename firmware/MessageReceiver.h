@@ -14,20 +14,22 @@
 // clear : 00010000 / 0x10
 // follow mode: 4 bits marker type : 0010tttt
 // display effect: 4 bits effect type
+// shift leds: 2 bits direction, 2 bits steps (0: up; 1: down; 2: left; 3: right)
 
 // 2 byte messages
 // configure sensors: bitmask setting sensors on/off - 12 bit sensor mask
 // configure fade time: 12 bits fade time or speed
-// configure sensitivity: 10 bits sensitivity value : 0011ssss ssssssss
 // write character message: 4 bits position, 8 bits character (fits in 7 or 6 bits?)
+// set parameter message: 1000ppvv vvvvvvvv (p: parameter ID, v: 10 bit value)
 
 // 3 byte messages
 // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
+// hold pos: same as set led when follow mode is on
 
-// hold pos: 4 bits marker type, 8 bits led index, 8 bits brightness
+// parameters:
+// brightness: 0-255
+// sensitivity: 10 bit value
 
-// set brightness: 0-255
-// set sensitivity: 10 bit value
 // set led: led index/value
 // set cross/criss/blob: 4 bits type, 8 bits led index, 8 bits brightness
 // write letter: 4 bit direction/brightness, 8 bit position, 8 bit character code
@@ -44,11 +46,15 @@
 
 #define CLEAR_MESSAGE             0x10
 #define FOLLOW_MODE_MESSAGE       0x20
-#define SET_SENSITIVITY_MESSAGE   0x30
 #define SET_LED_MESSAGE           0x40
 #define WRITE_CHARACTER_MESSAGE   0x50
 #define SHIFT_LEDS_MESSAGE        0x60
 #define DISPLAY_EFFECT_MESSAGE    0x70
+
+#define SET_PARAMETER_MESSAGE     0x80 
+// can the top bit be reserved for SET PARAMETER?
+// in that case: 10ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
+
 
 #define MESSAGE_ID_MASK           0xf0
 #define MESSAGE_VALUE_MASK        0x0f
@@ -67,9 +73,11 @@ public:
 
   uint8_t getMessageType();
 
+  uint8_t* getMessageData();
+
   uint16_t getTwoByteValue();
 
-  uint8_t* getMessageData();
+  uint16_t getTenBitValue();
 
 };
 

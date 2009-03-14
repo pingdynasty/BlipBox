@@ -17,7 +17,7 @@ bool MessageReceiver::receiveMessage(){
       break;
       // 2 byte messages
     case WRITE_CHARACTER_MESSAGE:
-    case SET_SENSITIVITY_MESSAGE:
+    case SET_PARAMETER_MESSAGE:
       if(pos == 2)
         pos = 0;
       break;
