@@ -13,8 +13,28 @@ public abstract class KeyPressManager implements KeyEventHandler {
     private int columnCount = 10;
     private int rowCount = 8;
 
+    public int getColumn(){
+        return lastCol;
+    }
+
+    public int getRow(){
+        return lastRow;
+    }
+
+    public boolean isPressed(){
+        return pressed;
+    }
+
+    public int getNumberOfColumns(){
+        return columnCount;
+    }
+
     public void setNumberOfColumns(int columnCount){
         this.columnCount = columnCount;
+    }
+
+    public int getNumberOfRows(){
+        return rowCount;
     }
 
     public void setNumberOfRows(int rowCount){

@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.sound.midi.MidiUnavailableException;
 import org.apache.log4j.Logger;
 
 public class BlipBoxMidiApplication extends BlipBoxApplication {
@@ -12,9 +13,11 @@ public class BlipBoxMidiApplication extends BlipBoxApplication {
     private MidiOutputEventHandler midihandler;
     private BlipBoxMidiConfiguration midiconfig;
 
-    public BlipBoxMidiApplication(String config){
+    public BlipBoxMidiApplication(String config)
+        throws MidiUnavailableException {
         super(config);
-        midihandler = new MidiOutputEventHandler();
+        midihandler = new MidiOutputEventHandler(sender);
+        midihandler.init();
         receiver.setSensorEventHandler(midihandler);
         MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(midihandler, sender);
         JFrame frame = createFrame();
@@ -28,6 +31,8 @@ public class BlipBoxMidiApplication extends BlipBoxApplication {
                     updateMidiDevices();
                 }
             });
+
+        midiconfig.init();
     }
 
     public JMenu createSettingsMenu(){

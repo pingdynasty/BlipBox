@@ -108,11 +108,11 @@ public class MidiConfigurationCanvas extends JPanel {
     }
 
     public class ModeConfigurationPanel extends JPanel {
-        private OperationMode mode;
+        private String mode;
         private NotePlayerConfigurationPanel notes;
         private CombinedParameterConfigurationPanel parameters;
 
-        public ModeConfigurationPanel(OperationMode mode){
+        public ModeConfigurationPanel(String mode){
             this.mode = mode;
             notes = new NotePlayerConfigurationPanel();
             parameters = new CombinedParameterConfigurationPanel();
@@ -122,7 +122,7 @@ public class MidiConfigurationCanvas extends JPanel {
             add(parameters);
         }
 
-        public OperationMode getOperationMode(){
+        public String getOperationMode(){
             return mode;
         }
 
@@ -363,7 +363,7 @@ public class MidiConfigurationCanvas extends JPanel {
         }
     }
 
-    private Map<OperationMode, ModeConfigurationPanel> modes = new HashMap<OperationMode, ModeConfigurationPanel>();
+    private Map<String, ModeConfigurationPanel> modes = new HashMap<String, ModeConfigurationPanel>();
 
     public MidiConfigurationCanvas(MidiOutputEventHandler midioutput, BlipBox sender){
         this.midioutput = midioutput;
@@ -374,48 +374,48 @@ public class MidiConfigurationCanvas extends JPanel {
         BasicConfigurationPanel basic = new BasicConfigurationPanel();
         tabs.addTab("Setup", basic);
 
-        ModeConfigurationPanel panel = new ModeConfigurationPanel(OperationMode.CROSS);
+        ModeConfigurationPanel panel = new ModeConfigurationPanel("Cross");
         modes.put(panel.getOperationMode(), panel);
         tabs.addTab("Cross Mode", panel);
-        panel = new ModeConfigurationPanel(OperationMode.CRISS);
+        panel = new ModeConfigurationPanel("Criss");
         modes.put(panel.getOperationMode(), panel);
         tabs.addTab("Criss Mode", panel);
         if(enableSetupMode){
-            panel = new ModeConfigurationPanel(OperationMode.SETUP);
+            panel = new ModeConfigurationPanel("Setup");
             modes.put(panel.getOperationMode(), panel);
             tabs.addTab("Setup Mode", panel);
         }
 
         add(tabs);
 
-        setup(OperationMode.CROSS, true, false, false);
-        setup(OperationMode.CROSS, SensorType.X_SENSOR, "Unassigned");
-        setup(OperationMode.CROSS, SensorType.Y_SENSOR, "Control Change", 1, Y_NOTES_CC, 0, 127);
-        setup(OperationMode.CROSS, SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
+        setup("Cross", true, false, false);
+        setup("Cross", SensorType.X_SENSOR, "Unassigned");
+        setup("Cross", SensorType.Y_SENSOR, "Control Change", 1, Y_NOTES_CC, 0, 127);
+        setup("Cross", SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
 
-        setup(OperationMode.CRISS, false, false, false);
-        setup(OperationMode.CRISS, SensorType.X_SENSOR, "Control Change", 1, X_CC, 0, 127);
-        setup(OperationMode.CRISS, SensorType.Y_SENSOR, "Control Change", 1, Y_CC, 0, 127);
-        setup(OperationMode.CRISS, SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
+        setup("Criss", false, false, false);
+        setup("Criss", SensorType.X_SENSOR, "Control Change", 1, X_CC, 0, 127);
+        setup("Criss", SensorType.Y_SENSOR, "Control Change", 1, Y_CC, 0, 127);
+        setup("Criss", SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
 
         if(enableSetupMode){
-            setup(OperationMode.SETUP, false, false, false);
-            setup(OperationMode.SETUP, SensorType.X_SENSOR, "Basenote");
-            setup(OperationMode.SETUP, SensorType.Y_SENSOR, "Scale");
-            setup(OperationMode.SETUP, SensorType.POT_SENSOR, "Unassigned");
+            setup("Setup", false, false, false);
+            setup("Setup", SensorType.X_SENSOR, "Basenote");
+            setup("Setup", SensorType.Y_SENSOR, "Scale");
+            setup("Setup", SensorType.POT_SENSOR, "Unassigned");
         }
     }
 
-    public void setup(OperationMode mode, SensorType sensor, String type){
+    public void setup(String mode, SensorType sensor, String type){
         setup(mode, sensor, type, 1, 1, 0, 127);
     }
 
-    public void setup(OperationMode mode, SensorType sensor, String type, int channel, int cc, int min, int max){
+    public void setup(String mode, SensorType sensor, String type, int channel, int cc, int min, int max){
         ModeConfigurationPanel panel = modes.get(mode);
         panel.setup(sensor, type, channel, cc, min, max);
     }
 
-    public void setup(OperationMode mode, boolean doPlay, boolean doPb, boolean doAt){
+    public void setup(String mode, boolean doPlay, boolean doPb, boolean doAt){
         ModeConfigurationPanel panel = modes.get(mode);
         panel.setup(doPlay, doPb, doAt);
     }

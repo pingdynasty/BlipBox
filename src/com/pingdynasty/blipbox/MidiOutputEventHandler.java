@@ -6,7 +6,7 @@ import javax.sound.midi.*;
 import com.pingdynasty.midi.ScaleMapper;
 import org.apache.log4j.Logger;
 
-public class MidiOutputEventHandler extends KeyPressManager {
+public class MidiOutputEventHandler extends MultiModeKeyPressManager {
     private static final Logger log = Logger.getLogger(MidiOutputEventHandler.class);
 
     protected MidiPlayer midi;
@@ -22,28 +22,20 @@ public class MidiOutputEventHandler extends KeyPressManager {
     private static final int OCTAVE_SHIFT = 6;
     private int lastNote = 0;
     private int basenote = 40;
-    private boolean released; // flag to say if keys have been released since last mode switch
     private long lastButtonPress = 0; // must be shared between mode change event handlers (or event handlers must be shared)
     private boolean enableSetupMode = false;
 
-    private OperationMode mode = OperationMode.CROSS;
+    public void holdOff(){
+        super.holdOff();
+        sendMidiNoteOff(lastNote);
+    }
 
-    SensorHandlerConfiguration crossConfig = new SensorHandlerConfiguration();
-    SensorHandlerConfiguration crissConfig = new SensorHandlerConfiguration();
-    SensorHandlerConfiguration setupConfig = new SensorHandlerConfiguration();
-
-    private KeyEventHandler currentConfig = crossConfig;
-
-    {
-        crossConfig.registerSensorEventHandler(SensorType.BUTTON2_SENSOR, new OctaveShiftUpEventHandler());
-        crossConfig.registerSensorEventHandler(SensorType.BUTTON3_SENSOR, new OctaveShiftDownEventHandler());
-
-        crissConfig.registerSensorEventHandler(SensorType.BUTTON2_SENSOR, new OctaveShiftUpEventHandler());
-        crissConfig.registerSensorEventHandler(SensorType.BUTTON3_SENSOR, new OctaveShiftDownEventHandler());
-
-        crossConfig.registerSensorEventHandler(SensorType.BUTTON1_SENSOR, new ModeChangeEventHandler());
-        crissConfig.registerSensorEventHandler(SensorType.BUTTON1_SENSOR, new ModeChangeEventHandler());
-        setupConfig.registerSensorEventHandler(SensorType.BUTTON1_SENSOR, new ModeChangeEventHandler());
+    public void init(){
+        super.init();
+        setSensorEventHandler("Cross", SensorType.BUTTON2_SENSOR, new OctaveShiftUpEventHandler());
+        setSensorEventHandler("Cross", SensorType.BUTTON3_SENSOR, new OctaveShiftDownEventHandler());
+        setSensorEventHandler("Criss", SensorType.BUTTON2_SENSOR, new OctaveShiftUpEventHandler());
+        setSensorEventHandler("Criss", SensorType.BUTTON3_SENSOR, new OctaveShiftDownEventHandler());
     }
 
     public class OctaveShiftUpEventHandler implements SensorEventHandler {
@@ -67,44 +59,6 @@ public class MidiOutputEventHandler extends KeyPressManager {
             }
         }
     }
-
-    public class ModeChangeEventHandler implements SensorEventHandler {
-        public void sensorChange(SensorDefinition sensor){
-            if(sensor.value != 0){
-                long now = System.currentTimeMillis();
-                if(enableSetupMode && now - lastButtonPress < DOUBLE_CLICK_MILLIS){
-                    lastButtonPress = 0;
-                    changeMode(OperationMode.SETUP);
-                // todo: change led follow mode
-                // todo: set led at basenote / scale position
-                }else if(mode == OperationMode.CROSS){
-                    changeMode(OperationMode.CRISS);
-                // todo: change led follow mode
-                    released = false;
-                }else{
-                    // hold off - unlock
-                    sendMidiNoteOff(lastNote);
-                    changeMode(OperationMode.CROSS);
-                    released = false;
-                }
-                lastButtonPress = now;
-            }
-        }
-    }
-
-//     public class ModeChangeEventHandler implements SensorEventHandler {
-//         private OperationMode mode;
-//         public ModeChangeEventHandler(OperationMode mode){
-//             this.mode = mode;
-//         }
-//         public void sensorChange(SensorDefinition sensor){
-//             if(sensor.value != 0){
-//                 log.debug("old mode: "+MidiOutputEventHandler.mode);
-//                 changeMode(mode);
-//                 log.debug("new mode: "+MidiOutputEventHandler.mode);
-//             }
-//         }
-//     }
 
     public class BaseNoteChangeEventHandler implements SensorEventHandler {
         private int min, max;
@@ -205,70 +159,34 @@ public class MidiOutputEventHandler extends KeyPressManager {
         }
     }
 
-    public MidiOutputEventHandler(){
+    public MidiOutputEventHandler(BlipBox sender){
+        super(sender);
         mapper = new ScaleMapper();
         setScale("Chromatic Scale");
 //         setScale("C Major");
 //         setScale("Dorian mode");
     }
 
-    public void setKeyEventHandler(OperationMode mode, KeyEventHandler handler){
-        switch(mode){
-        case CROSS:
-            crossConfig.registerKeyEventHandler(handler);
-            break;
-        case CRISS:
-            crissConfig.registerKeyEventHandler(handler);
-            break;
-        case SETUP:
-            setupConfig.registerKeyEventHandler(handler);
-            break;
-        default:
-            throw new RuntimeException("Unknown operation mode "+mode);
-        }
-    }
-
-    public void setSensorEventHandler(OperationMode mode, SensorType type, SensorEventHandler handler){
-        switch(mode){
-        case CROSS:
-            crossConfig.registerSensorEventHandler(type, handler);
-            break;
-        case CRISS:
-            crissConfig.registerSensorEventHandler(type, handler);
-            break;
-        case SETUP:
-            setupConfig.registerSensorEventHandler(type, handler);
-            break;
-        default:
-            throw new RuntimeException("Unknown operation mode "+mode);
-        }
-    }
-
-    public void configureUnassigned(OperationMode mode, SensorType type){
-        log.debug("Setting "+mode+":"+type+" to unassigned");
-        setSensorEventHandler(mode, type, null);
-    }
-
-    public void configureControlChange(OperationMode mode, SensorType type, int channel, int cc, int min, int max){
+    public void configureControlChange(String mode, SensorType type, int channel, int cc, int min, int max){
         log.debug("Setting "+mode+":"+type+" to CC "+cc+" ("+min+"-"+max+")");
         setSensorEventHandler(mode, type, new ControlChangeEventHandler(cc, min, max));
     }
 
-    public void configurePitchBend(OperationMode mode, SensorType type, int channel, int min, int max){
+    public void configurePitchBend(String mode, SensorType type, int channel, int min, int max){
         setSensorEventHandler(mode, type, new PitchBendEventHandler(min, max));
     }
 
-    public void configureBaseNoteChange(OperationMode mode, SensorType type, int min, int max){
+    public void configureBaseNoteChange(String mode, SensorType type, int min, int max){
         log.debug("Setting "+mode+":"+type+" to control base note");
         setSensorEventHandler(mode, type, new BaseNoteChangeEventHandler(min, max));
     }
 
-    public void configureScaleChange(OperationMode mode, SensorType type){
+    public void configureScaleChange(String mode, SensorType type){
         log.debug("Setting "+mode+":"+type+" to control scale changes");
         setSensorEventHandler(mode, type, new ScaleChangeEventHandler());
     }
 
-    public void configureNotePlayer(OperationMode mode, boolean notes, boolean pb, boolean at){
+    public void configureNotePlayer(String mode, boolean notes, boolean pb, boolean at){
         log.debug("Setting "+mode+" mode to play notes ("+notes+") pitch bend ("+pb+") aftertouch ("+at+")");
         if(notes){
             setKeyEventHandler(mode, new NotePlayer());
@@ -276,23 +194,6 @@ public class MidiOutputEventHandler extends KeyPressManager {
             setKeyEventHandler(mode, null);
         }
         // todo: honour pb and at
-    }
-
-    public OperationMode getMode(){
-        return mode;
-    }
-
-    public void changeMode(OperationMode mode){
-        log.debug("set mode: "+mode);
-        if(this.mode != mode){
-            if(mode == OperationMode.CRISS)
-                currentConfig = crissConfig;
-            else if(mode == OperationMode.CROSS)
-                currentConfig = crossConfig;
-            else if(mode == OperationMode.SETUP)
-                currentConfig = setupConfig;
-            this.mode = mode;
-        }
     }
 
     public int getBasenote(){
@@ -319,35 +220,9 @@ public class MidiOutputEventHandler extends KeyPressManager {
         return mapper.getScaleNames()[mapper.getScaleIndex()];
     }
 
-    // event handlers
-
-    public void sensorChange(SensorDefinition sensor){
-        currentConfig.sensorChange(sensor);
-        super.sensorChange(sensor); // trigger key events
-    }
-
-    public void keyDown(int col, int row){
-        released = true;
-        currentConfig.keyDown(col, row);
-    }
-
-    public void keyUp(int col, int row){
-        released = true;
-        currentConfig.keyUp(col, row);
-    }
-
-    public void keyChange(int oldCol, int oldRow, int newCol, int newRow){
-        if(released){
-            /// suppress keychange event if key has not been released since last mode switch (key hold)
-            currentConfig.keyChange(oldCol, oldRow, newCol, newRow);
-        }
-    }
-
     public void setMidiPlayer(MidiPlayer midi){
         this.midi = midi;
     }
-
-    private ShortMessage msg = new ShortMessage();
 
     public void sendMidiNoteOn(int note, int velocity){
         log.debug("note on:\t "+note+"\t  "+velocity);

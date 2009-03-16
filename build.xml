@@ -46,6 +46,7 @@
       <manifest>
         <attribute name="Main-Class" value="${java.main.class}" />
         <attribute name="Class-Path" value="lib/RXTXcomm.jar lib/log4j.jar lib/mmj.jar lib/log4j.jar"/>
+<!--         <attribute name="Icon-Filename" value="webstart/icon.jpg"/> -->
 <!--         <attribute name="java.library.path" value="lib/librxtxSerial.jnilib"/> -->
 <!--         <attribute name="Bundle-NativeCode" value="lib/librxtxSerial.jnilib;lib/libmmj.jnilib osname=mac os x;processor=x86;processor=ppc"/> -->
       </manifest>
