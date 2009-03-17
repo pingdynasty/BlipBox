@@ -7,7 +7,7 @@ MessageReceiverTest: MessageReceiverTest.cpp ../MessageReceiver.cpp ../MessageRe
 
 CharactersTest: CharactersTest.cpp ../Characters.cpp
 	g++ CharactersTest.cpp ../Characters.cpp -o Characters.test
-	./Characters.test 01234 abcd EFGH ijkl MNOPQ rstuvxyz
+	./Characters.test 01234 abcd EFGH ijkl MNOPQ rstuv WXYZ
 
 clean: 
 	rm -f *.test
