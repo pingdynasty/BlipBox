@@ -11,15 +11,15 @@ public class ScaleMapper {
 
     private String[] scalenames = new String[]{
         "C Major",
-        "C minor blues scale",
-        "C major blues scale",
-        "Ionian mode",
-        "Dorian mode",
-        "Phrygian mode",
-        "Lydian mode",
-        "Mixolydian mode",
-        "Aeolian mode",
-        "Locrian mode",
+        "C Minor Blues Scale",
+        "C Major Blues Scale",
+        "Ionian Mode",
+        "Dorian Mode",
+        "Phrygian Mode",
+        "Lydian Mode",
+        "Mixolydian Mode",
+        "Aeolian Mode",
+        "Locrian Mode",
         "Chromatic Scale"
     };
 

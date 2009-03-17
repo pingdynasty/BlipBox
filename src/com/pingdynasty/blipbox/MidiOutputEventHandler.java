@@ -9,21 +9,59 @@ import org.apache.log4j.Logger;
 public class MidiOutputEventHandler extends MultiModeKeyPressManager {
     private static final Logger log = Logger.getLogger(MidiOutputEventHandler.class);
 
-    protected MidiPlayer midi;
-    protected ScaleMapper mapper;
-    private static final int Y_NOTES_CC = 18;
-    private static final int X_CC = 20;
-    private static final int Y_CC = 21;
-    private static final int T_CC = 19;
-    private static final int POT_CC = 1;
-    private static final int BUTTON_CC = 22;
-    private static final long DOUBLE_CLICK_MILLIS = 500;
-//     private static final int OCTAVE_SHIFT = 12;
     private static final int OCTAVE_SHIFT = 6;
+    private MidiPlayer midiPlayer;
     private int lastNote = 0;
-    private int basenote = 40;
-    private long lastButtonPress = 0; // must be shared between mode change event handlers (or event handlers must be shared)
-    private boolean enableSetupMode = false;
+
+    public class MidiConfigurationMode extends ConfigurationMode {
+        private ScaleMapper mapper;
+        private int basenote = 40;
+
+        public MidiConfigurationMode(String name, String follow){
+            super(name, follow);
+            mapper = new ScaleMapper();
+            mapper.setScale("Mixolydian Mode");
+//             setScale("Chromatic Scale");
+//         setScale("C Major");
+//         setScale("Dorian Mode");
+        }
+
+        public ScaleMapper getScaleMapper(){
+            return mapper;
+        }
+
+        public int getBaseNote(){
+            return basenote;
+        }
+
+        public void setBaseNote(int basenote){
+            this.basenote = basenote;
+        }
+    }
+
+    public ConfigurationMode createConfigurationMode(String mode, String follow){
+        return new MidiConfigurationMode(mode, follow);
+    }
+
+    public ScaleMapper getScaleMapper(){
+        MidiConfigurationMode mode = (MidiConfigurationMode)getCurrentConfigurationMode();
+        return mode.getScaleMapper();
+    }
+
+    public int getBaseNote(){
+        MidiConfigurationMode mode = (MidiConfigurationMode)getCurrentConfigurationMode();
+        return mode.getBaseNote();
+    }
+
+    public void setBaseNote(int basenote){
+        MidiConfigurationMode mode = (MidiConfigurationMode)getCurrentConfigurationMode();
+        mode.setBaseNote(basenote);
+    }
+
+    public void setBaseNote(String modename, int basenote){
+        MidiConfigurationMode mode = (MidiConfigurationMode)getConfigurationMode(modename);
+        mode.setBaseNote(basenote);
+    }
 
     public void holdOff(){
         super.holdOff();
@@ -41,9 +79,11 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
     public class OctaveShiftUpEventHandler implements SensorEventHandler {
         public void sensorChange(SensorDefinition sensor){
             if(sensor.value != 0){
+                int basenote = getBaseNote();
                 log.debug("octave up");
-                if(basenote+(OCTAVE_SHIFT*2) <= 127)
-                    basenote += OCTAVE_SHIFT;
+                basenote += OCTAVE_SHIFT;
+                if(basenote + OCTAVE_SHIFT <= 127)
+                    setBaseNote(basenote);
                 log.debug("new basenote "+basenote);
             }
         }
@@ -52,9 +92,11 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
     public class OctaveShiftDownEventHandler implements SensorEventHandler {
         public void sensorChange(SensorDefinition sensor){
             if(sensor.value != 0){
+                int basenote = getBaseNote();
                 log.debug("octave down");
-                if(basenote-OCTAVE_SHIFT > 0)
-                    basenote -= OCTAVE_SHIFT;
+                basenote -= OCTAVE_SHIFT;
+                if(basenote > 0)
+                    setBaseNote(basenote);
                 log.debug("new basenote "+basenote);
             }
         }
@@ -73,13 +115,15 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
 
         public void sensorChange(SensorDefinition sensor){
-            basenote = sensor.scale(min, max);
+            int basenote = sensor.scale(min, max);
             log.debug("basenote: "+basenote);
+            setBaseNote(basenote);
         }
     }
 
     public class ScaleChangeEventHandler implements SensorEventHandler {
         public void sensorChange(SensorDefinition sensor){
+            ScaleMapper mapper = getScaleMapper();
             int val = sensor.scale(mapper.getScaleNames().length);
             if(val < mapper.getScaleNames().length){
                 mapper.setScale(val);
@@ -141,7 +185,7 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
 
         public void keyDown(int col, int row){
-            lastNote = mapper.getNote(col+basenote);
+            lastNote = getScaleMapper().getNote(col+getBaseNote());
             sendMidiNoteOn(lastNote, getVelocity(row));
         }
 
@@ -150,7 +194,7 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
 
         public void keyChange(int oldCol, int oldRow, int newCol, int newRow){
-            int newNote = mapper.getNote(newCol+basenote);
+            int newNote = getScaleMapper().getNote(newCol+getBaseNote());
             if(newNote != lastNote){
                 sendMidiNoteOff(lastNote);
                 sendMidiNoteOn(newNote, getVelocity(newRow));
@@ -161,10 +205,6 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
 
     public MidiOutputEventHandler(BlipBox sender){
         super(sender);
-        mapper = new ScaleMapper();
-        setScale("Chromatic Scale");
-//         setScale("C Major");
-//         setScale("Dorian mode");
     }
 
     public void configureControlChange(String mode, SensorType type, int channel, int cc, int min, int max){
@@ -196,32 +236,25 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         // todo: honour pb and at
     }
 
-    public int getBasenote(){
-        return basenote;
-    }
+//     public String[] getScaleNames(){
+//         return mapper.getScaleNames();
+//     }
 
-    public void setBasenote(int basenote){
-        this.basenote = basenote;
-    }
+//     public void setScale(int index){
+//         mapper.setScale(index);
+//     }
 
-    public String[] getScaleNames(){
-        return mapper.getScaleNames();
-    }
-
-    public void setScale(int index){
-        mapper.setScale(index);
-    }
-
-    public void setScale(String scalename){
-        mapper.setScale(scalename);
-    }
+//     public void setScale(String scalename){
+//         mapper.setScale(scalename);
+//     }
 
     public String getCurrentScale(){
+        ScaleMapper mapper = getScaleMapper();
         return mapper.getScaleNames()[mapper.getScaleIndex()];
     }
 
-    public void setMidiPlayer(MidiPlayer midi){
-        this.midi = midi;
+    public void setMidiPlayer(MidiPlayer midiPlayer){
+        this.midiPlayer = midiPlayer;
     }
 
     public void sendMidiNoteOn(int note, int velocity){
@@ -235,8 +268,8 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
             velocity = velocity < 0 ? 0 : 127;
         }
         try {
-            if(midi != null)
-                midi.noteOn(note, velocity);
+            if(midiPlayer != null)
+                midiPlayer.noteOn(note, velocity);
         }catch(Exception exc){
             log.error(exc, exc);
         }        
@@ -250,8 +283,8 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
             return;
         }
         try {
-            if(midi != null)
-                midi.noteOff(note);
+            if(midiPlayer != null)
+                midiPlayer.noteOff(note);
         }catch(Exception exc){
             log.error(exc, exc);
         }        
@@ -264,8 +297,8 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
             return;
         }
         try {
-            if(midi != null)
-                midi.controlChange(cc, value);
+            if(midiPlayer != null)
+                midiPlayer.controlChange(cc, value);
         }catch(Exception exc){
             log.error(exc, exc);
         }
@@ -280,15 +313,15 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         // setPitchBend() expects a value in the range 0 to 16383
         degree += 8192;
         try {
-            if(midi != null)
-                midi.pitchBend(degree);
+            if(midiPlayer != null)
+                midiPlayer.pitchBend(degree);
         }catch(Exception exc){
             log.error(exc, exc);
         }        
     }
 
     public void setChannel(int channel){
-        midi.setChannel(channel);
+        midiPlayer.setChannel(channel);
     }
 
     public class SensitiveNotePlayer implements KeyEventHandler {
@@ -301,7 +334,7 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
 
         public void keyDown(int col, int row){
-            lastNote = mapper.getNote(col+basenote);
+            lastNote = getScaleMapper().getNote(col+getBaseNote());
             sendMidiNoteOn(lastNote, velocity);
         }
 
@@ -310,7 +343,7 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
 
         public void keyChange(int oldCol, int oldRow, int newCol, int newRow){
-            int newNote = mapper.getNote(newCol+basenote);
+            int newNote = getScaleMapper().getNote(newCol+getBaseNote());
             if(newNote != lastNote){
                 sendMidiNoteOff(lastNote);
                 sendMidiNoteOn(newNote, velocity);

@@ -28,47 +28,15 @@ public class MidiConfigurationCanvas extends JPanel {
     private static final byte POT_CC = 1;
     private static final byte BUTTON_CC = 22;
 
-    private boolean enableSetupMode = false;
-
     private static final String[] controlTypes = 
     { "Unassigned", "Control Change", "Pitch Bend", "Basenote", "Scale" };
 
     public class BasicConfigurationPanel extends JPanel {
-        private JComboBox scale;
-        private JSpinner basenote;
         private JSpinner range;
 
         public BasicConfigurationPanel(){
-//             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-//             add(Box.createHorizontalGlue());
-//             add(Box.createVerticalGlue());
-
-//             setLayout(
-
             JPanel panel = new JPanel(new MigLayout());
             add(panel);
-
-            panel.add(new Label("Scale"), "label");
-            scale = new JComboBox(midioutput.getScaleNames());
-            scale.setSelectedItem(midioutput.getCurrentScale());
-            scale.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e) {
-                        String scalename = (String)scale.getSelectedItem();
-                        midioutput.setScale(scalename);
-                    }
-                });
-            panel.add(scale, "wrap");
-
-            panel.add(new Label("Basenote"), "label");
-            basenote = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
-            basenote.setValue(midioutput.getBasenote());
-            basenote.addChangeListener(new ChangeListener(){
-                    public void stateChanged(ChangeEvent e){
-                        Integer value = (Integer)basenote.getValue();
-                        midioutput.setBasenote(value);
-                    }
-                });
-            panel.add(basenote, "wrap");
 
             panel.add(new Label("Note Range"), "label");
             range = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
@@ -283,9 +251,13 @@ public class MidiConfigurationCanvas extends JPanel {
             private JCheckBox at;
             private boolean doPlay = true;
             private boolean doAt, doPb;
+            private JComboBox scale;
+            private JSpinner basenote;
 
             public NotePlayerConfigurationPanel(){
-                setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+                JPanel panel = new JPanel(new MigLayout());
+                add(panel);
+
                 play = new JCheckBox("Play notes", true);
                 play.addActionListener(new AbstractAction(){
                         public void actionPerformed(ActionEvent e) {
@@ -300,7 +272,8 @@ public class MidiConfigurationCanvas extends JPanel {
                             configure();
                         }
                     });
-                add(play);
+                panel.add(play, "wrap");
+
                 pb = new JCheckBox("Pitch Bend", false);
                 pb.addActionListener(new AbstractAction(){
                         public void actionPerformed(ActionEvent e) {
@@ -308,7 +281,8 @@ public class MidiConfigurationCanvas extends JPanel {
                             configure();
                         }
                     });
-                add(pb);
+                panel.add(pb, "wrap");
+
                 at = new JCheckBox("Aftertouch", false);
                 at.addActionListener(new AbstractAction(){
                         public void actionPerformed(ActionEvent e) {
@@ -316,8 +290,30 @@ public class MidiConfigurationCanvas extends JPanel {
                             configure();
                         }
                     });
-                add(at);
-                add(Box.createVerticalGlue());
+                panel.add(at, "wrap");
+
+                panel.add(new Label("Scale"), "label");
+                scale = new JComboBox(midioutput.getScaleMapper().getScaleNames());
+                scale.setSelectedItem(midioutput.getCurrentScale());
+                scale.addActionListener(new AbstractAction(){
+                        public void actionPerformed(ActionEvent e) {
+                            String scalename = (String)scale.getSelectedItem();
+                            midioutput.getScaleMapper().setScale(scalename);
+                        }
+                    });
+                panel.add(scale, "wrap");
+
+                panel.add(new Label("Basenote"), "label");
+                basenote = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
+                basenote.setValue(midioutput.getBaseNote());
+                basenote.addChangeListener(new ChangeListener(){
+                        public void stateChanged(ChangeEvent e){
+                            Integer value = (Integer)basenote.getValue();
+                            midioutput.setBaseNote(value);
+                        }
+                    });
+                panel.add(basenote, "wrap");
+
             }
 
             public void configure(){
@@ -380,11 +376,6 @@ public class MidiConfigurationCanvas extends JPanel {
         panel = new ModeConfigurationPanel("Criss");
         modes.put(panel.getOperationMode(), panel);
         tabs.addTab("Criss Mode", panel);
-        if(enableSetupMode){
-            panel = new ModeConfigurationPanel("Setup");
-            modes.put(panel.getOperationMode(), panel);
-            tabs.addTab("Setup Mode", panel);
-        }
 
         add(tabs);
 
@@ -398,12 +389,6 @@ public class MidiConfigurationCanvas extends JPanel {
         setup("Criss", SensorType.Y_SENSOR, "Control Change", 1, Y_CC, 0, 127);
         setup("Criss", SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
 
-        if(enableSetupMode){
-            setup("Setup", false, false, false);
-            setup("Setup", SensorType.X_SENSOR, "Basenote");
-            setup("Setup", SensorType.Y_SENSOR, "Scale");
-            setup("Setup", SensorType.POT_SENSOR, "Unassigned");
-        }
     }
 
     public void setup(String mode, SensorType sensor, String type){
@@ -419,7 +404,6 @@ public class MidiConfigurationCanvas extends JPanel {
         ModeConfigurationPanel panel = modes.get(mode);
         panel.setup(doPlay, doPb, doAt);
     }
-
 
     public static void main(String[] args)
         throws Exception {
