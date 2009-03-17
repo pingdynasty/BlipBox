@@ -12,20 +12,18 @@ if (/^FONTBOUNDINGBOX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/) {
 }
 elsif (/^ENCODING\s+(\d+)/) { 
     printf ("%04X:", $1); 
-    $INCHAR=1; 
 }
-elsif (/^BBX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/ && $INCHAR) {
+elsif (/^BBX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/) {
     $OFFSET=$HEIGHT-$2+$BASELINE-$4; # calculate how much top padding is needed
     pad($OFFSET);
 }
-elsif (/^BITMAP/ && $INCHAR) { 
+elsif (/^BITMAP/) { 
     $BITMAP=$OFFSET+1;
 }
-elsif (/^ENDCHAR/ && $INCHAR) { 
+elsif (/^ENDCHAR/) { 
     pad($HEIGHT - $BITMAP + 1); 
     print "\n";
     $BITMAP=0; 
-    $INCHAR=0; 
 }
 elsif ($BITMAP) { 
     y/a-f/A-F/; s/\n$//; 

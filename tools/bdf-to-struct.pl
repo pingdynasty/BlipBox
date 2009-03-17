@@ -1,20 +1,23 @@
 #!/usr/bin/perl -n
 # script that converts a BDF font file to C source code
-$FONTNAME = "typeface";
 sub pad {
     my $count = shift;
     while($count-- > 0) { 
         print ", 0x00"; 
     }
 }
-if (/^FONTBOUNDINGBOX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/) { 
-    $WIDTH=$1;
-    $HEIGHT=$2;
-    $BASELINE=$4; # vertical offset of characters - negative or zero 
+if (/^FONT\s+(.*)$/) { 
+    $FONTNAME = $1;
+}
+elsif (/^FONTBOUNDINGBOX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/) { 
+    $WIDTH= $1 ;
+    $HEIGHT= $2 ;
+    $BASELINE= $4; # vertical offset of characters - negative or zero 
+    printf("/* Font name: %s */\n", $FONTNAME); 
     printf("#define FONT_WIDTH %d\n", $WIDTH);
     printf("#define FONT_HEIGHT %d\n", $HEIGHT);
-    printf("struct glyph { char c; uint8_t d[%d]; };\n", $HEIGHT); 
-    printf("glyph %s[] = {\n", $FONTNAME); 
+    print "struct glyph { char c; uint8_t d[FONT_HEIGHT]; };\n"; 
+    print "glyph typeface[] = {\n"; 
 }
 elsif (/^STARTCHAR\s+(.)$/) { 
     $INCHAR=1; 
@@ -22,8 +25,11 @@ elsif (/^STARTCHAR\s+(.)$/) {
 }
 elsif (/^BBX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/ && $INCHAR) {
     $OFFSET=$HEIGHT-$2+$BASELINE-$4; # calculate how much top padding is needed
+    if($OFFSET < 0){
+        printf("/* bdf-to-struct.pl ERROR! Negative offset: %s */", $OFFSET);
+    }
     print "{ ";
-    if($OFFSET){
+    if($OFFSET > 0){
         print "0x00";
         pad($OFFSET-1);
     }
@@ -43,7 +49,7 @@ elsif (/^ENDFONT/) {
     print "};\n"; 
 }
 elsif (/^COPYRIGHT\s+(.+)$/) {
-    printf("// %s\n", $1);
+    printf("/* Copyright: %s */\n", $1);
 }
 elsif ($BITMAP) { 
     s/(.+)\n$//; 
