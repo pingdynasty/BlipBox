@@ -51,7 +51,7 @@ public class BlipBoxApplication {
     public JFrame createFrame(){
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 400);
+        frame.setSize(1000, 400);
         frame.setTitle("BlipBox");
         frame.setJMenuBar(createMenuBar());
         return frame;

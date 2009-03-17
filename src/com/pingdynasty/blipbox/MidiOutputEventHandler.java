@@ -48,6 +48,11 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         return mode.getScaleMapper();
     }
 
+    public ScaleMapper getScaleMapper(String mode){
+        MidiConfigurationMode config = (MidiConfigurationMode)getConfigurationMode(mode);
+        return config.getScaleMapper();
+    }
+
     public int getBaseNote(){
         MidiConfigurationMode mode = (MidiConfigurationMode)getCurrentConfigurationMode();
         return mode.getBaseNote();
@@ -242,10 +247,6 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
 
 //     public void setScale(int index){
 //         mapper.setScale(index);
-//     }
-
-//     public void setScale(String scalename){
-//         mapper.setScale(scalename);
 //     }
 
     public String getCurrentScale(){

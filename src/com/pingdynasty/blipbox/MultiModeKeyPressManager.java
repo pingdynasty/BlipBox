@@ -1,5 +1,6 @@
 package com.pingdynasty.blipbox;
 
+import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import javax.sound.midi.*;
@@ -37,6 +38,13 @@ public class MultiModeKeyPressManager extends KeyPressManager {
         this.sender = sender;
     }
 
+    public String[] getModeNames(){
+        Set<String> names = configurations.keySet();
+        String[] array = new String[names.size()];
+        names.toArray(array);
+        return array;
+    }
+
     public void holdOn(){
         // inverting and adjusting row value...
         sender.setLed(getNumberOfRows()-getRow()-1, getColumn(), holdBrightness);
@@ -47,11 +55,9 @@ public class MultiModeKeyPressManager extends KeyPressManager {
     }
 
     public void init(){
-        // set up a two mode configuration which can be toggled with button 1
+        // set up a two mode configuration
         setConfigurationMode(createConfigurationMode("Cross", "Cross"));
         setConfigurationMode(createConfigurationMode("Criss", "Criss"));
-        setSensorEventHandler("Cross", SensorType.BUTTON1_SENSOR, new ModeChangeEventHandler("Criss"));
-        setSensorEventHandler("Criss", SensorType.BUTTON1_SENSOR, new ModeChangeEventHandler("Cross"));
         setMode("Cross");
     }
 
@@ -74,6 +80,11 @@ public class MultiModeKeyPressManager extends KeyPressManager {
     public void configureUnassigned(String mode, SensorType type){
         log.debug("Setting "+mode+":"+type+" to unassigned");
         setSensorEventHandler(mode, type, null);
+    }
+
+    public void configureModeChange(String mode, SensorType type, String toMode){
+        log.debug("Setting "+mode+":"+type+" to mode change");
+        setSensorEventHandler(mode, type, new ModeChangeEventHandler(toMode));
     }
 
     public SensorHandlerConfiguration getSensorHandlerConfiguration(String mode){

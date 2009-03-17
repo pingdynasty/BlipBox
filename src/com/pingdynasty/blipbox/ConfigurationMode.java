@@ -22,5 +22,9 @@ public class ConfigurationMode {
     public String getFollowMode(){
         return follow;
     }
+
+    public void setFollowMode(String follow){
+        this.follow = follow;
+    }
 }
 

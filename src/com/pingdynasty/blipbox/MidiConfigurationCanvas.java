@@ -18,7 +18,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class MidiConfigurationCanvas extends JPanel {
     private static final Logger log = Logger.getLogger(MidiOutputEventHandler.class);
-    private MidiOutputEventHandler midioutput;
+    private MidiOutputEventHandler eventhandler;
     private BlipBox sender;
 
     private static final byte Y_NOTES_CC = 18;
@@ -29,7 +29,7 @@ public class MidiConfigurationCanvas extends JPanel {
     private static final byte BUTTON_CC = 22;
 
     private static final String[] controlTypes = 
-    { "Unassigned", "Control Change", "Pitch Bend", "Basenote", "Scale" };
+    { "Unassigned", "Control Change", "Pitch Bend", "Basenote", "Scale", "Mode Change" };
 
     public class BasicConfigurationPanel extends JPanel {
         private JSpinner range;
@@ -44,7 +44,7 @@ public class MidiConfigurationCanvas extends JPanel {
             range.addChangeListener(new ChangeListener(){
                     public void stateChanged(ChangeEvent e){
                         Integer value = (Integer)range.getValue();
-                        midioutput.setNumberOfColumns(value);
+                        eventhandler.setNumberOfColumns(value);
                     }
                 });
             panel.add(range, "wrap");
@@ -55,23 +55,11 @@ public class MidiConfigurationCanvas extends JPanel {
                     public void stateChanged(ChangeEvent event){
                         JSpinner spinner = (JSpinner)event.getSource();
                         Integer value = (Integer)spinner.getValue();
-                        midioutput.setSensitivity(value);
+                        eventhandler.setSensitivity(value);
                         sender.setSensitivity(value);
                     }
                 });
             panel.add(spinner, "wrap");
-
-            panel.add(new Label("Follow Mode"), "label");
-            JComboBox box = new JComboBox(sender.getFollowModes());
-            box.setSelectedItem("Cross");
-            box.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e) {
-                        JComboBox box = (JComboBox)e.getSource();
-                        String name = (String)box.getSelectedItem();
-                        sender.setFollowMode(name);
-                    }
-                });
-            panel.add(box, "wrap");
         }
     }
 
@@ -94,9 +82,9 @@ public class MidiConfigurationCanvas extends JPanel {
             return mode;
         }
 
-//         public void setup(SensorType sensor, String type){
-//             parameters.setup(sensor, type, 0, 0, 0, 0);
-//         }
+        public void setup(SensorType sensor, String type, String mode){
+            parameters.setup(sensor, type, mode);
+        }
 
         public void setup(SensorType sensor, String type, int channel, int cc, int min, int max){
             parameters.setup(sensor, type, channel, cc, min, max);
@@ -114,6 +102,7 @@ public class MidiConfigurationCanvas extends JPanel {
             private JSpinner cc;
             private JSpinner min;
             private JSpinner max;
+            private JComboBox modeList;
 
             public ParameterConfigurationPanel(String name, SensorType type){
                 this.type = type;
@@ -178,6 +167,14 @@ public class MidiConfigurationCanvas extends JPanel {
                         }
                     });
                 add(button);
+
+                modeList = new JComboBox(eventhandler.getModeNames());
+                modeList.addActionListener(new AbstractAction(){
+                        public void actionPerformed(ActionEvent e) {
+                            configure();
+                        }
+                    });
+                add(modeList);
             }
 
             public void setup(String type, int channel, int cc, int min, int max){
@@ -189,23 +186,31 @@ public class MidiConfigurationCanvas extends JPanel {
                 this.max.setValue(max);
             }
 
+            public void setup(String type, String mode){
+                typeList.setSelectedItem(type);
+                modeList.setSelectedItem(mode);
+            }
+
             public void configure(){
                 String type = (String)typeList.getSelectedItem();
                 if("Control Change".equals(type)){
-                    midioutput.configureControlChange(getOperationMode(), this.type, 
+                    eventhandler.configureControlChange(getOperationMode(), this.type, 
                                                    (Integer)channel.getValue(), (Integer)cc.getValue(), 
                                                    (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Pitch Bend".equals(type)){
-                    midioutput.configurePitchBend(getOperationMode(), this.type, 
+                    eventhandler.configurePitchBend(getOperationMode(), this.type, 
                                                (Integer)channel.getValue(), 
                                                (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Basenote".equals(type)){
-                    midioutput.configureBaseNoteChange(getOperationMode(), this.type, 
+                    eventhandler.configureBaseNoteChange(getOperationMode(), this.type, 
                                                     (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Scale".equals(type)){
-                    midioutput.configureScaleChange(getOperationMode(), this.type);
+                    eventhandler.configureScaleChange(getOperationMode(), this.type);
+                }else if("Mode Change".equals(type)){
+                    eventhandler.configureModeChange(getOperationMode(), this.type, 
+                                                   (String)modeList.getSelectedItem());
                 }else if("Unassigned".equals(type)){
-                    midioutput.configureUnassigned(getOperationMode(), this.type);
+                    eventhandler.configureUnassigned(getOperationMode(), this.type);
                 }
             }
 
@@ -217,6 +222,7 @@ public class MidiConfigurationCanvas extends JPanel {
                     max.setEnabled(true);
                     min.setValue(0);
                     max.setValue(127);
+                    modeList.setEnabled(false);
                 }else if("Pitch Bend".equals(type)){
                     channel.setEnabled(true);
                     cc.setEnabled(false);
@@ -224,6 +230,7 @@ public class MidiConfigurationCanvas extends JPanel {
                     max.setEnabled(true);
                     min.setValue(-8192);
                     max.setValue(8191);
+                    modeList.setEnabled(false);
                 }else if("Basenote".equals(type)){
                     channel.setEnabled(false);
                     cc.setEnabled(false);
@@ -231,16 +238,25 @@ public class MidiConfigurationCanvas extends JPanel {
                     max.setEnabled(true);
                     min.setValue(0);
                     max.setValue(127);
+                    modeList.setEnabled(false);
                 }else if("Scale".equals(type)){
                     channel.setEnabled(false);
                     cc.setEnabled(false);
                     min.setEnabled(false);
                     max.setEnabled(false);
+                    modeList.setEnabled(false);
+                }else if("Mode Change".equals(type)){
+                    channel.setEnabled(false);
+                    cc.setEnabled(false);
+                    min.setEnabled(false);
+                    max.setEnabled(false);
+                    modeList.setEnabled(true);
                 }else if("Unassigned".equals(type)){
                     channel.setEnabled(false);
                     cc.setEnabled(false);
                     min.setEnabled(false);
                     max.setEnabled(false);
+                    modeList.setEnabled(false);
                 }
             }
         }
@@ -255,6 +271,7 @@ public class MidiConfigurationCanvas extends JPanel {
             private JSpinner basenote;
 
             public NotePlayerConfigurationPanel(){
+                setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
                 JPanel panel = new JPanel(new MigLayout());
                 add(panel);
 
@@ -292,24 +309,40 @@ public class MidiConfigurationCanvas extends JPanel {
                     });
                 panel.add(at, "wrap");
 
+                panel = new JPanel(new MigLayout());
+                add(panel);
+
+                panel.add(new Label("Follow Mode"), "label");
+                JComboBox box = new JComboBox(sender.getFollowModes());
+                box.setSelectedItem(eventhandler.getConfigurationMode(getOperationMode()).getFollowMode());
+                box.addActionListener(new AbstractAction(){
+                        public void actionPerformed(ActionEvent e) {
+                            JComboBox box = (JComboBox)e.getSource();
+                            String name = (String)box.getSelectedItem();
+                            eventhandler.getConfigurationMode(getOperationMode()).setFollowMode(name);
+                            sender.setFollowMode(name);
+                        }
+                    });
+                panel.add(box, "wrap");
+
                 panel.add(new Label("Scale"), "label");
-                scale = new JComboBox(midioutput.getScaleMapper().getScaleNames());
-                scale.setSelectedItem(midioutput.getCurrentScale());
+                scale = new JComboBox(eventhandler.getScaleMapper().getScaleNames());
+                scale.setSelectedItem(eventhandler.getCurrentScale());
                 scale.addActionListener(new AbstractAction(){
                         public void actionPerformed(ActionEvent e) {
                             String scalename = (String)scale.getSelectedItem();
-                            midioutput.getScaleMapper().setScale(scalename);
+                            eventhandler.getScaleMapper(getOperationMode()).setScale(scalename);
                         }
                     });
                 panel.add(scale, "wrap");
 
                 panel.add(new Label("Basenote"), "label");
                 basenote = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
-                basenote.setValue(midioutput.getBaseNote());
+                basenote.setValue(eventhandler.getBaseNote());
                 basenote.addChangeListener(new ChangeListener(){
                         public void stateChanged(ChangeEvent e){
                             Integer value = (Integer)basenote.getValue();
-                            midioutput.setBaseNote(value);
+                            eventhandler.setBaseNote(getOperationMode(), value);
                         }
                     });
                 panel.add(basenote, "wrap");
@@ -317,7 +350,7 @@ public class MidiConfigurationCanvas extends JPanel {
             }
 
             public void configure(){
-                midioutput.configureNotePlayer(getOperationMode(), doPlay, doPb, doAt);
+                eventhandler.configureNotePlayer(getOperationMode(), doPlay, doPb, doAt);
             }
 
             public void setup(boolean doPlay, boolean doPb, boolean doAt){
@@ -340,14 +373,28 @@ public class MidiConfigurationCanvas extends JPanel {
                 panels.put(SensorType.X_SENSOR, panel);
                 add(panel);
                 add(Box.createRigidArea(new Dimension(10,0)));
+
                 panel = new ParameterConfigurationPanel("Y parameter", SensorType.Y_SENSOR);
                 panels.put(SensorType.Y_SENSOR, panel);
                 add(panel);
                 add(Box.createRigidArea(new Dimension(10,0)));
+
                 panel = new ParameterConfigurationPanel("Knob", SensorType.POT_SENSOR);
                 panels.put(SensorType.POT_SENSOR, panel);
                 add(panel);
                 add(Box.createRigidArea(new Dimension(10,0)));
+
+                panel = new ParameterConfigurationPanel("Button", SensorType.BUTTON1_SENSOR);
+                panels.put(SensorType.BUTTON1_SENSOR, panel);
+                add(panel);
+                add(Box.createRigidArea(new Dimension(10,0)));
+            }
+
+            public void setup(SensorType sensor, String type, String mode){
+                ParameterConfigurationPanel panel = panels.get(sensor);
+                if(panel == null)
+                    throw new RuntimeException("No configuration available for sensor type "+sensor);
+                panel.setup(type, mode);
             }
 
             public void setup(SensorType sensor, String type, int channel, int cc, int min, int max){
@@ -361,8 +408,8 @@ public class MidiConfigurationCanvas extends JPanel {
 
     private Map<String, ModeConfigurationPanel> modes = new HashMap<String, ModeConfigurationPanel>();
 
-    public MidiConfigurationCanvas(MidiOutputEventHandler midioutput, BlipBox sender){
-        this.midioutput = midioutput;
+    public MidiConfigurationCanvas(MidiOutputEventHandler eventhandler, BlipBox sender){
+        this.eventhandler = eventhandler;
         this.sender = sender;
 
         JTabbedPane tabs = new JTabbedPane();
@@ -383,11 +430,13 @@ public class MidiConfigurationCanvas extends JPanel {
         setup("Cross", SensorType.X_SENSOR, "Unassigned");
         setup("Cross", SensorType.Y_SENSOR, "Control Change", 1, Y_NOTES_CC, 0, 127);
         setup("Cross", SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
+        setup("Cross", SensorType.BUTTON1_SENSOR, "Mode Change", "Criss");
 
         setup("Criss", false, false, false);
         setup("Criss", SensorType.X_SENSOR, "Control Change", 1, X_CC, 0, 127);
         setup("Criss", SensorType.Y_SENSOR, "Control Change", 1, Y_CC, 0, 127);
         setup("Criss", SensorType.POT_SENSOR, "Control Change", 1, POT_CC, 0, 127);
+        setup("Criss", SensorType.BUTTON1_SENSOR, "Mode Change", "Cross");
 
     }
 
@@ -400,20 +449,14 @@ public class MidiConfigurationCanvas extends JPanel {
         panel.setup(sensor, type, channel, cc, min, max);
     }
 
+    public void setup(String mode, SensorType sensor, String type, String toMode){
+        ModeConfigurationPanel panel = modes.get(mode);
+        panel.setup(sensor, type, toMode);
+    }
+
     public void setup(String mode, boolean doPlay, boolean doPb, boolean doAt){
         ModeConfigurationPanel panel = modes.get(mode);
         panel.setup(doPlay, doPb, doAt);
     }
-
-    public static void main(String[] args)
-        throws Exception {
-        MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(null, null);        
-        JFrame frame = new JFrame();
-        frame.add(canvas);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 400);
-        frame.setVisible(true);
-    }
-
 
 }
