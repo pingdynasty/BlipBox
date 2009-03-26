@@ -61,7 +61,7 @@
       </head>
       <body>
         <div class="header">
-          <a href="http://blipbox.org"><img src="images/blipbox_logo_medium.png"/></a>
+          <a href="http://blipbox.org"><img src="images/blipbox_logo_red_black_medium.png"/></a>
 <!--           <a href="http://www.pingdynasty.com"><img src="images/pingdynasty.gif"/></a> -->
         </div>
         <div class="sidebar">
