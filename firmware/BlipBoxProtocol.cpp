@@ -47,15 +47,8 @@ void BlipBoxProtocol::init(){
 void BlipBoxProtocol::process(){
   uint8_t col, row;
 
-  if(receiver.receiveMessage())
-    this->readMessage();
-
-//   if(keys.keyscan()){
-//     // key position has changed
-//   }
-  keys.keyscan();
-
-  if(follow){
+  if(keys.keyscan() && follow){
+    // key position has changed
     // if follow mode = none, then the leds aren't cleared so that leds stay lit
     leds.clear();
     if(keys.isPressed()){
@@ -87,6 +80,9 @@ void BlipBoxProtocol::process(){
 
   if(holding)
     leds.setLed(holdCol, holdRow, holding);
+
+  if(receiver.receiveMessage())
+    this->readMessage();
 
   if(keys.getTouch() < sensitivity){
     // inverse X value
@@ -166,8 +162,8 @@ void BlipBoxProtocol::readMessage(){
     }
     break;
   case WRITE_CHARACTER_MESSAGE:
-    leds.printCharacter(getCharacterData(receiver.getMessageData()[1]), 
-                        receiver.getMessageData()[0] & 0x0f, 2, brightness);
+    leds.printCharacter(getCharacterData(receiver.getMessageData()[1]),
+                        receiver.getMessageData()[0] & 0x0f, 0, brightness);
     break;
   case SHIFT_LEDS_MESSAGE:
     leds.shift(receiver.getMessageData()[0] & 0x0f);

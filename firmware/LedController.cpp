@@ -1,4 +1,5 @@
 #include "LedController.h"
+#include "Characters.h"
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -240,16 +241,14 @@ void LedController::shift(uint8_t direction){
 }
 
 void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
-  // assumes a uint8_t[5] array of 8 bit character data
   // row goes from 0-9, col from 0-7
-  for(int i=0; i<5; ++i){
-    for(int j=2; j<7; ++j){
+  for(int i=0; i<getCharacterHeight(); ++i){
+    for(int j=8-getCharacterWidth(); j<8; ++j){
       // only shift out the relevant bits
-      // characters are padded 1 bit on the left and 2 on the right
       if(character[i] & _BV(j))
-        setLed(6-j+row, col+i, brightness);
+        setLed(7-j+row, col+i, brightness);
       else
-        setLed(6-j+row, col+i, 0x00);
+        setLed(7-j+row, col+i, 0x00);
     }
   }
 }
