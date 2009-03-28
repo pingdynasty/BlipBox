@@ -19,6 +19,7 @@ public class CommandLine {
         boolean graph = false;
         boolean midi = false;
         boolean text = false;
+        boolean monome = false;
         String config = "blipbox";
 
         for(int i=0; i<args.length; ++i){
@@ -35,6 +36,8 @@ public class CommandLine {
                 return;
             }else if(args[i].equals("--text")){
                 text = true;
+            }else if(args[i].equals("--monome")){
+                monome = true;
             }else if(args[i].equals("-l")){
                 SerialDataHandler.listports();
                 return;
@@ -66,6 +69,8 @@ public class CommandLine {
             application = new BlipBoxMidiApplication(config);
         }else if(text){
             application = new BlipBoxTextApplication(config);
+        }else if(monome){
+            application = new BlipBoxMonomeApplication(config);
         }else{
             application = new BlipBoxLoggingApplication(config);
         }
@@ -75,12 +80,12 @@ public class CommandLine {
 
         try{
             application.openSerialPort(serialport, serialspeed);
+            Thread.sleep(100); // wait for serial line to settle / device to reset
         }catch(Exception exc){
             log.error("Failed to open serial port "+serialport, exc);
         }
-        Thread.sleep(100); // wait for serial line to settle / device to reset
 
-        for(;;);
+        application.start();
     }
 
 }

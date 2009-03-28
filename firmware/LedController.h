@@ -31,7 +31,7 @@ public:
   // shifts the led data in the given direction
   void shift(uint8_t direction);
 
-  void printCharacter(uint8_t* character, uint8_t row, uint8_t col);
+  void printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness);
 
   // row goes from 0-9, col from 0-7
   void setLed(uint8_t row, uint8_t col, uint8_t value);
