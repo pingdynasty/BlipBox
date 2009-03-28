@@ -16,12 +16,15 @@ public class BlipBoxMonomeApplication
     private OscReceiver oscreceiver;
     private OscCommunication osc = null;
 
+    private int maxColumns = 9;
+    private int maxRows = 7;
+
     private int hostPort = 8000;
     private int listenPort = 8080;
 
     private String prefix = "/test";
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public BlipBoxMonomeApplication(String config)
         throws SocketException, UnknownHostException {
@@ -44,8 +47,9 @@ public class BlipBoxMonomeApplication
     }
 
     private int brightness = 0xff;
+
     public void led(int x, int y, boolean state){
-        sender.setLed(x, 7-y, state ? brightness : 0);
+        sender.setLed(x, y, state ? brightness : 0);
     }
 
     public void led_col(int col, int data){
@@ -56,6 +60,13 @@ public class BlipBoxMonomeApplication
     public void led_row(int row, int data){
         for(int i=0; i<8; ++i)
             led(i, row, (data & (1 << i)) != 0);
+    }
+
+    public void frame(int[] data){
+        if(data.length != 8)
+            throw new IllegalArgumentException("frame expects exactly 8 bytes of data");
+        for(int i=0; i<8; ++i)
+            led_col(i, data[i]);
     }
 
     public void clear(boolean state){
@@ -80,10 +91,11 @@ public class BlipBoxMonomeApplication
 
     public void prefix(String prefix){
         this.prefix = prefix;
+// when prefix changes successfully (valid pattern), change is reported by sending out a report message: 
     }
 
     public void press(int x, int y, boolean state){
-        osc.sendOscCommand(prefix + "/press", new Object[]{x, y, state ? 1 : 0}, DEBUG);
+        osc.sendOscCommand(prefix + "/press", new Object[]{x, maxRows - y, state ? 1 : 0}, DEBUG);
     }
 
 //     private void clear() {

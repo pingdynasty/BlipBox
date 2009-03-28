@@ -80,7 +80,7 @@ public class CommandLine {
 
         try{
             application.openSerialPort(serialport, serialspeed);
-            Thread.sleep(100); // wait for serial line to settle / device to reset
+            Thread.sleep(2000); // wait for serial line to settle / device to reset
         }catch(Exception exc){
             log.error("Failed to open serial port "+serialport, exc);
         }

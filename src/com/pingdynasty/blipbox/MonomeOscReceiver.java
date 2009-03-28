@@ -52,6 +52,15 @@ public class MonomeOscReceiver extends OscReceiver {
             int data = ((Integer)arguments.get(1)).intValue();
             System.out.println(ledColCommand+" "+col+" "+data);
             monome.led_col(col, data);
+        }else if(command.equals(frameCommand) && arguments.size() == 8){
+            int[] data = new int[8];
+            System.out.print(frameCommand);
+            for(int i=0; i<8; ++i){
+                data[i] = ((Integer)arguments.get(0)).intValue();
+                System.out.print(" "+data[i]);
+            }
+            System.out.println();
+            monome.frame(data);
         }else if(command.equals(clearCommand)){
             boolean state = arguments.size() > 0 && ((Integer)arguments.get(0)).intValue() == 1;
             System.out.println(clearCommand+" "+state);

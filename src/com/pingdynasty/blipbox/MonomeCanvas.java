@@ -28,7 +28,7 @@ public class MonomeCanvas extends JPanel {
 
             panel.add(new Label("Follow Mode"), "label");
             JComboBox box = new JComboBox(sender.getFollowModes());
-            box.setSelectedItem("Cross");
+            box.setSelectedItem("None");
             box.addActionListener(new AbstractAction(){
                     public void actionPerformed(ActionEvent e) {
                         JComboBox box = (JComboBox)e.getSource();

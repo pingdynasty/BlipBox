@@ -11,7 +11,7 @@ public interface MonomeInput {
     public void clear(boolean state);
     public void test(boolean state);
 //     public void test(int unit, boolean state);
-//     public void frame(int[] data); // data is an int[8]
+    public void frame(int[] data); // data is an int[8]
 
     public void prefix(String prefix);
 //     public void prefix(int unit, String prefix);
