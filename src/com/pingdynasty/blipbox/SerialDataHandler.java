@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
@@ -89,7 +91,7 @@ public class SerialDataHandler implements SerialPortEventListener {
                 outStream.write(i);
             outStream.flush();
         }catch(Throwable exc){
-            System.err.println("serial io error sending "+data+": "+exc);
+            log.error("Serial IO error sending data", exc);
         }
     }
 
@@ -100,8 +102,7 @@ public class SerialDataHandler implements SerialPortEventListener {
             outStream.write(data);
             outStream.flush();
         }catch(Throwable exc){
-//             exc.printStackTrace();
-            System.err.println("serial io error sending "+data+": "+exc);
+            log.error("Serial IO error sending data", exc);
         }
     }
 
@@ -130,11 +131,10 @@ public class SerialDataHandler implements SerialPortEventListener {
                 if(logStream != null)
                     logStream.flush();
             }catch(Throwable exc){
-                exc.printStackTrace();
-                System.err.println("serial io error: "+exc);
+                log.error("Serial IO error receiving data", exc);
             }
         }else{
-            log.info("unhandled serial event "+event);
+            log.info("Unhandled serial event "+event);
         }
     }
 	
@@ -164,7 +164,8 @@ public class SerialDataHandler implements SerialPortEventListener {
         serialport.close();
     }
 
-    public void openSerialPort(String port, int speed) {
+    public void openSerialPort(String port, int speed) 
+        throws IOException {
         closeSerialPort();
 
         log.info("Opening serial port: "+port+" at "+speed+" baud");
@@ -195,28 +196,25 @@ public class SerialDataHandler implements SerialPortEventListener {
                     serialport.setFlowControlMode(serialport.FLOWCONTROL_NONE);
                     break;
                 }
-            } catch (UnsupportedCommOperationException e){
-                throw new RuntimeException("Probably an unsupported baud rate", e);
+            }catch(UnsupportedCommOperationException exc){
+                throw new IOException("Unsupported serial operation - possible unsupported baud rate "+speed);
             }
 		
             //establish streams for reading and writing to the port
-            try {
-                inStream = serialport.getInputStream();
-                outStream = serialport.getOutputStream();
-            } catch (IOException e) {
-                throw new RuntimeException("couldn't get streams", e);
-            }
+            inStream = serialport.getInputStream();
+            outStream = serialport.getOutputStream();
 
             // we could read from "in" in a separate thread, but the API gives us events
-            try {
+            try{
                 serialport.addEventListener(this);
                 serialport.notifyOnDataAvailable(true);
-            } catch (TooManyListenersException e ) {
-                throw new RuntimeException("couldn't add listener", e);
-            }
-		
-        } catch (Exception e) { 
-            throw new RuntimeException("Port in Use", e);
+            }catch(TooManyListenersException exc){
+                throw new IOException("couldn't add listener");
+            }		
+        }catch(NoSuchPortException exc){
+            throw new IOException("No such port: "+port);
+        }catch(PortInUseException exc){
+            throw new IOException("Port in use: "+port);
         }
     }
 

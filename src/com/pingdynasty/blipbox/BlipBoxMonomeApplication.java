@@ -40,7 +40,7 @@ public class BlipBoxMonomeApplication
         oscReceive.listen(listenPort);
 //         clear();
 
-        MonomeCanvas canvas = new MonomeCanvas(eventhandler, sender);
+        MonomeCanvas canvas = new MonomeCanvas(this, eventhandler, sender);
         JFrame frame = createFrame();
         frame.add(canvas);
         frame.setVisible(true);
@@ -90,7 +90,7 @@ public class BlipBoxMonomeApplication
 //     public void frame(int[] data); // data is an int[8]
 
     public void prefix(String prefix){
-        this.prefix = prefix;
+        setPrefix(prefix);
 // when prefix changes successfully (valid pattern), change is reported by sending out a report message: 
     }
 
@@ -104,6 +104,10 @@ public class BlipBoxMonomeApplication
 
     public String getPrefix(){
         return prefix;
+    }
+
+    public void setPrefix(String prefix){
+        this.prefix = prefix;
     }
 
     public void start(){

@@ -1,6 +1,7 @@
 package com.pingdynasty.blipbox;
 
 import java.io.OutputStream;
+import java.io.IOException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -77,7 +78,8 @@ public class BlipBoxApplication {
         return menu;
     }
 
-    public void openSerialPort() {
+    public void openSerialPort()
+        throws IOException {
         receiver.openSerialPort(serialport, serialspeed);
         sender.setOutputStream(receiver.getOutputStream());
     }
@@ -85,7 +87,11 @@ public class BlipBoxApplication {
     public void openSerialPort(String port, int speed) {
         this.serialport = port;
         this.serialspeed = speed;
-        openSerialPort();
+        try{
+            openSerialPort();
+        }catch(IOException exc){
+            log.error(exc);
+        }
     }
 
     public void start(){
