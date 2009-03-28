@@ -64,7 +64,7 @@ public class CommandLine {
 
         BlipBoxApplication application = null;
         if(graph){
-//             service.setSensorEventHandler(new GraphingEventHandler());
+            application = new BlipBoxGraphingApplication(config);
         }else if(midi){
             application = new BlipBoxMidiApplication(config);
         }else if(text){

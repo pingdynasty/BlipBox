@@ -70,11 +70,9 @@ public abstract class KeyPressManager implements KeyEventHandler {
 //         System.out.println();
 
             if(tval < sensitivity){
-                if(newRow >= rowCount)
-                    newRow = rowCount - 1;
-                if(newCol >= columnCount)
-                    newCol = columnCount - 1;
-                if(newCol >= 0 && newRow >= 0){ // && newCol < columnCount && newRow < rowCount){
+                if(newRow >= rowCount || newCol >= columnCount || newCol < 0 || newRow < 0){
+                    log.warn("Column or row out of range: "+newCol+", "+newRow);
+                }else{
                     if(pressed != true){
                         pressed = true;
                         keyDown(newCol, newRow);
@@ -83,8 +81,6 @@ public abstract class KeyPressManager implements KeyEventHandler {
                     }
                     lastCol = newCol;
                     lastRow = newRow;
-                }else{
-                    log.error("Column or row out of bounds: "+newCol+"/"+newRow);
                 }
             }else if(pressed){
                 pressed = false;

@@ -135,7 +135,7 @@ public class TouchscreenCanvas extends Canvas {
         int xpos = getTheX(xValue);
         int ypos = getTheY(yValue);
 
-        g.drawString(""+tValue, xpos, ypos);
+        g.drawString(xValue+","+yValue+","+tValue, xpos, ypos);
     }
 
     public void update(int tValue, int xValue, int yValue){

@@ -3,7 +3,7 @@ package com.pingdynasty.blipbox;
 import javax.swing.JFrame;
 import java.awt.Canvas;
 
-public class GraphingEventHandler implements BlipBoxEventHandler {
+public class GraphingEventHandler extends LoggingEventHandler {
 
     private TouchscreenCanvas canvas;
     private int xval, yval, tval;
@@ -15,36 +15,24 @@ public class GraphingEventHandler implements BlipBoxEventHandler {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(860, 1024);
         frame.setVisible(true);
-
     }
 
-    public void sensorChange(SensorType type, int value){
-        switch(type){
+    public void sensorChange(SensorDefinition sensor){
+        switch(sensor.type){
         case X_SENSOR :
-            xval = value;
+            xval = sensor.value;
             break;
         case Y_SENSOR :
-            yval = value;
+            yval = sensor.value;
             break;
-        case T_SENSOR :
-            tval = value;
+        case TOUCH_SENSOR :
+            tval = sensor.value;
             break;
-        default:
-            System.out.println("unknown sensor type: "+type);
+//         default:
+//             System.out.println("unknown sensor type: "+type);
         }
         canvas.update(tval, xval, yval);
-    }
-
-    public void keyDown(byte col, byte row){
-        System.out.println("key down:\t "+col+"\t  "+row);
-    }
-
-    public void keyUp(byte col, byte row){
-        System.out.println("key up:\t "+col+"\t  "+row);
-    }
-
-    public void keyChange(byte oldCol, byte oldRow, byte newCol, byte newRow){
-        System.out.println("key change:\t "+oldCol+"\t  "+oldRow+"\t  "+newCol+"\t  "+newRow);
+        super.sensorChange(sensor);
     }
 
 }

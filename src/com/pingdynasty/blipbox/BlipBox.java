@@ -22,6 +22,8 @@ public class BlipBox {
     private static final int SENSITIVITY_PARAMETER_ID      = 0x08;
 
     private OutputStream outStream;
+    private long timestamp;
+    private long frequency = 20;
 
     private String[] followModes = new String[]{
         "None", "Dot", "Cross", "Criss", "Star", "Blob", "Square"
@@ -35,6 +37,14 @@ public class BlipBox {
      * @param outStream: serial line connected to a BlipBox
      */
     public BlipBox(){
+    }
+
+    public int getMessageFrequency(){
+        return (int)frequency;
+    }
+
+    public void setMessageFrequency(int frequency){
+        this.frequency = frequency;
     }
 
     public void setOutputStream(OutputStream outStream){
@@ -53,7 +63,6 @@ public class BlipBox {
     }
 
     public void sendString(String str, long delay){
-        str = str.toLowerCase();
         for(char c: str.toCharArray()){
             shiftLeft(1);
             sleep(delay);
@@ -154,6 +163,15 @@ public class BlipBox {
     }
 
     public void serialWrite(int[] data){
+        while(timestamp + frequency > System.currentTimeMillis()){
+            log.debug("sleeping "+(timestamp + frequency - System.currentTimeMillis())+"ms");
+            try{
+                Thread.sleep(timestamp + frequency - System.currentTimeMillis());
+            }catch(InterruptedException exc){
+                log.error(exc);
+            }
+        }
+        timestamp = System.currentTimeMillis();
         try{
             for(int i=0; i<data.length; ++i)
                 outStream.write(data[i]);

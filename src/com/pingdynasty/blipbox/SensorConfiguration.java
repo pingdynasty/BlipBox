@@ -22,7 +22,7 @@ public class SensorConfiguration {
     public static final int BUTTON3_SENSOR_MSG = 0x80 | (0x7 << 2);
     public static final int PING_SENSOR_MSG =    0x80 | (0x8 << 2);
 
-    public void addSensorDefinition(SensorDefinition sensor){
+    public void setSensorDefinition(SensorDefinition sensor){
         sensors.put(sensor.messageId, sensor);
     }
 
@@ -38,22 +38,22 @@ public class SensorConfiguration {
         else if("blipbox".equals(config))
             return createBlipBoxSensorConfiguration();
         else
-            throw new RuntimeException("No such configuration: "+config);
+            throw new IllegalArgumentException("No such configuration: "+config);
     }
 
     public static SensorConfiguration createBlipBoxSensorConfiguration(){
         SensorConfiguration sensors = new SensorConfiguration();
-        int X_MIN = 160;
+        int X_MIN = 170;
         int X_MAX = 860;
         int Y_MIN = 130;
-        int Y_MAX = 850;
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
-//         sensors.addSensorDefinition(new SensorDefinition(SensorType.BUTTON2_SENSOR, BUTTON2_SENSOR_MSG, 0, 1));
-//         sensors.addSensorDefinition(new SensorDefinition(SensorType.BUTTON3_SENSOR, BUTTON3_SENSOR_MSG, 0, 1));
+        int Y_MAX = 860;
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
+//         sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON2_SENSOR, BUTTON2_SENSOR_MSG, 0, 1));
+//         sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON3_SENSOR, BUTTON3_SENSOR_MSG, 0, 1));
         return sensors;
     }
 
@@ -63,13 +63,13 @@ public class SensorConfiguration {
         int X_MAX = 1023;
         int Y_MIN = 270;
         int Y_MAX = 880;
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));
-//         sensors.addSensorDefinition(new SensorDefinition(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
-//         sensors.addSensorDefinition(new SensorDefinition(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.BUTTON2_SENSOR, BUTTON2_SENSOR_MSG, 0, 1));
-        sensors.addSensorDefinition(new SensorDefinition(SensorType.BUTTON3_SENSOR, BUTTON3_SENSOR_MSG, 0, 1));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));
+//         sensors.setSensorDefinition(new SensorDefinition(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
+//         sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON2_SENSOR, BUTTON2_SENSOR_MSG, 0, 1));
+        sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON3_SENSOR, BUTTON3_SENSOR_MSG, 0, 1));
         return sensors;
     }
 }

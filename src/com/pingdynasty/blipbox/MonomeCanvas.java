@@ -51,6 +51,17 @@ public class MonomeCanvas extends JPanel {
                 });
             panel.add(spinner, "wrap");
 
+            panel.add(new Label("Message Frequency"), "label");
+            spinner = new JSpinner(new SpinnerNumberModel(sender.getMessageFrequency(), 0, 200, 5));
+            spinner.addChangeListener(new ChangeListener(){
+                    public void stateChanged(ChangeEvent event){
+                        JSpinner spinner = (JSpinner)event.getSource();
+                        Integer value = (Integer)spinner.getValue();
+                        sender.setMessageFrequency(value);
+                    }
+                });
+            panel.add(spinner, "wrap");
+
             panel.add(new Label("Brightness"), "label");
             spinner = new JSpinner(new SpinnerNumberModel(0xff, 0, 0xff, 0xf));
             spinner.addChangeListener(new ChangeListener(){

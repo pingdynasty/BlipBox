@@ -20,4 +20,9 @@ public class BlipBoxTextApplication extends BlipBoxApplication {
         frame.add(canvas);
         frame.setVisible(true);
     }
+
+    public void start(){
+        sender.setFollowMode("None");
+        log.info("Blipbox text application started");
+    }
 }
