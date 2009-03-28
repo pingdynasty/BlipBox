@@ -43,11 +43,7 @@ public class BlipBox {
 
     public void clear(){
         log.debug("Clear");
-        try{
-            outStream.write(CLEAR_MESSAGE);
-        }catch(Exception exc){
-            log.error("Failed to send clear message", exc);
-        }
+        serialWrite(new int[]{CLEAR_MESSAGE});
     }
 
     protected void sleep(long delay){
@@ -71,21 +67,11 @@ public class BlipBox {
 
     public void sendCharacter(int pos, char c){
         log.debug("Sending character "+c+" at pos "+pos);
-        try{
-            outStream.write(WRITE_CHARACTER_MESSAGE | (pos & 0x0f));
-            outStream.write((int)c);
-//             outStream.flush();
-        }catch(Exception exc){
-            log.error("Failed to send character message", exc);
-        }
+        serialWrite(new int[]{WRITE_CHARACTER_MESSAGE | (pos & 0x0f), (int)c});
     }
 
-    protected void shift(int direction, int steps){
-        try{
-            outStream.write(SHIFT_LEDS_MESSAGE | ((direction & 0x3) << 2) | (steps & 0x3));
-        }catch(Exception exc){
-            log.error("Failed to send shift message", exc);
-        }
+    public void shift(int direction, int steps){
+        serialWrite(new int[]{SHIFT_LEDS_MESSAGE | ((direction & 0x3) << 2) | (steps & 0x3)});
     }
 
     public void shiftLeft(int steps){
@@ -124,12 +110,7 @@ public class BlipBox {
     }
 
     public void setFollowMode(int mode){
-        try{
-            outStream.write(SET_FOLLOW_MODE_MESSAGE|mode);
-            outStream.flush();
-        }catch(Exception exc){
-            log.error("Failed to set follow mode", exc);
-        }
+        serialWrite(new int[]{SET_FOLLOW_MODE_MESSAGE|mode});
     }
 
     public String[] getDisplayEffects(){
@@ -148,34 +129,17 @@ public class BlipBox {
     }
 
     public void sendDisplayEffect(int effect){
-        try{
-            outStream.write(DISPLAY_EFFECT_MESSAGE|effect);
-            outStream.flush();
-        }catch(Exception exc){
-            log.error("Failed to send display effect", exc);
-        }
+        serialWrite(new int[]{DISPLAY_EFFECT_MESSAGE|effect});
     }
 
     public void setSensitivity(int level){
         log.debug("Set sensitivity "+level);
-        try{
-            outStream.write(SET_PARAMETER_MESSAGE|SENSITIVITY_PARAMETER_ID|(level << 8));
-            outStream.write(level & 0xff);
-            outStream.flush();
-        }catch(Exception exc){
-            log.error("Failed to set sensitivity", exc);
-        }
+        serialWrite(new int[]{SET_PARAMETER_MESSAGE|SENSITIVITY_PARAMETER_ID|(level << 8), level & 0xff});
     }
 
     public void setBrightness(int level){
         log.debug("Set brightness "+level);
-        try{
-            outStream.write(SET_PARAMETER_MESSAGE|BRIGHTNESS_PARAMETER_ID|(level << 8));
-            outStream.write(level & 0xff);
-            outStream.flush();
-        }catch(Exception exc){
-            log.error("Failed to set brightness", exc);
-        }
+        serialWrite(new int[]{SET_PARAMETER_MESSAGE|BRIGHTNESS_PARAMETER_ID|(level << 8), level & 0xff});
     }
 
     public void setLed(int x, int y, int value){
@@ -186,16 +150,16 @@ public class BlipBox {
         log.debug("Set led "+led+" to "+value);
         if(((led | value) & 0xff00) != 0)
             throw new IllegalArgumentException("Invalid LED index or brightness: "+led+"/"+value);
-        try{
-            outStream.write(SET_LED_MESSAGE);
-            outStream.write(led);
-            outStream.write(value);
-            // hold on... does the cast to byte turn it into a signed value?
-//             outStream.write(new byte[]{SET_LED_MESSAGE, (byte)led, (byte)value});
-            outStream.flush();
-        }catch(Exception exc){
-            log.error("Failed to set led", exc);
-        }
+        serialWrite(new int[]{SET_LED_MESSAGE, led, value});
     }
 
+    public void serialWrite(int[] data){
+        try{
+            for(int i=0; i<data.length; ++i)
+                outStream.write(data[i]);
+            outStream.flush();
+        }catch(IOException exc){
+            log.error("Serial communication with BlipBox device failed", exc);
+        }
+    }
 }
