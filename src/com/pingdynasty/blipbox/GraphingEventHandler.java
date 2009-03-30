@@ -10,11 +10,10 @@ public class GraphingEventHandler extends LoggingEventHandler {
 
     public GraphingEventHandler(){
         canvas = new TouchscreenCanvas();
-        JFrame frame = new JFrame();
-        frame.add(canvas);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(860, 1024);
-        frame.setVisible(true);
+    }
+
+    public Canvas getCanvas(){
+        return canvas;
     }
 
     public void sensorChange(SensorDefinition sensor){

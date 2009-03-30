@@ -25,9 +25,9 @@ public class CommandLine {
         for(int i=0; i<args.length; ++i){
             if(args[i].equals("-h")){
                 log.info("usage: \t-l\t\tlist ports\n"+
-                         "\t-g\t\tgraph output\n"+
-                         "\t-m\t\tmidi output\n"+
-                         "\t--text\ttext processing mode\n"+
+                         "\t--graph\t\tgraph mode\n"+
+                         "\t--midi\t\tMIDI mode\n"+
+                         "\t--text\t\ttext processing mode\n"+
                          "\t-t\t\ttaquito configuration (default: blipbox)\n"+
                          "\t-o file\t\tlog serial output to file\n"+
                          "\t-p port\t\tspecify port\n"+
@@ -38,13 +38,13 @@ public class CommandLine {
                 text = true;
             }else if(args[i].equals("--monome")){
                 monome = true;
+            }else if(args[i].equals("--graph")){
+                graph = true;
+            }else if(args[i].equals("--midi")){
+                midi = true;
             }else if(args[i].equals("-l")){
                 SerialDataHandler.listports();
                 return;
-            }else if(args[i].equals("-g")){
-                graph = true;
-            }else if(args[i].equals("-m")){
-                midi = true;
             }else if(args[i].equals("-t")){
                 config = "taquito";
             }else if(args[i].equals("-p") && ++i < args.length){

@@ -21,87 +21,6 @@ public class MonomeCanvas extends JPanel {
     private BlipBoxMonomeApplication application;
     private BlipBox sender;
 
-    public class ConfigurationPanel extends JPanel {
-
-        public ConfigurationPanel(){
-            JPanel panel = new JPanel(new MigLayout());
-            add(panel);
-
-            panel.add(new Label("Follow Mode"), "label");
-            JComboBox box = new JComboBox(sender.getFollowModes());
-            box.setSelectedItem("None");
-            box.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e) {
-                        JComboBox box = (JComboBox)e.getSource();
-                        String name = (String)box.getSelectedItem();
-                        sender.setFollowMode(name);
-                    }
-                });
-            panel.add(box, "wrap");
-
-            panel.add(new Label("Sensitivity"), "label");
-            JSpinner spinner = new JSpinner(new SpinnerNumberModel(200, 20, 1200, 20));
-            spinner.addChangeListener(new ChangeListener(){
-                    public void stateChanged(ChangeEvent event){
-                        JSpinner spinner = (JSpinner)event.getSource();
-                        Integer value = (Integer)spinner.getValue();
-                        eventhandler.setSensitivity(value);
-                        sender.setSensitivity(value);
-                    }
-                });
-            panel.add(spinner, "wrap");
-
-            panel.add(new Label("Message Frequency"), "label");
-            spinner = new JSpinner(new SpinnerNumberModel(sender.getMessageFrequency(), 0, 200, 5));
-            spinner.addChangeListener(new ChangeListener(){
-                    public void stateChanged(ChangeEvent event){
-                        JSpinner spinner = (JSpinner)event.getSource();
-                        Integer value = (Integer)spinner.getValue();
-                        sender.setMessageFrequency(value);
-                    }
-                });
-            panel.add(spinner, "wrap");
-
-            panel.add(new Label("Brightness"), "label");
-            spinner = new JSpinner(new SpinnerNumberModel(0xff, 0, 0xff, 0xf));
-            spinner.addChangeListener(new ChangeListener(){
-                    public void stateChanged(ChangeEvent event){
-                        JSpinner spinner = (JSpinner)event.getSource();
-                        Integer value = (Integer)spinner.getValue();
-                        sender.setBrightness(value);
-                    }
-                });
-            panel.add(spinner, "wrap");
-
-            JButton button = new JButton("Clear");
-            button.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e){
-                        sender.clear();
-                        eventhandler.clear(); // clear any set points
-                    }
-                });
-            panel.add(button, "span, align r, wrap");
-        }
-    }
-
-    public class DisplayEffectPanel extends JPanel {
-        public DisplayEffectPanel(){
-            JPanel panel = new JPanel(new MigLayout());
-            add(panel);
-
-            panel.add(new Label("Effect"), "label");
-            JComboBox box = new JComboBox(sender.getDisplayEffects());
-            box.addActionListener(new AbstractAction(){
-                    public void actionPerformed(ActionEvent e) {
-                        JComboBox box = (JComboBox)e.getSource();
-                        String name = (String)box.getSelectedItem();
-                        sender.sendDisplayEffect(name);
-                    }
-                });
-            panel.add(box, "wrap");
-        }
-    }
-
     public class MonomeDevicePanel extends JPanel {
 //         private int offsetCol = 0;
 //         private int offsetRow = 0;
@@ -148,14 +67,11 @@ public class MonomeCanvas extends JPanel {
 
         JTabbedPane tabs = new JTabbedPane();
         
-        JPanel panel = new ConfigurationPanel();
-        tabs.addTab("Setup", panel);
-
-        panel = new DisplayEffectPanel();
-        tabs.addTab("Effect", panel);
+        JPanel panel = new BlipBoxControlPanel(eventhandler, sender);
+        tabs.addTab("BlipBox", panel);
 
         panel = new MonomeDevicePanel();
-        tabs.addTab("Monome Device", panel);
+        tabs.addTab("Monome", panel);
 
         add(tabs);
 

@@ -53,13 +53,11 @@ public class BlipBoxMonomeApplication
     }
 
     public void led_col(int col, int data){
-        for(int i=0; i<8; ++i)
-            led(col, i, (data & (1 << i)) != 0);
+        sender.setLedColumn(col, data);
     }
 
     public void led_row(int row, int data){
-        for(int i=0; i<8; ++i)
-            led(i, row, (data & (1 << i)) != 0);
+        sender.setLedRow(row, data);
     }
 
     public void frame(int[] data){
@@ -95,6 +93,7 @@ public class BlipBoxMonomeApplication
     }
 
     public void press(int x, int y, boolean state){
+        log.trace("/press "+x+" "+y+" "+state);
         osc.sendOscCommand(prefix + "/press", new Object[]{x, maxRows - y, state ? 1 : 0}, DEBUG);
     }
 

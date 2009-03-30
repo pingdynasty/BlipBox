@@ -47,7 +47,7 @@ public class MultiModeKeyPressManager extends KeyPressManager {
 
     public void holdOn(){
         // inverting and adjusting row value...
-        sender.setLed(getNumberOfRows()-getRow()-1, getColumn(), holdBrightness);
+        sender.setLed(getColumn(), getNumberOfRows()-getRow()-1, holdBrightness);
     }
 
     public void holdOff(){

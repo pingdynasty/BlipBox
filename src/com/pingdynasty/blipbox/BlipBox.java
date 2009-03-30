@@ -12,18 +12,28 @@ public class BlipBox {
     private static final Logger log = Logger.getLogger(BlipBox.class);
 
     private static final int CLEAR_MESSAGE                 = 0x10;
-    private static final int SET_FOLLOW_MODE_MESSAGE       = 0x20;
-    private static final int SET_LED_MESSAGE               = 0x40;
+
+    private static final int SET_LED_MESSAGE               = 0x20;
+    private static final int SET_LED_ROW_MESSAGE           = 0x30;
+    private static final int SET_LED_COL_MESSAGE           = 0x40;
+
     private static final int WRITE_CHARACTER_MESSAGE       = 0x50;
     private static final int SHIFT_LEDS_MESSAGE            = 0x60;
     private static final int DISPLAY_EFFECT_MESSAGE        = 0x70;
-    private static final int SET_PARAMETER_MESSAGE         = 0x80;
-    private static final int BRIGHTNESS_PARAMETER_ID       = 0x04;
-    private static final int SENSITIVITY_PARAMETER_ID      = 0x08;
+
+    private static final int SET_PARAMETER_MESSAGE         = 0xc0;
+
+    private static final int BRIGHTNESS_PARAMETER_ID  = (0x01 << 2);
+    private static final int SENSITIVITY_PARAMETER_ID = (0x02 << 2);
+    private static final int FOLLOW_MODE_PARAMETER_ID = (0x03 << 2);
+    private static final int X_MIN_PARAMETER_ID       = (0x04 << 2);
+    private static final int X_RANGE_PARAMETER_ID     = (0x05 << 2);
+    private static final int Y_MIN_PARAMETER_ID       = (0x06 << 2);
+    private static final int Y_RANGE_PARAMETER_ID     = (0x07 << 2);
 
     private OutputStream outStream;
     private long timestamp;
-    private long frequency = 20;
+    private long frequency = 0;
 
     private String[] followModes = new String[]{
         "None", "Dot", "Cross", "Criss", "Star", "Blob", "Square"
@@ -51,9 +61,23 @@ public class BlipBox {
         this.outStream = outStream;
     }
 
+    /**
+     * clear all LEDs
+     */
     public void clear(){
         log.debug("Clear");
         serialWrite(new int[]{CLEAR_MESSAGE});
+    }
+
+    /**
+     * opposite of clear - sets all LEDs
+     */
+    public void flush(){
+        log.debug("Flush");
+//         for(int i=0; i<10; ++i)
+//             setLedRow(i, 0xff);
+        for(int i=0; i<8; ++i)
+            setLedColumn(i, 0xff);
     }
 
     protected void sleep(long delay){
@@ -103,25 +127,6 @@ public class BlipBox {
         shift(1, steps);
     }
 
-    public String[] getFollowModes(){
-        return followModes;
-    }
-
-    public void setFollowMode(String mode){
-        log.debug("Set follow mode "+mode);
-        for(int i=0; i<followModes.length; ++i){
-            if(followModes[i].equals(mode)){
-                setFollowMode(i);
-                return;
-            }
-        }
-        log.error("Unrecognized follow mode: "+mode);
-    }
-
-    public void setFollowMode(int mode){
-        serialWrite(new int[]{SET_FOLLOW_MODE_MESSAGE|mode});
-    }
-
     public String[] getDisplayEffects(){
         return displayEffects;
     }
@@ -138,17 +143,44 @@ public class BlipBox {
     }
 
     public void sendDisplayEffect(int effect){
-        serialWrite(new int[]{DISPLAY_EFFECT_MESSAGE|effect});
+        serialWrite(new int[]{DISPLAY_EFFECT_MESSAGE | (effect & 0x0f)});
+    }
+
+    public String[] getFollowModes(){
+        return followModes;
+    }
+
+    public void setFollowMode(String mode){
+        log.debug("Set follow mode "+mode);
+        for(int i=0; i<followModes.length; ++i){
+            if(followModes[i].equals(mode)){
+                setFollowMode(i);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Unrecognized follow mode: "+mode);
+    }
+
+    public void setFollowMode(int mode){
+        setParameter(FOLLOW_MODE_PARAMETER_ID, mode);
     }
 
     public void setSensitivity(int level){
         log.debug("Set sensitivity "+level);
-        serialWrite(new int[]{SET_PARAMETER_MESSAGE|SENSITIVITY_PARAMETER_ID|(level << 8), level & 0xff});
+        setParameter(SENSITIVITY_PARAMETER_ID, level);
     }
 
     public void setBrightness(int level){
         log.debug("Set brightness "+level);
-        serialWrite(new int[]{SET_PARAMETER_MESSAGE|BRIGHTNESS_PARAMETER_ID|(level << 8), level & 0xff});
+        setParameter(BRIGHTNESS_PARAMETER_ID, level);
+    }
+
+    public void setParameter(int pid, int value){
+        // 0x3c is 00111100
+        // 0xc3 is binary 11000011
+        if((pid & 0xc3) != 0)
+            throw new IllegalArgumentException("Illegal parameter id: "+pid);
+        serialWrite(new int[]{SET_PARAMETER_MESSAGE | pid | (value >> 8), value & 0xff});
     }
 
     public void setLed(int x, int y, int value){
@@ -162,14 +194,26 @@ public class BlipBox {
         serialWrite(new int[]{SET_LED_MESSAGE, led, value});
     }
 
+    public void setLedColumn(int col, int data){
+        log.debug("Set led column "+col+" to "+data);
+        serialWrite(new int[]{SET_LED_COL_MESSAGE | (col & 0x0f), data});
+    }
+
+    public void setLedRow(int row, int data){
+        log.debug("Set led row "+row+" to "+data);
+        serialWrite(new int[]{SET_LED_ROW_MESSAGE | (row & 0x0f), data});
+    }
+
     public void serialWrite(int[] data){
-        while(timestamp + frequency > System.currentTimeMillis()){
-            log.debug("sleeping "+(timestamp + frequency - System.currentTimeMillis())+"ms");
+        long now = System.currentTimeMillis();
+        while(timestamp + frequency > now){
+            log.debug("Stalling "+(timestamp + frequency - now)+"ms");
             try{
-                Thread.sleep(timestamp + frequency - System.currentTimeMillis());
+                Thread.sleep(timestamp + frequency - now);
             }catch(InterruptedException exc){
                 log.error(exc);
             }
+            now = System.currentTimeMillis();
         }
         timestamp = System.currentTimeMillis();
         try{
