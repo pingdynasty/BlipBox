@@ -21,6 +21,7 @@
 // configure fade time: 12 bits fade time or speed
 // write character message: 4 bits position, 8 bits character (fits in 7 or 6 bits?)
 // set parameter message: 1000ppvv vvvvvvvv (p: parameter ID, v: 10 bit value)
+// set 8 leds: 4 bits led offset, 8 bits values (on/off)
 
 // 3 byte messages
 // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
@@ -45,16 +46,17 @@
 #endif // MESSAGE_RECEIVER_TEST
 
 #define CLEAR_MESSAGE             0x10
-#define FOLLOW_MODE_MESSAGE       0x20
-#define SET_LED_MESSAGE           0x40
+
+#define SET_LED_MESSAGE           0x20 // sets 1 led - 3 byte message
+#define SET_LED_ROW_MESSAGE       0x30 // sets 8 leds - two byte message
+#define SET_LED_COL_MESSAGE       0x40 // sets 8 leds - two byte message
+
 #define WRITE_CHARACTER_MESSAGE   0x50
 #define SHIFT_LEDS_MESSAGE        0x60
 #define DISPLAY_EFFECT_MESSAGE    0x70
 
-#define SET_PARAMETER_MESSAGE     0x80 
-// can the top bit be reserved for SET PARAMETER?
-// in that case: 10ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
-
+#define SET_PARAMETER_MESSAGE     0xc0
+// set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
 
 #define MESSAGE_ID_MASK           0xf0
 #define MESSAGE_VALUE_MASK        0x0f
@@ -73,7 +75,9 @@ public:
 
   uint8_t getMessageType();
 
-  uint8_t* getMessageData();
+  inline uint8_t* getMessageData(){
+    return messagedata;
+  }
 
   uint16_t getTwoByteValue();
 

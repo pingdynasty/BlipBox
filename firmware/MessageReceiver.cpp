@@ -16,6 +16,8 @@ bool MessageReceiver::receiveMessage(){
         pos = 0;
       break;
       // 2 byte messages
+    case SET_LED_ROW_MESSAGE:
+    case SET_LED_COL_MESSAGE:
     case WRITE_CHARACTER_MESSAGE:
     case SET_PARAMETER_MESSAGE:
       if(pos == 2)
@@ -24,7 +26,6 @@ bool MessageReceiver::receiveMessage(){
       // 1 byte messages
     case CLEAR_MESSAGE:
     case SHIFT_LEDS_MESSAGE:
-    case FOLLOW_MODE_MESSAGE:
     case DISPLAY_EFFECT_MESSAGE:
       pos = 0;
       break;
@@ -48,6 +49,6 @@ uint16_t MessageReceiver::getTwoByteValue(){
   return ((messagedata[0] & MESSAGE_VALUE_MASK) << 8) | messagedata[1];
 }
 
-uint8_t* MessageReceiver::getMessageData(){
-  return messagedata;
-}
+// uint8_t* MessageReceiver::getMessageData(){
+//   return messagedata;
+// }

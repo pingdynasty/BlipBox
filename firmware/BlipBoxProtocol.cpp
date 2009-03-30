@@ -27,12 +27,16 @@ unsigned long previousMillis = 0;        // will store last time write was done
 #define BLOB_MODE      0x05
 #define SQUARE_MODE    0x06
 
-// parameters
-// (at the moment we only have 2 bits for parameter id: need to clear 2 bits from message ID or value)
-#define BRIGHTNESS_PARAMETER_ID   0x04
-#define SENSITIVITY_PARAMETER_ID  0x08
+// parameter IDs occupy four bits
+#define BRIGHTNESS_PARAMETER_ID   (0x01 << 2)
+#define SENSITIVITY_PARAMETER_ID  (0x02 << 2)
+#define FOLLOW_MODE_PARAMETER_ID  (0x03 << 2)
+#define X_MIN_PARAMETER_ID        (0x04 << 2)
+#define X_RANGE_PARAMETER_ID      (0x05 << 2)
+#define Y_MIN_PARAMETER_ID        (0x06 << 2)
+#define Y_RANGE_PARAMETER_ID      (0x07 << 2)
 
-uint8_t follow = CROSS_MODE;
+uint8_t follow; // default to 0: NO_FOLLOW_MODE
 uint8_t holding;
 uint8_t holdCol, holdRow;
 uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
@@ -79,7 +83,7 @@ void BlipBoxProtocol::process(){
   }
 
   if(holding)
-    leds.setLed(holdCol, holdRow, holding);
+    leds.setLed(holdRow, holdCol, holding);
 
   if(receiver.receiveMessage())
     this->readMessage();
@@ -134,12 +138,9 @@ void BlipBoxProtocol::readMessage(){
     leds.clear();
     holding = 0;
     break;
-  case DISPLAY_EFFECT_MESSAGE:
-    displayEffect(receiver.getMessageData()[0] & 0x0f);
-    break;
-  case FOLLOW_MODE_MESSAGE:
-    follow = receiver.getMessageData()[0] & 0x0f;
-    break;
+//   case DISPLAY_EFFECT_MESSAGE:
+//     displayEffect(receiver.getMessageData()[0] & 0x0f);
+//     break;
   case SET_PARAMETER_MESSAGE:
     switch(receiver.getMessageData()[0] & 0xc){
     case SENSITIVITY_PARAMETER_ID:
@@ -148,18 +149,45 @@ void BlipBoxProtocol::readMessage(){
     case BRIGHTNESS_PARAMETER_ID:
       brightness = receiver.getTwoByteValue();
       break;
+    case FOLLOW_MODE_PARAMETER_ID:
+      follow = receiver.getTwoByteValue();
+      break;
+    case X_MIN_PARAMETER_ID:
+      touchscreen_x_min = receiver.getTwoByteValue();
+      break;
+    case Y_MIN_PARAMETER_ID:
+      touchscreen_y_min = receiver.getTwoByteValue();
+      break;
+    case X_RANGE_PARAMETER_ID:
+      touchscreen_x_range = receiver.getTwoByteValue();
+      break;
+    case Y_RANGE_PARAMETER_ID:
+      touchscreen_y_range = receiver.getTwoByteValue();
+      break;
     }
     break;
   case SET_LED_MESSAGE:
     if(follow){
+      holdRow = receiver.getMessageData()[1] / 16;
+      holdCol = receiver.getMessageData()[1] % 16;
       holding = receiver.getMessageData()[2];
-      holdRow = receiver.getMessageData()[1] / COLS;
-      holdCol = receiver.getMessageData()[1] % COLS;
     }else{
-      leds.setLed(receiver.getMessageData()[1] / COLS, 
-                  receiver.getMessageData()[1] % COLS, 
+      leds.setLed(receiver.getMessageData()[1] / 16, 
+                  receiver.getMessageData()[1] % 16, 
                   receiver.getMessageData()[2]);
     }
+    break;
+  case SET_LED_ROW_MESSAGE:
+    // change these messages to either take 12 bits of data
+    // or take 2 bits specifying number of bytes and 2 bits direction/sequence
+    for(uint8_t i=0; i<8; ++i)
+      leds.setLed(i, receiver.getMessageData()[0] & 0x0f,
+                  (receiver.getMessageData()[1] & _BV(i)) ? brightness : 0 );
+    break;
+  case SET_LED_COL_MESSAGE:
+    for(uint8_t i=0; i<8; ++i)
+      leds.setLed(receiver.getMessageData()[0] & 0x0f, i, 
+                  (receiver.getMessageData()[1] & _BV(i)) ? brightness : 0 );
     break;
   case WRITE_CHARACTER_MESSAGE:
     leds.printCharacter(getCharacterData(receiver.getMessageData()[1]),
@@ -168,20 +196,8 @@ void BlipBoxProtocol::readMessage(){
   case SHIFT_LEDS_MESSAGE:
     leds.shift(receiver.getMessageData()[0] & 0x0f);
     break;
-//       // 1: blipbox mode
-//       // 2: monome series
-//       setmode(messagedata[1]);
-//       // note: does not reset, simply carries on as normal
-//     }
-//     break;
-//   case 0x0300:
-//     leds.setLed(messagedata[1] / COLS, messagedata[1] % COLS, messagedata[2]);
-//     break;
 //   default:
 //     error(MESSAGE_READ_ERROR);
 //     serialFlush();
   }
-//   leds.setDiagonalCross(messagedata[0] / COLS, messagedata[0] % COLS, messagedata[1]);
-//   leds.setCross(messagedata[0] / COLS, messagedata[0] % COLS, messagedata[1]);
-//   leds.setLed(messagedata[0] / COLS, messagedata[0] % COLS, messagedata[1]);
 }

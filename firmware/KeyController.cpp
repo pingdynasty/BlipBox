@@ -5,14 +5,19 @@
 
 #define GRID_COLS 10
 #define GRID_ROWS 8
-#define X_MIN 160
-#define X_MAX 860
-#define Y_MIN 130
-#define Y_MAX 850
-#define X_RANGE (X_MAX - X_MIN)
-#define Y_RANGE (Y_MAX - Y_MIN)
+// #define X_MIN 160
+// #define X_MAX 860
+// #define Y_MIN 130
+// #define Y_MAX 850
+// #define X_RANGE (X_MAX - X_MIN)
+// #define Y_RANGE (Y_MAX - Y_MIN)
 
 TouchController touch;
+
+uint16_t touchscreen_x_min   = 160;
+uint16_t touchscreen_x_range = 860 - touchscreen_x_min;
+uint16_t touchscreen_y_min   = 160;
+uint16_t touchscreen_y_range = 860 - touchscreen_y_min;
 
 // void KeyController::init(){
 //   touch.init();
@@ -53,9 +58,9 @@ void KeyController::update(){
 }
 
 uint8_t KeyController::readColumn(){
-  return (this->readX() - X_MIN) * GRID_COLS / X_RANGE;
+  return (this->readX() - touchscreen_x_min) * GRID_COLS / touchscreen_x_range;
 }
 
 uint8_t KeyController::readRow(){
-  return (this->readY() - Y_MIN) * GRID_ROWS / Y_RANGE;
+  return (this->readY() - touchscreen_y_min) * GRID_ROWS / touchscreen_y_range;
 }

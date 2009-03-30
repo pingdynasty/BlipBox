@@ -8,6 +8,13 @@
 extern LedController leds;
 extern KeyController keys;
 
+// some global parameters that really should be dealt more intelligently
+extern uint16_t touchscreen_x_min;
+extern uint16_t touchscreen_x_range;
+extern uint16_t touchscreen_y_min;
+extern uint16_t touchscreen_y_range;
+
+
 // error codes
 #define MESSAGE_READ_ERROR 4
 #define MODE_ERROR 6
