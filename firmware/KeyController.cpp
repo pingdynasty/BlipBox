@@ -26,8 +26,8 @@ uint16_t touchscreen_y_range = 860 - touchscreen_y_min;
 bool KeyController::keyscan(){
   uint8_t oldRow = row;
   uint8_t oldCol = col;
-  this->update(); // sets row/col, calls check(), readX() and readY()
-  if(this->getTouch() < SENSITIVITY){
+  if(this->check() < SENSITIVITY){
+    this->update(); // sets row/col, calls readX() and readY()
     if(!pressed){
       // toggled from released to pressed
       pressed = true;
@@ -48,7 +48,6 @@ bool KeyController::keyscan(){
 }
 
 void KeyController::update(){
-  this->check();
   row = this->readRow();
   if(row >= GRID_ROWS)
     row = GRID_ROWS - 1;
