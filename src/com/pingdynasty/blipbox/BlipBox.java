@@ -208,12 +208,14 @@ public class BlipBox {
 
     public void setLedColumn(int col, int data){
         log.debug("Set led column "+col+" to "+data);
-        serialWrite(new int[]{SET_LED_COL_MESSAGE | (col & 0x0f), data});
+        if(col < 10) // todo: remove restriction or make the size configurable
+            serialWrite(new int[]{SET_LED_COL_MESSAGE | (col & 0x0f), data});
     }
 
     public void setLedRow(int row, int data){
         log.debug("Set led row "+row+" to "+data);
-        serialWrite(new int[]{SET_LED_ROW_MESSAGE | (row & 0x0f), data});
+        if(row < 8) // todo: remove restriction or make the size configurable
+            serialWrite(new int[]{SET_LED_ROW_MESSAGE | (row & 0x0f), data});
     }
 
     public void serialWrite(int[] data){
