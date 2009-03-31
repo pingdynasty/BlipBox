@@ -11,6 +11,7 @@ private:
   uint16_t tval;
 
 public:
+  void init();
   uint16_t getX(){
     return xval;
   }
@@ -20,7 +21,6 @@ public:
   uint16_t getTouch(){
     return tval;
   }
-  void init();
   uint16_t check();
   uint16_t readX();
   uint16_t readY();

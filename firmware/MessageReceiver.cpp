@@ -3,6 +3,9 @@
 // #define MAX_MESSAGE_LENGTH 3
 // uint8_t messagedata[MAX_MESSAGE_LENGTH];
 
+#define MESSAGE_ID_MASK           0xf0
+#define MESSAGE_VALUE_MASK        0x0f
+
 bool MessageReceiver::receiveMessage(){
   // one byte is read per iteration,
   // and true is only returned once a full message is read.
@@ -45,8 +48,18 @@ uint8_t MessageReceiver::getMessageType(){
   return messagedata[0] & MESSAGE_ID_MASK;
 }
 
-uint16_t MessageReceiver::getTwoByteValue(){
+/* extract 12 bits of data from the first two message bytes as a 16 bit value */
+uint16_t MessageReceiver::getTwelveBitValue(){
   return ((messagedata[0] & MESSAGE_VALUE_MASK) << 8) | messagedata[1];
+}
+
+/* extract 10 bits of data from the first two message bytes as a 16 bit value */
+uint16_t MessageReceiver::getTenBitValue(){
+  return ((messagedata[0] & PARAMETER_VALUE_MASK) << 8) | messagedata[1];
+}
+
+uint8_t MessageReceiver::getFourBitValue(){
+  return messagedata[0] & MESSAGE_VALUE_MASK;
 }
 
 // uint8_t* MessageReceiver::getMessageData(){

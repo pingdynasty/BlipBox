@@ -18,20 +18,20 @@ KeyController keys;
 
 // Disable watchdog: Function Implementation
 // void wdt_init(void) {
-void disable_watchdog(void) {
-//     MCUSR = 0;
-        cli();
-        /* Clear WDRF in MCUSR */
-        MCUSR &= ~(1<<WDRF);
-        /* Write logical one to WDCE and WDE */
-        /* Keep old prescaler to prevent unintentional time-out */
-        WDTCSR |= (1<<WDCE) | (1<<WDE);
-        /* Turn off WDT */
-        WDTCSR = 0x00;
+// void disable_watchdog(void) {
+// //     MCUSR = 0;
+//         cli();
+//         /* Clear WDRF in MCUSR */
+//         MCUSR &= ~(1<<WDRF);
+//         /* Write logical one to WDCE and WDE */
+//         /* Keep old prescaler to prevent unintentional time-out */
+//         WDTCSR |= (1<<WDCE) | (1<<WDE);
+//         /* Turn off WDT */
+//         WDTCSR = 0x00;
 
-    wdt_disable();
-        sei();
-}
+//     wdt_disable();
+//         sei();
+// }
 
 
 
@@ -81,15 +81,15 @@ void error(uint8_t code){
 //   }
 }
 
-void setmode(uint8_t mode){
-  eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
-}
+// void setmode(uint8_t mode){
+//   eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
+// }
 
-void reset(uint8_t mode){
-  eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
-  wdt_enable(WDTO_120MS); // will 30ms or 60ms work with the bootloader?
-  for(;;);
-}
+// void reset(uint8_t mode){
+//   eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
+//   wdt_enable(WDTO_120MS); // will 30ms or 60ms work with the bootloader?
+//   for(;;);
+// }
 
 // hack/workaround to get round problem with virtual constructors/methods:
 // undefined reference to `__cxa_pure_virtual'

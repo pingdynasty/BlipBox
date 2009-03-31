@@ -28,6 +28,10 @@ public class BlipBoxDataHandler extends SerialDataHandler {
     public BlipBoxDataHandler(){
     }
 
+    public SensorEventHandler getEventHandler(){
+        return eventhandler;
+    }
+
     public void setSensorConfiguration(SensorConfiguration sensors){
         this.sensors = sensors;
     }
@@ -108,6 +112,18 @@ public class BlipBoxDataHandler extends SerialDataHandler {
                 eventhandler.sensorChange(sensor);
             }
         }
+    }
+
+    /**
+     * try to reset the device by pulling RTS high for 0.2secs
+     */
+    public void reset(){
+        log.debug("Reset");
+        serialport.setRTS(true);
+        try{
+            Thread.sleep(200);
+        }catch(Exception exc){}
+        serialport.setRTS(false);
     }
 
 }

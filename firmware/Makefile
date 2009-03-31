@@ -41,7 +41,7 @@ AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = LedController.cpp TouchController.cpp KeyController.cpp DirectCounter.cpp BlipBoxProtocol.cpp MonomeSeriesProtocol.cpp Greeting.cpp MessageReceiver.cpp MessageSender.cpp Characters.cpp globals.cpp
+CPP_SRC = LedController.cpp TouchController.cpp KeyController.cpp DirectCounter.cpp BlipBoxProtocol.cpp MonomeSeriesProtocol.cpp Greeting.cpp MessageReceiver.cpp MessageSender.cpp Characters.cpp Parameters.cpp globals.cpp
 
 ############################################################################
 # Below here nothing should be changed...
@@ -151,7 +151,7 @@ upload: applet/$(TARGET).hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
 
-	# Display size of file.
+# Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) applet/$(TARGET).hex
 ELFSIZE = $(SIZE)  applet/$(TARGET).elf
 sizebefore:
@@ -194,7 +194,7 @@ extcoff: $(TARGET).elf
 .elf.sym:
 	$(NM) -n $< > $@
 
-	# Link: create ELF output file from library.
+# Link: create ELF output file from library.
 applet/$(TARGET).elf: $(TARGET).pde applet/core.a 
 	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
 

@@ -38,7 +38,6 @@ public class BlipBoxMonomeApplication
         log.info("Listening for OSC communication on port: "+listenPort);
         OscReceiver oscReceive = new MonomeOscReceiver(this);
         oscReceive.listen(listenPort);
-//         clear();
 
         MonomeCanvas canvas = new MonomeCanvas(this, eventhandler, sender);
         JFrame frame = createFrame();

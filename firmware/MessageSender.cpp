@@ -17,6 +17,9 @@
 #define BUTTON3_SENSOR_MSG 0x9c // 0x80 | (0x7 << 2)
 #define PING_SENSOR_MSG    0xa0 // 0x80 | (0x8 << 2)
 
+#define X_SENSOR           0 // shares the sensordata slot with XY_SENSOR
+#define Y_SENSOR           1 // shares the sensordata slot with RELEASE_SENSOR
+
 uint8_t sensorids[SENSOR_COUNT] = {
   XY_MSG,
   RELEASE_MSG,
@@ -28,17 +31,6 @@ uint8_t sensorids[SENSOR_COUNT] = {
 };
 
 void MessageSender::init(){
-  // set serial speed
-//   uint8_t val = eeprom_read_byte(EEPROM_SERIAL_SPEED_ADDRESS);
-//   if(val == 0)
-    beginSerial(DEFAULT_SERIAL_SPEED);
-//     Serial.begin(DEFAULT_SERIAL_SPEED);
-//   else
-//     beginSerial(val * 9600l);
-  // 2: 19200
-  // 4: 38400
-  // 6: 57600
-  // 12: 115200
 }
 
 void MessageSender::updateXY(uint16_t x, uint16_t y, uint16_t z){
@@ -49,8 +41,8 @@ void MessageSender::updateXY(uint16_t x, uint16_t y, uint16_t z){
 //     sensordata[TOUCH_SENSOR] = keys.getTouch();
 //     sensorstatus |= _BV(XY_SENSOR);  // set to send xy message
 //     sensorstatus &= ~_BV(RELEASE_SENSOR); // suppress pending release message
-  sensordata[XY_SENSOR] = x;
-  sensordata[RELEASE_SENSOR] = y;
+  sensordata[X_SENSOR] = x;
+  sensordata[Y_SENSOR] = y;
   sensordata[TOUCH_SENSOR] = z;
   sensorstatus |= _BV(XY_SENSOR);  // set to send xy message
   sensorstatus &= ~_BV(RELEASE_SENSOR); // suppress pending release message
@@ -85,9 +77,9 @@ void MessageSender::sendReleaseMessage(){
 void MessageSender::sendXYMessage(){
   // fixed length 3 bytes
   // xy msg: 0101xxxx xxxxxxyy yyyyyyyy
-  serialWrite(XY_MSG | (sensordata[XY_SENSOR] >> 6 & 0xf));
-  serialWrite((sensordata[XY_SENSOR] & 0xfc) | (sensordata[RELEASE_SENSOR] >> 8 & 0x3));
-  serialWrite(sensordata[RELEASE_SENSOR] & 0xff);
+  serialWrite(XY_MSG | (sensordata[X_SENSOR] >> 6 & 0xf));
+  serialWrite((sensordata[X_SENSOR] << 2 & 0xfc) | (sensordata[Y_SENSOR] >> 8 & 0x3));
+  serialWrite(sensordata[Y_SENSOR] & 0xff);
 }
 
 void MessageSender::sendSensorMessage(){

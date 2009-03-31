@@ -67,7 +67,7 @@ public class MonomeCanvas extends JPanel {
 
         JTabbedPane tabs = new JTabbedPane();
         
-        JPanel panel = new BlipBoxControlPanel(eventhandler, sender);
+        JPanel panel = new BlipBoxControlPanel(application);
         tabs.addTab("BlipBox", panel);
 
         panel = new MonomeDevicePanel();

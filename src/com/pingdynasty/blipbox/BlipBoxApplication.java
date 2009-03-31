@@ -29,6 +29,14 @@ public class BlipBoxApplication {
         sender = new BlipBox();
     }
 
+    public BlipBox getBlipBoxSender(){
+        return sender;
+    }
+
+    public BlipBoxDataHandler getBlipBoxReceiver(){
+        return receiver;
+    }
+
     public int getSerialSpeed(){
         return serialspeed;
     }

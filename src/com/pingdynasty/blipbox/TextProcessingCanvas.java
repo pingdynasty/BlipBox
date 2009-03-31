@@ -156,13 +156,15 @@ public class TextProcessingCanvas extends JPanel {
         }
     }
 
-    public TextProcessingCanvas(TextProcessingEventHandler eventhandler, BlipBox sender){
+    public TextProcessingCanvas(BlipBoxApplication application,
+                                TextProcessingEventHandler eventhandler, 
+                                BlipBox sender){
         this.eventhandler = eventhandler;
         this.sender = sender;
 
         JTabbedPane tabs = new JTabbedPane();
         
-        JPanel panel = new BlipBoxControlPanel(eventhandler, sender);
+        JPanel panel = new BlipBoxControlPanel(application);
         tabs.addTab("Control", panel);
 
         panel = new DisplayEffectPanel();

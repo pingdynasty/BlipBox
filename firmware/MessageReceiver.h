@@ -58,8 +58,8 @@
 #define SET_PARAMETER_MESSAGE     0xc0
 // set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
 
-#define MESSAGE_ID_MASK           0xf0
-#define MESSAGE_VALUE_MASK        0x0f
+#define PARAMETER_ID_MASK         0x3c
+#define PARAMETER_VALUE_MASK      0x03
 
 #define MAX_MESSAGE_LENGTH 3
 
@@ -79,9 +79,11 @@ public:
     return messagedata;
   }
 
-  uint16_t getTwoByteValue();
+  uint16_t getTwelveBitValue();
 
   uint16_t getTenBitValue();
+
+  uint8_t getFourBitValue();
 
 };
 

@@ -23,13 +23,14 @@ public class BlipBox {
 
     private static final int SET_PARAMETER_MESSAGE         = 0xc0;
 
-    private static final int BRIGHTNESS_PARAMETER_ID  = (0x01 << 2);
-    private static final int SENSITIVITY_PARAMETER_ID = (0x02 << 2);
-    private static final int FOLLOW_MODE_PARAMETER_ID = (0x03 << 2);
-    private static final int X_MIN_PARAMETER_ID       = (0x04 << 2);
-    private static final int X_RANGE_PARAMETER_ID     = (0x05 << 2);
-    private static final int Y_MIN_PARAMETER_ID       = (0x06 << 2);
-    private static final int Y_RANGE_PARAMETER_ID     = (0x07 << 2);
+    private static final int BRIGHTNESS_PARAMETER_ID      = (0x01 << 2);
+    private static final int SENSITIVITY_PARAMETER_ID     = (0x02 << 2);
+    private static final int FOLLOW_MODE_PARAMETER_ID     = (0x03 << 2);
+    private static final int X_MIN_PARAMETER_ID           = (0x04 << 2);
+    private static final int X_RANGE_PARAMETER_ID         = (0x05 << 2);
+    private static final int Y_MIN_PARAMETER_ID           = (0x06 << 2);
+    private static final int Y_RANGE_PARAMETER_ID         = (0x07 << 2);
+    private static final int SERIAL_SPEED_PARAMETER_ID    = (0x08 << 2);
 
     private OutputStream outStream;
     private long timestamp;
@@ -74,9 +75,9 @@ public class BlipBox {
      */
     public void flush(){
         log.debug("Flush");
-//         for(int i=0; i<10; ++i)
+//         for(int i=0; i<8; ++i)
 //             setLedRow(i, 0xff);
-        for(int i=0; i<8; ++i)
+        for(int i=0; i<10; ++i)
             setLedColumn(i, 0xff);
     }
 
@@ -175,9 +176,20 @@ public class BlipBox {
         setParameter(BRIGHTNESS_PARAMETER_ID, level);
     }
 
+    /**
+     * set serial speed e.g. 9600, 57600
+     * value must be a multiple of 9600
+     */
+    public void setSerialSpeed(long speed){
+        log.debug("Set serial speed to "+speed);
+        if(speed % 9600 != 0)
+            throw new IllegalArgumentException("Serial speed must be a multiple of 9600");
+        setParameter(SERIAL_SPEED_PARAMETER_ID, (int)(speed / 9600));
+    }
+
     public void setParameter(int pid, int value){
-        // 0x3c is 00111100
-        // 0xc3 is binary 11000011
+        log.debug("Set parameter id "+pid+" to value "+value);
+        // 0x3c is 00111100, same as 0xf<<2
         if((pid & 0xc3) != 0)
             throw new IllegalArgumentException("Illegal parameter id: "+pid);
         serialWrite(new int[]{SET_PARAMETER_MESSAGE | pid | (value >> 8), value & 0xff});

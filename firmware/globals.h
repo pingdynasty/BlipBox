@@ -1,7 +1,7 @@
 #ifndef _GLOBALS_H_
 #define _GLOBALS_H_
 
-#include <avr/wdt.h>
+/* #include <avr/wdt.h> */
 #include "LedController.h"
 #include "KeyController.h"
 

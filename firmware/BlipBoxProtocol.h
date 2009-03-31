@@ -15,6 +15,9 @@ public:
 private:
   void readSensors();
   void readMessage();
+
+  void setSensitivity(uint16_t value);
+  void setBrightness(uint16_t value);
 };
 
 #endif /* _BLIPBOXPROTOCOL_H_ */

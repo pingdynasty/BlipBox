@@ -15,7 +15,7 @@ public class BlipBoxTextApplication extends BlipBoxApplication {
         super(config);
         eventhandler = new TextProcessingEventHandler(sender);
         receiver.setSensorEventHandler(eventhandler);
-        TextProcessingCanvas canvas = new TextProcessingCanvas(eventhandler, sender);
+        TextProcessingCanvas canvas = new TextProcessingCanvas(this, eventhandler, sender);
         JFrame frame = createFrame();
         frame.add(canvas);
         frame.setVisible(true);

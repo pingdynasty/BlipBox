@@ -5,14 +5,9 @@
 #include <avr/interrupt.h>
 #include <wiring.h>
 
-#define TLC_DDR        DDRB
-#define TLC_PORT       PORTB
-#define SCLK_PIN       PB0
-#define XLAT_PIN       PB1
-#define BLANK_PIN      PB2
-#define GSCLK_PIN      PB3
-#define VPRG_PIN       PB4 // also counter reset
-#define SIN_PIN        PB5
+#include "device.h"
+
+#if defined BLIPBOX_P2
 
 uint8_t rowOffsets[] = {
   2, 1, 0, 3, 4, 
@@ -23,6 +18,22 @@ uint8_t colOffsets[] = {
   6, 4, 7, 5, 1, 3, 0, 2, 
   10, 8, 11, 9, 13, 15, 12, 14
 };
+
+#elif defined BLIPBOX_P4
+
+uint8_t rowOffsets[] = {
+  4, 0, 1, 2, 3,
+  4, 0, 1, 2, 3
+//   0, 1, 2, 3, 4, 
+//   0, 1, 2, 3, 4 
+};
+
+uint8_t colOffsets[] = {
+  8, 9, 10, 11, 12, 13, 14, 15,
+  0, 1, 2, 3, 4, 5, 6, 7
+};
+
+#endif /* BLIPBOX_xx */
 
 /* send 6 bits from an 8 bit value over the TLC5940 data line */
 static void shift6bits(uint8_t value) {

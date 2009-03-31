@@ -43,7 +43,7 @@ public class CommandLine {
             }else if(args[i].equals("--midi")){
                 midi = true;
             }else if(args[i].equals("-l")){
-                SerialDataHandler.listports();
+                SerialDataHandler.listports(System.out);
                 return;
             }else if(args[i].equals("-t")){
                 config = "taquito";
@@ -57,7 +57,7 @@ public class CommandLine {
         }
 
         if(serialport == null){
-            SerialDataHandler.listports();
+            SerialDataHandler.listports(System.err);
             System.err.println("Please specify which port to connect to");
             return;
         }

@@ -233,13 +233,6 @@ public class SerialDataHandler implements SerialPortEventListener {
         }catch(Exception e){}
     }
 
-    public static void listports(){
-        List<String> ports = SerialDataHandler.getSerialPorts();
-        log.info("available serial ports: ");
-        for(String port: ports)
-            log.info(port);
-    }
-
     public static void main(String[] args)
         throws Exception {
         String serialport = null;
@@ -258,7 +251,7 @@ public class SerialDataHandler implements SerialPortEventListener {
                          "\t-h\t\tprint help info (this message)");
                 return;
             }else if(args[i].equals("-l")){
-                listports();
+                listports(System.out);
                 return;
             }else if(args[i].equals("-p") && ++i < args.length){
                 serialport = args[i];
@@ -273,7 +266,7 @@ public class SerialDataHandler implements SerialPortEventListener {
             }
         }
         if(serialport == null){
-            listports();
+            listports(System.err);
             System.err.println("Please specify which port to connect to");
             return;
         }

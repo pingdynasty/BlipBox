@@ -43,10 +43,16 @@ public class SensorConfiguration {
 
     public static SensorConfiguration createBlipBoxSensorConfiguration(){
         SensorConfiguration sensors = new SensorConfiguration();
-        int X_MIN = 170;
-        int X_MAX = 860;
-        int Y_MIN = 130;
-        int Y_MAX = 860;
+        // 260 x 210
+        // 800 x 780
+        int X_MIN = 260;
+        int X_MAX = 800;
+        int Y_MIN = 210;
+        int Y_MAX = 780;
+//         int X_MIN = 170;
+//         int X_MAX = 860;
+//         int Y_MIN = 130;
+//         int Y_MAX = 860;
         sensors.setSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
         sensors.setSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
         sensors.setSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));

@@ -9,6 +9,7 @@
 #include "MessageSender.h"
 #include "MessageReceiver.h"
 #include "Characters.h"
+#include "Parameters.h"
 
 // pins
 #define POT_PIN 5
@@ -27,25 +28,38 @@ unsigned long previousMillis = 0;        // will store last time write was done
 #define BLOB_MODE      0x05
 #define SQUARE_MODE    0x06
 
-// parameter IDs occupy four bits
-#define BRIGHTNESS_PARAMETER_ID   (0x01 << 2)
-#define SENSITIVITY_PARAMETER_ID  (0x02 << 2)
-#define FOLLOW_MODE_PARAMETER_ID  (0x03 << 2)
-#define X_MIN_PARAMETER_ID        (0x04 << 2)
-#define X_RANGE_PARAMETER_ID      (0x05 << 2)
-#define Y_MIN_PARAMETER_ID        (0x06 << 2)
-#define Y_RANGE_PARAMETER_ID      (0x07 << 2)
-
 uint8_t follow; // default to 0: NO_FOLLOW_MODE
 uint8_t holding;
 uint8_t holdCol, holdRow;
 uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
-uint8_t brightness = BRIGHTNESS; // todo: read/write to eeprom
+uint8_t brightness;
 
 void BlipBoxProtocol::init(){
+
+  // initialise subsystems
   keys.init();
   leds.init();
   sender.init();
+
+  // set serial speed
+  uint16_t val = getParameter(SERIAL_SPEED_PARAMETER_ID);
+  if(val == 0 || val > 115200/9600)
+    beginSerial(DEFAULT_SERIAL_SPEED);
+  else
+    beginSerial(val * 9600l);
+  // 2: 19200
+  // 4: 38400
+  // 6: 57600
+  // 12: 115200
+
+  brightness = getParameter(BRIGHTNESS_PARAMETER_ID);
+  if(brightness == 0)
+    brightness = BRIGHTNESS;
+  // todo! load these from eeprom
+// uint16_t touchscreen_x_min   = 160;
+// uint16_t touchscreen_x_range = 860 - touchscreen_x_min;
+// uint16_t touchscreen_y_min   = 160;
+// uint16_t touchscreen_y_range = 860 - touchscreen_y_min;
 }
 
 void BlipBoxProtocol::process(){
@@ -139,33 +153,8 @@ void BlipBoxProtocol::readMessage(){
     holding = 0;
     break;
 //   case DISPLAY_EFFECT_MESSAGE:
-//     displayEffect(receiver.getMessageData()[0] & 0x0f);
+//     displayEffect(receiver.getFourBitValue());
 //     break;
-  case SET_PARAMETER_MESSAGE:
-    switch(receiver.getMessageData()[0] & 0xc){
-    case SENSITIVITY_PARAMETER_ID:
-      sensitivity = receiver.getTwoByteValue();
-      break;
-    case BRIGHTNESS_PARAMETER_ID:
-      brightness = receiver.getTwoByteValue();
-      break;
-    case FOLLOW_MODE_PARAMETER_ID:
-      follow = receiver.getTwoByteValue();
-      break;
-    case X_MIN_PARAMETER_ID:
-      touchscreen_x_min = receiver.getTwoByteValue();
-      break;
-    case Y_MIN_PARAMETER_ID:
-      touchscreen_y_min = receiver.getTwoByteValue();
-      break;
-    case X_RANGE_PARAMETER_ID:
-      touchscreen_x_range = receiver.getTwoByteValue();
-      break;
-    case Y_RANGE_PARAMETER_ID:
-      touchscreen_y_range = receiver.getTwoByteValue();
-      break;
-    }
-    break;
   case SET_LED_MESSAGE:
     if(follow){
       holdRow = receiver.getMessageData()[1] / 16;
@@ -178,26 +167,63 @@ void BlipBoxProtocol::readMessage(){
     }
     break;
   case SET_LED_ROW_MESSAGE:
-    // change these messages to either take 12 bits of data
-    // or take 2 bits specifying number of bytes and 2 bits direction/sequence
     for(uint8_t i=0; i<8; ++i)
-      leds.setLed(i, receiver.getMessageData()[0] & 0x0f,
+      leds.setLed(i, receiver.getFourBitValue(),
                   (receiver.getMessageData()[1] & _BV(i)) ? brightness : 0 );
     break;
   case SET_LED_COL_MESSAGE:
     for(uint8_t i=0; i<8; ++i)
-      leds.setLed(receiver.getMessageData()[0] & 0x0f, i, 
+      leds.setLed(receiver.getFourBitValue(), i, 
                   (receiver.getMessageData()[1] & _BV(i)) ? brightness : 0 );
     break;
   case WRITE_CHARACTER_MESSAGE:
     leds.printCharacter(getCharacterData(receiver.getMessageData()[1]),
-                        receiver.getMessageData()[0] & 0x0f, 0, brightness);
+                        receiver.getFourBitValue(), 0, brightness);
     break;
   case SHIFT_LEDS_MESSAGE:
-    leds.shift(receiver.getMessageData()[0] & 0x0f);
+    leds.shift(receiver.getFourBitValue());
     break;
-//   default:
-//     error(MESSAGE_READ_ERROR);
-//     serialFlush();
+  default:
+    if((receiver.getMessageData()[0] & SET_PARAMETER_MESSAGE) == SET_PARAMETER_MESSAGE){
+      switch(receiver.getMessageData()[0] & PARAMETER_ID_MASK){
+      case SENSITIVITY_PARAMETER_ID:
+        setSensitivity(receiver.getTenBitValue());
+        break;
+      case BRIGHTNESS_PARAMETER_ID:
+        setBrightness(receiver.getTenBitValue());
+        break;
+      case SERIAL_SPEED_PARAMETER_ID:
+        setParameter(SERIAL_SPEED_PARAMETER_ID, receiver.getTenBitValue());
+        break;
+      case FOLLOW_MODE_PARAMETER_ID:
+        follow = receiver.getTenBitValue();
+        break;
+      case X_MIN_PARAMETER_ID:
+        touchscreen_x_min = receiver.getTenBitValue();
+        break;
+      case Y_MIN_PARAMETER_ID:
+        touchscreen_y_min = receiver.getTenBitValue();
+        break;
+      case X_RANGE_PARAMETER_ID:
+        touchscreen_x_range = receiver.getTenBitValue();
+        break;
+      case Y_RANGE_PARAMETER_ID:
+        touchscreen_y_range = receiver.getTenBitValue();
+        break;
+      }
+      // }else{
+      //     error(MESSAGE_READ_ERROR);
+      //     serialFlush();
+    }
   }
+}
+
+void BlipBoxProtocol::setSensitivity(uint16_t value){
+  sensitivity = value;
+  setParameter(SENSITIVITY_PARAMETER_ID, value);
+}
+
+void BlipBoxProtocol::setBrightness(uint16_t value){
+  brightness = value;
+  setParameter(BRIGHTNESS_PARAMETER_ID, value);
 }
