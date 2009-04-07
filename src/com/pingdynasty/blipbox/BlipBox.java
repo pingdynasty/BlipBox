@@ -189,10 +189,11 @@ public class BlipBox {
 
     public void setParameter(int pid, int value){
         log.debug("Set parameter id "+pid+" to value "+value);
+        // set parameter message: 11ppppvv vvvvvvvv
         // 0x3c is 00111100, same as 0xf<<2
         if((pid & 0xc3) != 0)
             throw new IllegalArgumentException("Illegal parameter id: "+pid);
-        serialWrite(new int[]{SET_PARAMETER_MESSAGE | pid | (value >> 8), value & 0xff});
+        serialWrite(new int[]{SET_PARAMETER_MESSAGE | pid | (value >> 8 & 0x3), value & 0xff});
     }
 
     public void setLed(int x, int y, int value){
