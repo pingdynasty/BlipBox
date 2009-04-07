@@ -3,9 +3,6 @@
 // #define MAX_MESSAGE_LENGTH 3
 // uint8_t messagedata[MAX_MESSAGE_LENGTH];
 
-#define MESSAGE_ID_MASK           0xf0
-#define MESSAGE_VALUE_MASK        0x0f
-
 bool MessageReceiver::receiveMessage(){
   // one byte is read per iteration,
   // and true is only returned once a full message is read.
