@@ -19,7 +19,7 @@ public class BlipBoxMidiApplication extends BlipBoxApplication {
         midihandler = new MidiOutputEventHandler(sender);
         midihandler.init();
         receiver.setSensorEventHandler(midihandler);
-        MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(midihandler, sender);
+        MidiConfigurationCanvas canvas = new MidiConfigurationCanvas(this, midihandler, sender);
         JFrame frame = createFrame();
         frame.add(canvas);
         frame.setVisible(true);

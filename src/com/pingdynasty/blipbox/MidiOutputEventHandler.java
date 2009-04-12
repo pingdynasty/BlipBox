@@ -158,6 +158,24 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
     }
 
+    public class NonRegisteredParameterEventHandler implements SensorEventHandler {
+        private int from;
+        private int to;
+        private int cc;
+
+        public NonRegisteredParameterEventHandler(int cc, int from, int to){
+            this.from = from;
+            this.to = to;
+            this.cc = cc;
+        }
+
+        public void sensorChange(SensorDefinition sensor){
+            int val = sensor.scale(from, to);
+            sendMidiNRPN(cc, val);
+        }
+    }
+
+
     public class PitchBendEventHandler implements SensorEventHandler {
         private int from;
         private int to;
@@ -215,6 +233,11 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
     public void configureControlChange(String mode, SensorType type, int channel, int cc, int min, int max){
         log.debug("Setting "+mode+":"+type+" to CC "+cc+" ("+min+"-"+max+")");
         setSensorEventHandler(mode, type, new ControlChangeEventHandler(cc, min, max));
+    }
+
+    public void configureNRPN(String mode, SensorType type, int channel, int cc, int min, int max){
+        log.debug("Setting "+mode+":"+type+" to NRPN "+cc+" ("+min+"-"+max+")");
+        setSensorEventHandler(mode, type, new NonRegisteredParameterEventHandler(cc, min, max));
     }
 
     public void configurePitchBend(String mode, SensorType type, int channel, int min, int max){
@@ -289,6 +312,20 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }catch(Exception exc){
             log.error(exc, exc);
         }        
+    }
+
+
+    public void sendMidiNRPN(int parameter, int value){
+//         log.debug("nrpn ("+parameter+") :\t "+value);
+        sendMidiCC(99, 3);
+        sendMidiCC(98, parameter & 0x7f);   // NRPN LSB
+        sendMidiCC(6, value);
+
+//         sendMidiCC(99, parameter >> 7);     // NRPN MSB
+//         sendMidiCC(98, parameter & 0x7f);   // NRPN LSB
+//         sendMidiCC(6, value >> 7);          // Data Entry MSB
+//         if((value & 0x7f) != 0)
+//             sendMidiCC(38, value & 0x7f);   // Data Entry LSB
     }
 
     public void sendMidiCC(int cc, int value){

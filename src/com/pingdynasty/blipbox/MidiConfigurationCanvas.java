@@ -29,39 +29,7 @@ public class MidiConfigurationCanvas extends JPanel {
     private static final byte BUTTON_CC = 22;
 
     private static final String[] controlTypes = 
-    { "Unassigned", "Control Change", "Pitch Bend", "Basenote", "Scale", "Mode Change" };
-
-    public class BasicConfigurationPanel extends JPanel {
-        private JSpinner range;
-
-        public BasicConfigurationPanel(){
-            JPanel panel = new JPanel(new MigLayout());
-            add(panel);
-
-            panel.add(new Label("Note Range"), "label");
-            range = new JSpinner(new SpinnerNumberModel(1, 1, 127, 1));
-            range.setValue(10);
-            range.addChangeListener(new ChangeListener(){
-                    public void stateChanged(ChangeEvent e){
-                        Integer value = (Integer)range.getValue();
-                        eventhandler.setNumberOfColumns(value);
-                    }
-                });
-            panel.add(range, "wrap");
-
-            panel.add(new Label("Sensitivity"), "label");
-            JSpinner spinner = new JSpinner(new SpinnerNumberModel(200, 20, 600, 20));
-            spinner.addChangeListener(new ChangeListener(){
-                    public void stateChanged(ChangeEvent event){
-                        JSpinner spinner = (JSpinner)event.getSource();
-                        Integer value = (Integer)spinner.getValue();
-                        eventhandler.setSensitivity(value);
-                        sender.setSensitivity(value);
-                    }
-                });
-            panel.add(spinner, "wrap");
-        }
-    }
+    { "Unassigned", "Control Change", "NRPN", "Pitch Bend", "Basenote", "Scale", "Mode Change" };
 
     public class ModeConfigurationPanel extends JPanel {
         private String mode;
@@ -197,6 +165,10 @@ public class MidiConfigurationCanvas extends JPanel {
                     eventhandler.configureControlChange(getOperationMode(), this.type, 
                                                    (Integer)channel.getValue(), (Integer)cc.getValue(), 
                                                    (Integer)min.getValue(), (Integer)max.getValue());
+                }else if("NRPN".equals(type)){
+                    eventhandler.configureNRPN(getOperationMode(), this.type, 
+                                               (Integer)channel.getValue(), (Integer)cc.getValue(), 
+                                               (Integer)min.getValue(), (Integer)max.getValue());
                 }else if("Pitch Bend".equals(type)){
                     eventhandler.configurePitchBend(getOperationMode(), this.type, 
                                                (Integer)channel.getValue(), 
@@ -216,6 +188,14 @@ public class MidiConfigurationCanvas extends JPanel {
 
             public void setType(String type){
                 if("Control Change".equals(type)){
+                    channel.setEnabled(true);
+                    cc.setEnabled(true);
+                    min.setEnabled(true);
+                    max.setEnabled(true);
+                    min.setValue(0);
+                    max.setValue(127);
+                    modeList.setEnabled(false);
+                }else if("NRPN".equals(type)){
                     channel.setEnabled(true);
                     cc.setEnabled(true);
                     min.setEnabled(true);
@@ -408,14 +388,15 @@ public class MidiConfigurationCanvas extends JPanel {
 
     private Map<String, ModeConfigurationPanel> modes = new HashMap<String, ModeConfigurationPanel>();
 
-    public MidiConfigurationCanvas(MidiOutputEventHandler eventhandler, BlipBox sender){
+    public MidiConfigurationCanvas(BlipBoxApplication application, 
+                                   MidiOutputEventHandler eventhandler, BlipBox sender){
         this.eventhandler = eventhandler;
         this.sender = sender;
 
         JTabbedPane tabs = new JTabbedPane();
-        
-        BasicConfigurationPanel basic = new BasicConfigurationPanel();
-        tabs.addTab("Setup", basic);
+
+        JPanel control = new BlipBoxControlPanel(application);
+        tabs.addTab("Setup", control);
 
         ModeConfigurationPanel panel = new ModeConfigurationPanel("Cross");
         modes.put(panel.getOperationMode(), panel);
