@@ -35,47 +35,50 @@
       <head>
 	<title><xsl:value-of select="title"/></title>
 	<style>
-          a:link {color: #990000;text-decoration: none;}
-          a:visited {color: #990000;text-decoration: none;}
-          a:active {color: #808080;text-decoration: none;}
-          a:hover {color: #000000;text-decoration: none;} 
-          body { font-family:Tahoma, Geneva, Arial, Helvetica, Verdana, sans-serif; margin:0; background-color:#cbd3c7 ; }
-<!--           body { font-family:Tahoma, Geneva, Arial, Helvetica, Verdana, sans-serif; margin:0; font-size:11px; color:#fff; background-color:#cbd3c7 ; text-align: center; } -->
-<!--           body { font-family:Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif; } -->
-          img { border: none }
-          .header { position: absolute;  top: 30px; left: 180px; width: 520px;  }
-          .sidebar { position: absolute;  top: 30px; left: 60px; width: 100px;  }
-          .content { position: absolute; top: 80px; left: 180px; width: 520px; }
-          .menubar { }
-
+	  a:link {color: #990000;text-decoration: none;}
+	  a:visited {color: #990000;text-decoration: none;}
+	  a:active {color: #808080;text-decoration: none;}
+	  a:hover {color: #000000;text-decoration: none;} 
+	  body { font-family:Tahoma, Geneva, Arial, Helvetica, Verdana, sans-serif; margin:0; background-color:#cbd3c7 ; }
+<!--	       body { font-family:Tahoma, Geneva, Arial, Helvetica, Verdana, sans-serif; margin:0; font-size:11px; color:#fff; background-color:#cbd3c7 ; text-align: center; } -->
+<!--	       body { font-family:Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif; } -->
+	  img { border: none }
+          h1 { margin-top: 2px; }
+	  .header { position: absolute;	 top: 30px; left: 180px; width: 620px;	}
+	  .sidebar { position: absolute;  top: 30px; left: 60px; width: 100px;	}
+	  .content { position: absolute; top: 100px; left: 180px; width: 620px; }
+	  .menubar { }
 	  .example {font-size: small; font-family: 'Courier New', 'Courier'; }
 	  .markup  {color: darkblue}
-	  .element-name  {color: darkgreen}
+	  .element-name	 {color: darkgreen}
 	  .code-name {color: darkblue}
 	  .attribute-name  {color: green}
 	  .attribute-value  {color: green}
 	  .text {  }
 
 	  td.term {font-size: small; font-family: 'Courier New', 'Courier'}
-           </style>
+	   </style>
       </head>
       <body>
-        <div class="header">
-          <a href="http://blipbox.org"><img src="images/blipbox_logo_red_black_medium.png"/></a>
-<!--           <a href="http://www.pingdynasty.com"><img src="images/pingdynasty.gif"/></a> -->
-        </div>
-        <div class="sidebar">
-          <xsl:apply-templates select="document('sidebar.xml')/sidebar/*"/>
-        </div>
-        <div class="content">
-          <xsl:apply-templates/>
-        </div>
+	<div class="header">
+	  <a href="http://blipbox.org"><img src="images/blipbox_logo_red_black_medium.png"/></a>
+<!--	       <a href="http://www.pingdynasty.com"><img src="images/pingdynasty.gif"/></a> -->
+	</div>
+	<div class="sidebar">
+	  <xsl:apply-templates select="document('sidebar.xml')/sidebar/*"/>
+	</div>
+	<div class="content">
+	  <xsl:apply-templates/>
+	</div>
       </body>
     </html>
   </xsl:template>
 
   <xsl:template match="section">
-    <xsl:apply-templates/>
+    <div>
+      <xsl:copy-of select="@id"/>
+      <xsl:apply-templates/>
+    </div>
   </xsl:template>
 
   <xsl:template match="quote">
@@ -84,8 +87,12 @@
     <xsl:text>'</xsl:text>
   </xsl:template>
 
-  <xsl:template match="title">
-    <p><b><xsl:value-of select="."/></b></p>
+  <xsl:template match="article/title">
+    <h1><xsl:value-of select="."/></h1>
+  </xsl:template>
+
+  <xsl:template match="section/title">
+    <h2><xsl:value-of select="."/></h2>
   </xsl:template>
 
   <xsl:template match="para">
@@ -124,19 +131,31 @@
     </li>
   </xsl:template>
 
+  <xsl:template match="orderedlist">
+    <ol>
+      <xsl:apply-templates/>
+    </ol>
+  </xsl:template>
+
+  <xsl:template match="orderedlist/listitem">
+    <li>
+      <xsl:apply-templates/>
+    </li>
+  </xsl:template>
+
 <!--   <xsl:template match="itemizedlist"> -->
-<!--     <table class="itemizedlist"> -->
-<!--       <xsl:apply-templates/> -->
-<!--     </table> -->
+<!--	 <table class="itemizedlist"> -->
+<!--	   <xsl:apply-templates/> -->
+<!--	 </table> -->
 <!--   </xsl:template> -->
 
 <!--   <xsl:template match="itemizedlist/listitem"> -->
-<!--     <tr> -->
-<!--       <td>-</td> -->
-<!--       <td> -->
-<!-- 	<xsl:apply-templates/> -->
-<!--       </td> -->
-<!--     </tr> -->
+<!--	 <tr> -->
+<!--	   <td>-</td> -->
+<!--	   <td> -->
+<!--	<xsl:apply-templates/> -->
+<!--	   </td> -->
+<!--	 </tr> -->
 <!--   </xsl:template> -->
 
   <xsl:template match="ulink">

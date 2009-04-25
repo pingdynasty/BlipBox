@@ -1,0 +1,112 @@
+<article>
+
+  <xi:include href="blipbox-menubar.xml"
+              xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+  <title>BlipBox Order Information</title>
+
+  <para>The BlipBox will soon be available from us in the form of DIY electronics kits. As we are still waiting for PCB's to be delivered, all information on this page is preliminary, including prices. Once the PCB's have arrived and we have an order system set up you will be able to order kits from us.</para>
+
+<section>
+  <title>BlipBox Kit</title>
+
+<para>BlipBox Kit Contents:</para>
+<programlisting>
+1x BlipBox PCB
+1x 5.7" touch screen
+2x 5x8 LED matrix, Ultra-bright red
+1x FFC connector 6 way
+1x IC TLC5940
+1x IC ATMEGA168
+1x 16Mhz ZTT crystal resonator
+3x 100nF capacitor
+1x 100uF capacitor
+1x 10k resistor
+1x 2k resistor
+2x IC socket 28 pin DIL
+4x female header 13 pin
+2x right angle male header 6 pin
+1x right-angle ICSP header 2x3 pin
+</programlisting>
+
+<para>Estimated price: GBP 58.00</para> 
+
+
+<para>This kit includes everything you need to build a working BlipBox <emphasis>apart from</emphasis>:</para>
+<itemizedlist>
+  <listitem><ulink url="#BlipBox-Connection">USB connector</ulink></listitem>
+  <listitem><ulink url="#BlipBox-Enclosure">enclosure</ulink></listitem>
+  <listitem><ulink url="#BlipBox-Modifications">additional pots and buttons</ulink></listitem>
+</itemizedlist>
+</section>
+
+<section id="USB-Board-Kit">
+  <title>USB Board Kit</title>
+  <para>BlipBox USB Board Kit Contents:</para>
+<programlisting>
+1x BlipBox USB PCB
+1x USB B connector
+1x 100nF capacitor
+1x IC FT232RL
+1x ribbon cable 6 way
+</programlisting>
+<para>Estimated price: GBP 16.60</para>
+<para>The BlipBox USB board kit is based around the FTDI FT232RL (same as the Arduino and Monome uses). This IC is only available in surface mount package. The SSOP pitch is 0.65 mm. Some confidence soldering SMT components is highly recommended for builders of this kit!</para>
+</section>
+
+<section id="BlipBox-Enclosure">
+<title>BlipBox Enclosure</title>
+<para>Your new BlipBox will need a box to live in. We are working on producing very nice aluminium cases. More information about this will be forthcoming.</para>
+<para>We have otherwise found the MULTICOMP AB77W ABS box to be a good size and shape, and pretty easy to modify. The box measures 36 X 178 X 122mm, which fits the electronics and provides some room for additional buttons and/or knobs. This is the box we used for the first working prototype, which can be seen in photos on our blog and website, and in <ulink url="http://vimeo.com/2746159">this video</ulink>. The box was machined by hand with a Dremel.</para>
+</section>
+
+<section id="BlipBox-Modifications">
+<title>Modifications (Pots and Buttons)</title>
+<para>The BlipBox PCB includes a header which gives access to three GPIO pins on the microcontroller - two digital (both with PWM capability) and one analogue. These correspond to AtMega168 pins PD5, PD6 and PB4, or Arduino analog input 5 and digital pins 3 and 12. It is recommended to connect at least a switch to one of these pins to provide additional functionality. More information and advice will follow - we may also put a mini-kit together with a recommended setup if there is interest.</para>
+</section>
+
+<section id="BlipBox-Connection">
+  <title>BlipBox Computer Connection</title>
+<para>The basic kit provides TTL level serial input/output through a header on the PCB. To connect it to a computer there are a number of alternatives:</para>
+<itemizedlist>
+<listitem>Get an FTDI TTL to USB Serial Converter cable. This connects straight to the PCB and plugs into your computer's USB port. Manufacturer code TTL-232R. Available from Mouser, Digikey and Farnell. We plan to sell these for around £16.00.</listitem>
+<!-- £12.61 on Farnell. -->
+<listitem>Get a USB to UART converter, such as <ulink url="http://www.sparkfun.com/commerce/product_info.php?products_id=718">this one from SparkFun</ulink>. (Note that this particular board has not been tested with the BlipBox).</listitem>
+<listitem>Use our <ulink url="#USB-Board-Kit">USB breakout board</ulink> to give your BlipBox a USB socket.</listitem>
+<listitem>Build your own connector.</listitem>
+</itemizedlist>
+<para>The host software we use to communicate with the BlipBox expects a serial connection to communicate with the device. This connection is reliably provided by the FTDI chip used in our breakout board, but could potentially be done over Bluetooth, ZigBee or good old fashioned RS232 (but why?!).</para>
+</section>
+
+<section>
+  <title>Build Instructions</title>
+  <para>We will have detailed build instructions ready in time before the kits start shipping. In the meantime you can see a short picture sequence of the process on <ulink url="http://www.flickr.com/photos/33843804@N05/sets/72157616391127465/">flickr</ulink>.</para>
+  <para>The parts required to build a BlipBox from one of these kits are likely to be found in every electronic hobbyist toolbox.</para>
+  <itemizedlist>
+    <listitem>Good quality soldering iron</listitem>
+    <listitem>Solder</listitem>
+    <listitem>Tip tinner (recommended)</listitem>
+    <listitem>Flux pen or similar (recommended)</listitem>
+    <listitem>Solder wick (highly recommended)</listitem>
+    <listitem>Wet sponge!</listitem>
+  </itemizedlist>
+  <para>Your most important tool is a decent iron. I use an Antex 25W (£16.99 from Maplins), which is very basic but works just great.</para>
+  <para>In addition you are likely to need some tools to build or modify an enclosure for your creation.</para>
+
+  <para>Assembly of the BlipBox kit includes one surface mount part: a 6 way FFC (flat flex cable) connector. If you have never soldered SMT before then this is a good one to start with, as it has a relatively large 1mm pitch. If you have never soldered <emphasis>anything</emphasis> before then you should probably try something easier first.</para>
+
+<para>If you are planning to take your BlipBox on the road then you may want to skip as many sockets you can and dare. Note that if you solder the LED matrices straight to the PCB you will no longer be able to access the component side of the board. Keep this in mind!</para>
+</section>
+
+<!-- shipping and order handling GBP 9.00 -->
+
+<!-- CABLE USB2 3M A MALE TO B MALE (RC)  19-8662 £2.53 Rapid -->
+<!-- CABLE USB2 2M A MALE TO B MALE (RC)  19-8660 £1.89 -->
+<!-- CABLE ASSEMBLY, USB2.0 A TO B, 2M, TYCO ELECTRONICS 1487588-1, 1+ £1.76 10+ £1.64 -->
+
+<!-- enclosure -->
+<!-- MULTICOMP AB77W white ABS box, 36X178X122MM -->
+<!-- http://uk.farnell.com/multicomp/ab77w/box-abs-white-36x178x122mm/dp/938889?_requestid=405879 -->
+<!-- out of stock -->
+
+</article>

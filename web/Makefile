@@ -1,6 +1,6 @@
 XSLTPROC = xsltproc --xinclude
 
-TARGETS = polynome.html blipbox.html contact.html taquito.html blipbox-functionality.html about.html
+TARGETS = blipbox.html blipbox-functionality.html blipbox-order.html contact.html taquito.html polynome.html about.html
 all: $(TARGETS)
 	cp blipbox.html index.html
 

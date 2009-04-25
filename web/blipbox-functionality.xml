@@ -1,9 +1,9 @@
 <article>
 
-  <title>BlipBox Functionality</title>
-
   <xi:include href="blipbox-menubar.xml"
               xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+  <title>BlipBox Functionality</title>
 
 
   <para>They say that a video is worth a thousand pictures, so here's some action footage:</para>

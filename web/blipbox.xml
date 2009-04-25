@@ -1,18 +1,9 @@
 <article>
 
-  <title>project name: BlipBox</title>
-
   <xi:include href="blipbox-menubar.xml"
               xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
-  <para>What is it? The BlipBox is all of the following:</para>
-
-  <itemizedlist>
-    <listitem><para>a creative tool and musical instrument</para></listitem>
-    <listitem><para>a large, high definition x/y controller with visual feedback</para></listitem>
-    <listitem><para>a uniquely versatile <ulink url="http://en.wikipedia.org/wiki/Midi">MIDI</ulink> and <ulink url="http://en.wikipedia.org/wiki/OpenSound_Control">OSC</ulink> controller</para></listitem>
-    <listitem><para>a <ulink url="http://monome.org/">monome</ulink> emulator</para></listitem>
-  </itemizedlist>
+  <title>project name: BlipBox</title>
 
   <mediaobject>
     <imageobject>
@@ -22,6 +13,15 @@
       <para>BlipBox second prototype</para>
     </caption>
   </mediaobject>
+
+  <para>What is that? The BlipBox is all of the following:</para>
+
+  <itemizedlist>
+    <listitem><para>a creative tool and musical instrument</para></listitem>
+    <listitem><para>a large, high definition x/y controller with visual feedback</para></listitem>
+    <listitem><para>a uniquely versatile <ulink url="http://en.wikipedia.org/wiki/Midi">MIDI</ulink> and <ulink url="http://en.wikipedia.org/wiki/OpenSound_Control">OSC</ulink> controller</para></listitem>
+    <listitem><para>a <ulink url="http://monome.org/">monome</ulink> emulator</para></listitem>
+  </itemizedlist>
 
   <para>What does it do? Anything you want it to! Current development is focused on music production, but expect to see many other creative uses.</para>
 
