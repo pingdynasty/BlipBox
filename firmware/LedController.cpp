@@ -4,7 +4,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <wiring.h>
-
 #include "device.h"
 
 #if defined BLIPBOX_P2
@@ -24,8 +23,18 @@ uint8_t colOffsets[] = {
 uint8_t rowOffsets[] = {
   4, 0, 1, 2, 3,
   4, 0, 1, 2, 3
-//   0, 1, 2, 3, 4, 
-//   0, 1, 2, 3, 4 
+};
+
+uint8_t colOffsets[] = {
+  8, 9, 10, 11, 12, 13, 14, 15,
+  0, 1,  2,  3,  4,  5,  6,  7
+};
+
+#elif defined BLIPBOX_V6
+
+uint8_t rowOffsets[] = {
+  4, 0, 1, 2, 3,
+  4, 0, 1, 2, 3
 };
 
 uint8_t colOffsets[] = {
@@ -35,38 +44,40 @@ uint8_t colOffsets[] = {
 
 #endif /* BLIPBOX_xx */
 
+#ifdef TLC_VPRG_PIN
 /* send 6 bits from an 8 bit value over the TLC5940 data line */
 static void shift6bits(uint8_t value) {
   for (uint8_t i=0x20;i;i>>=1){
     if(value & i)
-      TLC_PORT |= _BV(SIN_PIN);
+      TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
     else
-      TLC_PORT &= ~_BV(SIN_PIN);
-    TLC_PORT |= _BV(SCLK_PIN);
-    TLC_PORT &= ~_BV(SCLK_PIN);
+      TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
+    TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
+    TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
   }
 }
+#endif
 
 /* send 10 bits over the TLC5940 data line using an 8 bit value 
    and 4 (least significant) bits padding */
 static void shift12bits(uint8_t value) {
   for(uint8_t i=0x80; i; i>>=1){
     if(value & i)
-      TLC_PORT |= _BV(SIN_PIN);
+      TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
     else
-      TLC_PORT &= ~_BV(SIN_PIN);
+      TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
     // clock
-    TLC_PORT |= _BV(SCLK_PIN);
-    TLC_PORT &= ~_BV(SCLK_PIN);
+    TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
+    TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
   }
   // shift out four more zeros or ones for the 4 least significant bits
   if(value)
-    TLC_PORT |= _BV(SIN_PIN);
+    TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
   else
-    TLC_PORT &= ~_BV(SIN_PIN);
+    TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
   for(uint8_t i=0; i<4; ++i){
-    TLC_PORT |= _BV(SCLK_PIN);
-    TLC_PORT &= ~_BV(SCLK_PIN);
+    TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
+    TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
   }
 }
 
@@ -141,34 +152,44 @@ uint8_t LedController::getLed(uint8_t row, uint8_t col){
 }
 
 /* set the dot correction value for all pins to a value between 0 and 63 */
+#ifdef TLC_VPRG_PIN
 void LedController::setGlobalDotCorrection(uint8_t value) {
-  TLC_PORT |= _BV(VPRG_PIN);
+  TLC_VPRG_PORT |= _BV(TLC_VPRG_PIN);
   for(uint8_t i=0;i<16;i++)
     shift6bits(value);
-  TLC_PORT |= _BV(XLAT_PIN);
-  TLC_PORT &= ~_BV(XLAT_PIN);
-  TLC_PORT &= ~_BV(VPRG_PIN);
-
+  TLC_XLAT_PORT |= _BV(TLC_XLAT_PIN);
+  TLC_XLAT_PORT &= ~_BV(TLC_XLAT_PIN);
+  TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);
   doExtraPulse = true;
   counter.reset();
 }
+#endif
 
 void LedController::init() {
+
   counter.init();
-//   counter.reset(); // reset called in setGlobalDotCorrection()
+  counter.reset();
 
   cli();
   // set pins to output
-  TLC_DDR |= 
-    _BV(BLANK_PIN) | _BV(XLAT_PIN) | _BV(SCLK_PIN) | _BV(GSCLK_PIN) |
-    _BV(SIN_PIN);
+  TLC_XLAT_DDR |= _BV(TLC_XLAT_PIN);
+  TLC_BLANK_DDR |= _BV(TLC_BLANK_PIN);
+  TLC_GSCLK_DDR |= _BV(TLC_GSCLK_PIN);
 
-  TLC_PORT &= ~_BV(BLANK_PIN);   // blank everything until ready
-  TLC_PORT &= ~_BV(XLAT_PIN);
-  TLC_PORT &= ~_BV(SCLK_PIN);
-  TLC_PORT &= ~_BV(GSCLK_PIN);
+  TLC_SIN_DDR |= _BV(TLC_SIN_PIN);
+  TLC_SCLK_DDR |= _BV(TLC_SCLK_PIN);
 
+ // set blank high
+  TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);
+  // put everything else low until ready
+  TLC_XLAT_PORT &= ~_BV(TLC_XLAT_PIN);
+  TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
+  TLC_GSCLK_PORT &= ~_BV(TLC_GSCLK_PIN);
+
+#ifdef TLC_VPRG_PIN
+  TLC_VPRG_DDR  |= _BV(TLC_VPRG_PIN);
   setGlobalDotCorrection(63); // Max intensity.
+#endif
 
   // PWM timer
   TCCR2A = (_BV(WGM21) |   // CTC 
@@ -213,7 +234,6 @@ void LedRow::clear(){
   for(uint8_t i=0;i<FRAME_LENGTH;i++)
     values[i] = 0;
 }
-
 
   // shifts the led data in the given direction
 void LedController::shift(uint8_t direction){
@@ -268,25 +288,38 @@ void LedController::displayCurrentRow() {
   const LedRow& row = leds[counter.getCurrentRow()];
   // shift data out
 
+//     if(firstGSInput) {
+//         // adds an extra SCLK pulse unless we've just set dot-correction data
+//         firstGSInput = 0;
+//     } else {
+//       TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
+//       TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
+//     }
+
+  TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
+  TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
+
   for(uint8_t i=0;i<FRAME_LENGTH;i++)
     shift12bits(row.values[i]);
 
   // blank
-  TLC_PORT |= _BV(BLANK_PIN);
+  TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);
 
   counter.increment();
 
   // latch
-  TLC_PORT |= _BV(XLAT_PIN);
-  TLC_PORT &= ~_BV(XLAT_PIN);
+  TLC_XLAT_PORT |= _BV(TLC_XLAT_PIN);
+  TLC_XLAT_PORT &= ~_BV(TLC_XLAT_PIN);
     
-  // Extra SCLK pulse according to Datasheet p.18
+  // Extra SCLK pulse according to Datasheet p.15:
+// The first GS data input cycle after dot correction requires an additional SCLK 
+// pulse after the XLAT signal to complete the grayscale update cycle.
   if(doExtraPulse){
-    TLC_PORT |= _BV(SCLK_PIN);
-    TLC_PORT &= ~_BV(SCLK_PIN);
+    TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
+    TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
     doExtraPulse = false;
   }
 
   // unblank
-  TLC_PORT &= ~_BV(BLANK_PIN);
+  TLC_BLANK_PORT &= ~_BV(TLC_BLANK_PIN);
 }

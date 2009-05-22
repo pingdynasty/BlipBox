@@ -6,6 +6,7 @@
 
 /* #include "JohnsonCounter.h" */
 #include "DirectCounter.h"
+/* #include "DirectDigitalCounter.h" */
 
 class LedRow {
 private:

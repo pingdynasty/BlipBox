@@ -4,16 +4,13 @@
 // #include <avr/eeprom.h>
 
 #include "defs.h"
+#include "device.h"
 #include "globals.h"
 #include "Greeting.h"
 #include "MessageSender.h"
 #include "MessageReceiver.h"
 #include "Characters.h"
 #include "Parameters.h"
-
-// pins
-#define POT_PIN 5
-#define BUTTON1_PIN 2
 
 MessageSender sender;
 MessageReceiver receiver;
@@ -36,24 +33,31 @@ uint8_t brightness;
 
 void BlipBoxProtocol::init(){
 
+  pinMode(5, OUTPUT);
+  digitalWrite(5, HIGH);
+  pinMode(6, OUTPUT);
+  digitalWrite(6, HIGH);
+
   // initialise subsystems
   keys.init();
   leds.init();
   sender.init();
 
+  greeting(leds);
+
   // set serial speed
-  uint16_t val = getParameter(SERIAL_SPEED_PARAMETER_ID);
-  if(val == 0 || val > 115200/9600)
+//   uint16_t val = getParameter(SERIAL_SPEED_PARAMETER_ID);
+//   if(val == 0 || val > 115200/9600)
     beginSerial(DEFAULT_SERIAL_SPEED);
-  else
-    beginSerial(val * 9600l);
+//   else
+//     beginSerial(val * 9600l);
   // 2: 19200
   // 4: 38400
   // 6: 57600
   // 12: 115200
 
-  brightness = getParameter(BRIGHTNESS_PARAMETER_ID);
-  if(brightness == 0)
+//   brightness = getParameter(BRIGHTNESS_PARAMETER_ID);
+//   if(brightness == 0)
     brightness = BRIGHTNESS;
   // todo! load these from eeprom
 // uint16_t touchscreen_x_min   = 160;
@@ -119,14 +123,15 @@ void BlipBoxProtocol::process(){
 
 void BlipBoxProtocol::readSensors(){
 
-  uint16_t value;
-  value = analogRead(POT_PIN);
-  value &= (0xff << 2); // low level filter... todo: put a 10nF cap to ground at pot
-  sender.updateSensor(POT_SENSOR, value);
+//   uint16_t value;
+//   value = analogRead(POT_PIN);
+//   value &= (0xff << 2); // low level filter... todo: put a 10nF cap to ground at pot
+//   sender.updateSensor(POT_SENSOR, value);
 
-  value = digitalRead(BUTTON1_PIN) == HIGH ? SENSOR_MAX : 0;
+//   value = digitalRead(BUTTON1_PIN) == HIGH ? SENSOR_MAX : 0;
 
-  sender.updateSensor(BUTTON1_SENSOR, value);
+//   sender.updateSensor(BUTTON1_SENSOR, value);
+
 //   if(sender.updateSensor(BUTTON1_SENSOR, value) && value){
 //     // button has just been pressed
 //     if(keys.isPressed()){
@@ -152,9 +157,9 @@ void BlipBoxProtocol::readMessage(){
     leds.clear();
     holding = 0;
     break;
-//   case DISPLAY_EFFECT_MESSAGE:
-//     displayEffect(receiver.getFourBitValue());
-//     break;
+  case DISPLAY_EFFECT_MESSAGE:
+    displayEffect(receiver.getFourBitValue());
+    break;
   case SET_LED_MESSAGE:
     if(follow){
       holdRow = receiver.getMessageData()[1] / 16;
