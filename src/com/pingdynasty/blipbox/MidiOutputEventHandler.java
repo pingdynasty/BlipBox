@@ -175,7 +175,6 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
         }
     }
 
-
     public class PitchBendEventHandler implements SensorEventHandler {
         private int from;
         private int to;
@@ -203,7 +202,8 @@ public class MidiOutputEventHandler extends MultiModeKeyPressManager {
        
         protected int getVelocity(int row){
 //             int velocity = ((row+1)*127/8);
-            int velocity = (row*127/8);
+//             int velocity = (row*127/8)+1;
+            int velocity = ((row+1)*127/9);
             return velocity;
         }
 
