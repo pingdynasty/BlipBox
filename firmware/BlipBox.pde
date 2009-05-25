@@ -10,28 +10,37 @@
 
 // much less difference (none?) between single led brightness and whole row when using high (68k) resistor
 
-
-// pins
-#define POT_PIN 5
-#define BUTTON1_PIN 2
-
-
 // arduino max DC current per I/O pin : 40mA
-#include <avr/eeprom.h>
+// #include <avr/eeprom.h>
 #include "BlipBoxProtocol.h"
-#include "MonomeSeriesProtocol.h"
+// #include "MonomeSeriesProtocol.h"
 #include "globals.h"
 #include "defs.h"
 
+#include "Tlc5940.h"
+
 Protocol* protocol;
-// MonomeSeriesProtocol monomeseriesProtocol;
 BlipBoxProtocol blipboxProtocol;
 
+// Tlc5940 leds;
+
+// uint8_t rowpins[] = {2, 4, 7, 8, 6};
+// uint8_t rowcount = 5;
+
 void setup() {
+//   pinMode(12, OUTPUT);
+//   digitalWrite(12, HIGH);
+
+//   for(uint8_t i=0; i<rowcount; ++i)
+//     pinMode(rowpins[i], OUTPUT);
+
+//   for(uint8_t i=0; i<rowcount; ++i)
+//     digitalWrite(rowpins[i], HIGH);
+
 //   disable_watchdog(); // disable watchdog timer
   // wdt_init causes device to hang? setup gets stuck?
 
-  pinMode(BUTTON1_PIN, INPUT);
+//   pinMode(BUTTON1_PIN, INPUT);
 
 //   if(digitalRead(BUTTON1_PIN))
 //     protocol = &monomeseriesProtocol;
@@ -43,11 +52,33 @@ void setup() {
 //   if(val == EEPROM_MODE_MONOME_SERIES)
 //     protocol = &monomeseriesProtocol;
 //   else
+
     protocol = &blipboxProtocol;
 
   protocol->init();
+  leds.init();
 }
 
 void loop() {
   protocol->process();
 }
+
+// void loop() {
+//   int direction = 1;
+//   for (int channel = 0; channel < NUM_TLCS * 16; channel += direction) {
+//     leds.clear();
+//     if (channel == 0) {
+//       direction = 1;
+//     } else {
+//       leds.set(channel - 1, 1000);
+//     }
+//     leds.set(channel, 4095);
+//     if (channel != NUM_TLCS * 16 - 1) {
+//       leds.set(channel + 1, 1000);
+//     } else {
+//       direction = -1;
+//     }
+//     leds.update();
+//     delay(75);
+//   }
+// }

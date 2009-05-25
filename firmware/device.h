@@ -3,7 +3,7 @@
 
 /* Header file containing device-specific defines */
 
-#define BLIPBOX_P4
+#define BLIPBOX_V6
 
 #if defined BLIPBOX_P2
 

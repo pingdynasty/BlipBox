@@ -209,6 +209,26 @@ void LedController::init() {
   TIMSK1 = _BV(TOIE1);     
   TCNT1 = 0;
 
+//   // Timer 1 - BLANK / XLAT
+// #define TLC_PWM_PERIOD    8192
+//     TCCR1A = _BV(COM1B1);  // non inverting, output on OC1B, BLANK
+//     TCCR1B = _BV(WGM13);   // Phase/freq correct PWM, ICR1 top
+//     OCR1A = 1;             // duty factor on OC1A, XLAT is inside BLANK
+//     OCR1B = 2;             // duty factor on BLANK (larger than OCR1A (XLAT))
+//     ICR1 = TLC_PWM_PERIOD; // see tlc_config.h
+
+//     // Timer 2 - GSCLK
+// #define TLC_GSCLK_PERIOD    3
+//     TCCR2A = _BV(COM2B1)      // set on BOTTOM, clear on OCR2A (non-inverting),
+//                               // output on OC2B
+//            | _BV(WGM21)       // Fast pwm with OCR2A top
+//            | _BV(WGM20);      // Fast pwm with OCR2A top
+//     TCCR2B = _BV(WGM22);      // Fast pwm with OCR2A top
+//     OCR2B = 0;                // duty factor (as short a pulse as possible)
+//     OCR2A = TLC_GSCLK_PERIOD; // see tlc_config.h
+//     TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
+//     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
+
   sei();
 }
 
