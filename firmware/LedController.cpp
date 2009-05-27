@@ -259,18 +259,18 @@ void LedController::shift(uint8_t direction){
   // the rightmost 2 bits determines the number of steps: 1-4
   switch(direction & 0xc){
   case 0x0: // shift left
-    for(uint8_t col=0; col<7; ++col)
-      for(uint8_t row=0; row<10; ++row)
-        setLed(row, col, getLed(row, col+1));
-    for(uint8_t row=0; row<10; ++row)
-      setLed(row, 7, 0);
-    break;
-  case 0x4: // shift right
     for(uint8_t col=7; col>0; --col)
       for(uint8_t row=0; row<10; ++row)
         setLed(row, col, getLed(row, col-1));
     for(uint8_t row=0; row<10; ++row)
       setLed(row, 0, 0);
+    break;
+  case 0x4: // shift right
+    for(uint8_t col=0; col<7; ++col)
+      for(uint8_t row=0; row<10; ++row)
+        setLed(row, col, getLed(row, col+1));
+    for(uint8_t row=0; row<10; ++row)
+      setLed(row, 7, 0);
     break;
   case 0x8:
     for(uint8_t col=0; col<8; ++col)

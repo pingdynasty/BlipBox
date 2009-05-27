@@ -71,7 +71,7 @@ void BlipBoxProtocol::process(){
     if(keys.isPressed()){
       // note: inversed and swapped values!
       col = 7 - keys.getRow();
-      row = 9 - keys.getColumn();
+      row = keys.getColumn();
       switch(follow){
       case CROSS_MODE:
         leds.setCross(row, col, brightness);
