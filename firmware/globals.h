@@ -2,13 +2,11 @@
 #define _GLOBALS_H_
 
 /* #include <avr/wdt.h> */
-#include "LedMatrix.h"
-/* #include "Tlc5940.h" */
+/* #include "LedMatrix.h" */
+#include "LedController.h"
 #include "KeyController.h"
 
-/* extern LedController leds; */
-extern LedMatrix leds;
-/* extern Tlc5940 leds; */
+extern LedController leds;
 extern KeyController keys;
 
 // some global parameters that really should be dealt more intelligently

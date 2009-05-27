@@ -132,24 +132,24 @@ void LedController::setSquare(uint8_t row, uint8_t col, uint8_t value){
   setLed(row-1, col-1, value);
 }
 
-void LedController::setLed(uint8_t row, uint8_t col, uint8_t value){
-  if(col < 8){
-    if(row < 5)
-      leds[rowOffsets[row]].setLed(colOffsets[col], value);
-    else if(row < 10)
-      leds[rowOffsets[row]].setLed(colOffsets[col+8], value);
-  }
-}
+// void LedController::setLed(uint8_t row, uint8_t col, uint8_t value){
+//   if(col < 8){
+//     if(row < 5)
+//       leds[rowOffsets[row]].setLed(colOffsets[col], value);
+//     else if(row < 10)
+//       leds[rowOffsets[row]].setLed(colOffsets[col+8], value);
+//   }
+// }
 
-uint8_t LedController::getLed(uint8_t row, uint8_t col){
-  if(col < 8){
-    if(row < 5)
-      return leds[rowOffsets[row]].values[colOffsets[col]];
-    else if(row < 10)
-      return leds[rowOffsets[row]].values[colOffsets[col+8]];
-  }
-  return 0;
-}
+// uint8_t LedController::getLed(uint8_t row, uint8_t col){
+//   if(col < 8){
+//     if(row < 5)
+//       return leds[rowOffsets[row]].values[colOffsets[col]];
+//     else if(row < 10)
+//       return leds[rowOffsets[row]].values[colOffsets[col+8]];
+//   }
+//   return 0;
+// }
 
 /* set the dot correction value for all pins to a value between 0 and 63 */
 #ifdef TLC_VPRG_PIN
@@ -169,6 +169,8 @@ void LedController::init() {
 
   counter.init();
   counter.reset();
+
+//   doExtraPulse = true;
 
   cli();
   // set pins to output
@@ -193,16 +195,35 @@ void LedController::init() {
 
   // PWM timer
   TCCR2A = (_BV(WGM21) |   // CTC 
-            _BV(COM2A0));  // toggle OC2A on match -> GSCLK
+            _BV(TLC_GSCLK_OC));  // toggle OC2A or OC2B on match to drive GSCLK
+
+// #if (TLC_GSCLK_PIN == PD3 && TLC_GSCLK_PORT == PORTD)
+//   TCCR2A = (_BV(WGM21) |   // CTC 
+//             _BV(COM2B0));  // toggle OC2B on match -> GSCLK
+// #elif (TLC_GSCLK_PIN == PB3 && TLC_GSCLK_PORT == PORTB)
+//   TCCR2A = (_BV(WGM21) |   // CTC 
+//             _BV(COM2A0));  // toggle OC2A on match -> GSCLK
+// #else
+// #error "Invalid GSCLK pin configured"
+// #endif
+
   TCCR2B = _BV(CS20);      // No prescaler
+//   OCR2B = 1;               // toggle every timer clock cycle -> 4 MHz
   OCR2A = 1;               // toggle every timer clock cycle -> 4 MHz
+
   TCNT2 = 0;
 
   // Latch timer
   TCCR1A = (_BV(WGM10));   // Fast PWM 8-bit
   
-  // div 64 prescaler
-  // Fast PWM 8-bit  : 1/4096th of OC2A
+  /* prescaler
+    div 1: CS10 
+    div 8: CS11 
+    div 64: CS11 | CS10 
+    div 256: CS12
+    div 1024: CS12 | CS10
+  */
+  // Fast PWM 8-bit  : 1/4096th of OC2A, div 64 prescaler
   TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
 
   // Enable overflow interrupt
@@ -230,29 +251,6 @@ void LedController::init() {
 //     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
 
   sei();
-}
-
-void LedController::brighten(uint8_t factor){
-  for(uint8_t row=0; row<ROWS; ++row)
-    for(uint8_t i=0;i<FRAME_LENGTH;i++)
-      leds[row].values[i] <<= factor;
-}
-
-void LedController::fade(uint8_t factor){
-  for(uint8_t row=0; row<ROWS; ++row)
-    for(uint8_t i=0;i<FRAME_LENGTH;i++)
-      leds[row].values[i] >>= factor;
-//       leds[row].values[i] = leds[row].values[i] > factor ? leds[row].values[i] - factor : 0;
-}
-
-void LedController::clear(){
-  for(uint8_t row=0; row<ROWS; ++row)
-    leds[row].clear();
-}
-
-void LedRow::clear(){
-  for(uint8_t i=0;i<FRAME_LENGTH;i++)
-    values[i] = 0;
 }
 
   // shifts the led data in the given direction
@@ -297,34 +295,23 @@ void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col,
     for(int j=8-getCharacterWidth(); j<8; ++j){
       // only shift out the relevant bits
       if(character[i] & _BV(j))
-        setLed(7-j+row, col+i, brightness);
+        setLed(j+row, col+i, brightness);
       else
-        setLed(7-j+row, col+i, 0x00);
+        setLed(j+row, col+i, 0x00);
     }
   }
 }
 
 void LedController::displayCurrentRow() {
-  const LedRow& row = leds[counter.getCurrentRow()];
   // shift data out
-
-//     if(firstGSInput) {
-//         // adds an extra SCLK pulse unless we've just set dot-correction data
-//         firstGSInput = 0;
-//     } else {
-//       TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
-//       TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
-//     }
-
-  TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
-  TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
-
-  for(uint8_t i=0;i<FRAME_LENGTH;i++)
-    shift12bits(row.values[i]);
+  uint8_t row = counter.getPosition();
+  for(uint8_t i=0;i<LED_CHANNELS;i++)
+    shift12bits(values[row][i]);
 
   // blank
   TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);
 
+  // increment active anode pin
   counter.increment();
 
   // latch

@@ -1,10 +1,10 @@
 #include "globals.h"
 #include <wiring.h>
-// #include <avr/interrupt.h>
+#include <avr/interrupt.h>
 #include <avr/eeprom.h>
 
-LedMatrix leds;
-// Tlc5940 leds;
+// LedMatrix leds;
+LedController leds;
 KeyController keys;
 
 // macro to perfom a soft reset using the watchdog timer
@@ -101,8 +101,8 @@ extern "C" {
 
 // Interrupt routines 
 
-// ISR(TIMER1_OVF_vect){
-//   leds.displayCurrentRow();
-// }
+ISR(TIMER1_OVF_vect){
+  leds.displayCurrentRow();
+}
 
 // EMPTY_INTERRUPT(TIMER1_OVF_vect);

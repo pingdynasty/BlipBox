@@ -34,15 +34,15 @@
 #
 
 TARGET = BlipBox
-INSTALL_DIR = /Users/mars/arduino/arduino-0013
+INSTALL_DIR = /Users/mars/arduino/arduino-0011
 PORT = /dev/tty.usb*
 UPLOAD_RATE = 19200
 AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = LedMatrix.cpp TouchController.cpp KeyController.cpp BlipBoxProtocol.cpp Greeting.cpp MessageReceiver.cpp MessageSender.cpp Characters.cpp Parameters.cpp globals.cpp
-# MonomeSeriesProtocol.cpp LedController.cpp DirectCounter.cpp DirectDigitalCounter.cpp Tlc5940.cpp 
+CPP_SRC = Greeting.cpp DirectCounter.cpp LedController.cpp TouchController.cpp KeyController.cpp BlipBoxProtocol.cpp MessageReceiver.cpp MessageSender.cpp Characters.cpp Parameters.cpp globals.cpp 
+# MonomeSeriesProtocol.cpp DirectDigitalCounter.cpp Tlc5940.cpp LedMatrix.cpp 
 ############################################################################
 # Below here nothing should be changed...
 

@@ -14,10 +14,27 @@
 
 TouchController touch;
 
-uint16_t touchscreen_x_min   = 160;
-uint16_t touchscreen_x_range = 860 - touchscreen_x_min;
-uint16_t touchscreen_y_min   = 160;
-uint16_t touchscreen_y_range = 860 - touchscreen_y_min;
+// uint16_t touchscreen_x_min   = 160;
+// uint16_t touchscreen_x_range = 860 - touchscreen_x_min;
+// uint16_t touchscreen_y_min   = 160;
+// uint16_t touchscreen_y_range = 860 - touchscreen_y_min;
+
+uint16_t touchscreen_x_min   = 250;
+uint16_t touchscreen_x_range = 810 - touchscreen_x_min;
+uint16_t touchscreen_y_min   = 210;
+uint16_t touchscreen_y_range = 784 - touchscreen_y_min;
+
+// x/y readings from four corners of P4 screen
+// 808/218 br
+// 806/784 tr
+// 257/783 tl
+// 256/212 bl
+
+// x/y readings from four corners of V6 screen
+// 808/210
+// 802/774
+// 258/783
+// 251/210
 
 // void KeyController::init(){
 //   touch.init();

@@ -34,20 +34,11 @@ uint8_t brightness;
 void BlipBoxProtocol::init(){
 
   // initialise subsystems
-//   keys.init();
+  keys.init();
   leds.init();
   sender.init();
 
-  uint8_t rows[] = { 2, 4, 5, 6, 7, 8, 12 };
-  for(uint8_t i=0; i<7; ++i){
-    pinMode(i, OUTPUT);
-    digitalWrite(i, HIGH);
-    leds.set(i, 255);
-  }
-
-  leds.update();
-
-//   greeting(leds);
+  greeting(leds);
 
   // set serial speed
 //   uint16_t val = getParameter(SERIAL_SPEED_PARAMETER_ID);
@@ -76,36 +67,36 @@ void BlipBoxProtocol::process(){
   if(keys.keyscan() && follow){
     // key position has changed
     // if follow mode = none, then the leds aren't cleared so that leds stay lit
-//     leds.clear();
+    leds.clear();
     if(keys.isPressed()){
       // note: inversed and swapped values!
       col = 7 - keys.getRow();
       row = 9 - keys.getColumn();
-//       switch(follow){
-//       case CROSS_MODE:
-//         leds.setCross(row, col, brightness);
-//         break;
-//       case CRISS_MODE:
-//         leds.setDiagonalCross(row, col, brightness);
-//         break;
-//       case DOT_MODE:
-//         leds.setLed(row, col, brightness);
-//         break;
-//       case STAR_MODE:
-//         leds.setStar(row, col, brightness);
-//         break;
-//       case BLOB_MODE:
-//         leds.setBlob(row, col, brightness);
-//         break;
-//       case SQUARE_MODE:
-//         leds.setSquare(row, col, brightness);
-//         break;
-//       }
+      switch(follow){
+      case CROSS_MODE:
+        leds.setCross(row, col, brightness);
+        break;
+      case CRISS_MODE:
+        leds.setDiagonalCross(row, col, brightness);
+        break;
+      case DOT_MODE:
+        leds.setLed(row, col, brightness);
+        break;
+      case STAR_MODE:
+        leds.setStar(row, col, brightness);
+        break;
+      case BLOB_MODE:
+        leds.setBlob(row, col, brightness);
+        break;
+      case SQUARE_MODE:
+        leds.setSquare(row, col, brightness);
+        break;
+      }
     }
   }
 
-//   if(holding)
-//     leds.setLed(holdRow, holdCol, holding);
+  if(holding)
+    leds.setLed(holdRow, holdCol, holding);
 
   if(receiver.receiveMessage())
     this->readMessage();
@@ -123,6 +114,7 @@ void BlipBoxProtocol::process(){
     sender.sendNextMessage();
     previousMillis = millis();   // remember the last time we did this
   }
+
 }
 
 void BlipBoxProtocol::readSensors(){
@@ -159,42 +151,38 @@ void BlipBoxProtocol::readMessage(){
   switch(receiver.getMessageType()){
   case CLEAR_MESSAGE:
     leds.clear();
-    leds.update();
     holding = 0;
     break;
   case DISPLAY_EFFECT_MESSAGE:
 //     displayEffect(receiver.getFourBitValue());
     break;
   case SET_LED_MESSAGE:
-//     if(follow){
-//       holdRow = receiver.getMessageData()[1] / 16;
-//       holdCol = receiver.getMessageData()[1] % 16;
-//       holding = receiver.getMessageData()[2];
-//     }else{
-      leds.setLed(receiver.getMessageData()[1] / 16, 
+    if(follow){
+      holdRow = 9 - receiver.getMessageData()[1] / 16;
+      holdCol = receiver.getMessageData()[1] % 16;
+      holding = receiver.getMessageData()[2];
+    }else{
+      leds.setLed(9 - receiver.getMessageData()[1] / 16, 
                   receiver.getMessageData()[1] % 16, 
                   receiver.getMessageData()[2]);
-//     }
-    leds.update();
+    }
     break;
   case SET_LED_ROW_MESSAGE:
     for(uint8_t i=0; i<8; ++i)
       leds.setLed(i, receiver.getFourBitValue(),
                   (receiver.getMessageData()[1] & _BV(i)) ? brightness : 0 );
-    leds.update();
     break;
   case SET_LED_COL_MESSAGE:
     for(uint8_t i=0; i<8; ++i)
       leds.setLed(receiver.getFourBitValue(), i, 
                   (receiver.getMessageData()[1] & _BV(i)) ? brightness : 0 );
-    leds.update();
     break;
   case WRITE_CHARACTER_MESSAGE:
-//     leds.printCharacter(getCharacterData(receiver.getMessageData()[1]),
-//                         receiver.getFourBitValue(), 0, brightness);
+    leds.printCharacter(getCharacterData(receiver.getMessageData()[1]),
+                        9 - receiver.getFourBitValue(), 0, brightness);
     break;
   case SHIFT_LEDS_MESSAGE:
-//     leds.shift(receiver.getFourBitValue());
+    leds.shift(receiver.getFourBitValue());
     break;
   default:
     if((receiver.getMessageData()[0] & SET_PARAMETER_MESSAGE) == SET_PARAMETER_MESSAGE){
@@ -224,9 +212,9 @@ void BlipBoxProtocol::readMessage(){
         touchscreen_y_range = receiver.getTenBitValue();
         break;
       }
-      // }else{
-      //     error(MESSAGE_READ_ERROR);
-      //     serialFlush();
+//     }else{
+//       error(MESSAGE_READ_ERROR);
+//       serialFlush();
     }
   }
 }

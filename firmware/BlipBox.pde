@@ -17,12 +17,8 @@
 #include "globals.h"
 #include "defs.h"
 
-#include "Tlc5940.h"
-
 Protocol* protocol;
 BlipBoxProtocol blipboxProtocol;
-
-// Tlc5940 leds;
 
 // uint8_t rowpins[] = {2, 4, 7, 8, 6};
 // uint8_t rowcount = 5;
@@ -56,29 +52,8 @@ void setup() {
     protocol = &blipboxProtocol;
 
   protocol->init();
-  leds.init();
 }
 
 void loop() {
   protocol->process();
 }
-
-// void loop() {
-//   int direction = 1;
-//   for (int channel = 0; channel < NUM_TLCS * 16; channel += direction) {
-//     leds.clear();
-//     if (channel == 0) {
-//       direction = 1;
-//     } else {
-//       leds.set(channel - 1, 1000);
-//     }
-//     leds.set(channel, 4095);
-//     if (channel != NUM_TLCS * 16 - 1) {
-//       leds.set(channel + 1, 1000);
-//     } else {
-//       direction = -1;
-//     }
-//     leds.update();
-//     delay(75);
-//   }
-// }
