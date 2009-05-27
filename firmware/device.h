@@ -3,7 +3,7 @@
 
 /* Header file containing device-specific defines */
 
-#define BLIPBOX_V6
+#define BLIPBOX_P4
 
 #if defined BLIPBOX_P2
 
@@ -73,23 +73,23 @@
 
 #define TLC_GSCLK_OC   COM2A0
 
-#define LED_ROW_1_PIN      PD6
+#define LED_ROW_1_PIN      PD3
 #define LED_ROW_1_DDR      DDRD
 #define LED_ROW_1_PORT     PORTD
 
-#define LED_ROW_2_PIN      PD5
+#define LED_ROW_2_PIN      PD7
 #define LED_ROW_2_DDR      DDRD
 #define LED_ROW_2_PORT     PORTD
 
-#define LED_ROW_3_PIN      PD4
+#define LED_ROW_3_PIN      PD6
 #define LED_ROW_3_DDR      DDRD
 #define LED_ROW_3_PORT     PORTD
 
-#define LED_ROW_4_PIN      PD3
+#define LED_ROW_4_PIN      PD5
 #define LED_ROW_4_DDR      DDRD
 #define LED_ROW_4_PORT     PORTD
 
-#define LED_ROW_5_PIN      PD7
+#define LED_ROW_5_PIN      PD4
 #define LED_ROW_5_DDR      DDRD
 #define LED_ROW_5_PORT     PORTD
 
