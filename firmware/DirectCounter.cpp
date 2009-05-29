@@ -4,8 +4,6 @@
 #include <wiring.h>
 #include "device.h"
 
-#define LED_ROW_PINS 5
-
 void Counter::init(){
   // Set pins to output
   LED_ROW_1_DDR |= _BV(LED_ROW_1_PIN);
@@ -15,7 +13,7 @@ void Counter::init(){
   LED_ROW_5_DDR |= _BV(LED_ROW_5_PIN);
 }
 
-static void pin_off(uint8_t pos){
+void Counter::off(){
   switch(pos){
   case 0:
     LED_ROW_1_PORT &= ~_BV(LED_ROW_1_PIN);
@@ -35,7 +33,7 @@ static void pin_off(uint8_t pos){
   }
 }
 
-static void pin_on(uint8_t pos){
+void Counter::on(){
   switch(pos){
   case 0:
     LED_ROW_1_PORT |= _BV(LED_ROW_1_PIN);
@@ -54,18 +52,3 @@ static void pin_on(uint8_t pos){
     break;
   }
 }  
-
-void Counter::increment(){
-  pin_off(pos);
-  if(++pos == LED_ROW_PINS)
-    pos = 0;
-  pin_on(pos);
-}
-
-void Counter::reset(){
-  if(pos != 0){
-    pin_off(pos);
-    pos = 0;
-    pin_on(pos);
-  }
-}

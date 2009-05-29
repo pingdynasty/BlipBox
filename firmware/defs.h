@@ -2,7 +2,7 @@
 #define _DEFS_H_
 
 /* #define DEFAULT_SERIAL_SPEED 9600 */
-#define DEFAULT_SERIAL_SPEED 115200
+#define DEFAULT_SERIAL_SPEED 115200L
 
 /* #define SENSITIVITY 120 // the lower the value, the less sensitive */
 /* #define SENSITIVITY 600 // the lower the value, the less sensitive */

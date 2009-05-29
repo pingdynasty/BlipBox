@@ -8,9 +8,9 @@
 #define LED_CHANNELS 16 // 16 for serial connection
 #define LED_STRIPS 5
 
-/* #include "JohnsonCounter.h" */
-#include "DirectCounter.h"
-/* #include "DirectDigitalCounter.h" */
+// #include "JohnsonCounter.h"
+// #include "DirectCounter.h"
+#include "DirectDigitalCounter.h"
 
 class LedController {
 public:

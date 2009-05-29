@@ -15,10 +15,10 @@ extern uint16_t touchscreen_x_range;
 extern uint16_t touchscreen_y_min;
 extern uint16_t touchscreen_y_range;
 
-
 // error codes
-#define MESSAGE_READ_ERROR 4
-#define MODE_ERROR 6
+// the code corresponds to the number of blinks emmitted to signal the error
+#define MESSAGE_READ_ERROR 2
+#define MODE_ERROR 3
 
 // blocking call to serialRead
 uint8_t readByte();

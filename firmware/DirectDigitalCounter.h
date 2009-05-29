@@ -12,15 +12,21 @@ public:
 
   void increment();
 
-  void reset();
+  void reset(){
+    off();
+    pos = 0;
+    on();
+  }
 
-  inline uint8_t getCurrentRow(){
-    return pos % ROWS;
+  inline uint8_t getPosition(){
+    return pos;
   }
 
  private:
   volatile uint8_t pos;
-  
+
+  void on();
+  void off();
 };
 
 #endif /* _DIRECTDIGITALCOUNTER_H_ */

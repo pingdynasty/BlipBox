@@ -200,12 +200,12 @@ SIN    PB3
     ICR1 = TLC_PWM_PERIOD; // see tlc_config.h
 
     /* Timer 2 - GSCLK */
-// #ifdef TLC_ATMEGA_8_H
-//     TCCR2  = _BV(COM20)       // set on BOTTOM, clear on OCR2A (non-inverting),
-//            | _BV(WGM21);      // output on OC2B, CTC mode with OCR2 top
-//     OCR2   = TLC_GSCLK_PERIOD / 2; // see tlc_config.h
-//     TCCR2 |= _BV(CS20);       // no prescale, (start pwm output)
-// #else
+#ifdef TLC_ATMEGA_8_H
+    TCCR2  = _BV(COM20)       // set on BOTTOM, clear on OCR2A (non-inverting),
+           | _BV(WGM21);      // output on OC2B, CTC mode with OCR2 top
+    OCR2   = TLC_GSCLK_PERIOD / 2; // see tlc_config.h
+    TCCR2 |= _BV(CS20);       // no prescale, (start pwm output)
+#else
     TCCR2A = _BV(COM2B1)      // set on BOTTOM, clear on OCR2A (non-inverting),
                               // output on OC2B
            | _BV(WGM21)       // Fast pwm with OCR2A top
@@ -214,7 +214,7 @@ SIN    PB3
     OCR2B = 0;                // duty factor (as short a pulse as possible)
     OCR2A = TLC_GSCLK_PERIOD; // see tlc_config.h
     TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
-// #endif
+#endif
     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
     update();
 }

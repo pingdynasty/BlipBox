@@ -3,7 +3,7 @@
 
 /* Header file containing device-specific defines */
 
-#define BLIPBOX_P4
+#define BLIPBOX_V6
 
 #if defined BLIPBOX_P2
 
@@ -63,9 +63,9 @@
 #define TLC_GSCLK_PORT PORTB
 #define TLC_GSCLK_PIN  PB3
 
-#define TLC_VPRG_DDR   DDRB
-#define TLC_VPRG_PORT  PORTB
-#define TLC_VPRG_PIN   PB4
+/* #define TLC_VPRG_DDR   DDRB */
+/* #define TLC_VPRG_PORT  PORTB */
+/* #define TLC_VPRG_PIN   PB4 */
 
 #define TLC_SIN_DDR    DDRB
 #define TLC_SIN_PORT   PORTB
@@ -127,13 +127,11 @@
 
 #define TLC_GSCLK_OC   COM2B0
 
-/* #define LED_ROW_1      PB4 */
-/* #define LED_ROW_2      PB0 */
-/* #define LED_ROW_3      PD7 */
-/* #define LED_ROW_4      PD4 */
-/* #define LED_ROW_5      PD2 */
-
-/* #define LED_ROW_1_PIN      12 // PD6 */
+#define LED_ROW_1      2
+#define LED_ROW_2      12
+#define LED_ROW_3      8
+#define LED_ROW_4      7
+#define LED_ROW_5      4
 
 #define LED_ROW_1_PIN      PD2
 #define LED_ROW_1_PORT     PORTD
@@ -147,9 +145,9 @@
 #define LED_ROW_3_PORT     PORTB
 #define LED_ROW_3_DDR      DDRB
 
-#define LED_ROW_4_DDR      DDRD
 #define LED_ROW_4_PIN      PD7
 #define LED_ROW_4_PORT     PORTD
+#define LED_ROW_4_DDR      DDRD
 
 #define LED_ROW_5_PIN      PD4
 #define LED_ROW_5_PORT     PORTD
@@ -167,6 +165,12 @@
 #define BUTTON2_PIN 5 // PD5 // arduino digital pin
 
 #endif /* BLIPBOX_xx */
+
+/*
+ Arduino digital pin 0-7  = PORTD, PD0-7
+ Arduino digital pin 8-13 = PORTB, PB0-5
+ Arduino analog pin  0-5  = PORTC, PC0-5 
+*/
 
 
 #endif /* _DEVICE_H_ */
