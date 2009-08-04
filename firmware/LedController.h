@@ -9,8 +9,8 @@
 #define LED_STRIPS 5
 
 // #include "JohnsonCounter.h"
-// #include "DirectCounter.h"
-#include "DirectDigitalCounter.h"
+#include "DirectCounter.h"
+/* #include "DirectDigitalCounter.h" */
 
 class LedController {
 public:
@@ -52,7 +52,7 @@ public:
       for(uint8_t col=0; col<LED_CHANNELS; ++col)
         values[row][col] <<= factor;
   }
-  void LedController::fade(uint8_t factor){
+  void fade(uint8_t factor){
     for(uint8_t row=0; row<LED_STRIPS; ++row)
       for(uint8_t col=0; col<LED_CHANNELS; ++col)
         values[row][col] >>= factor;

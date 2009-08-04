@@ -17,7 +17,8 @@
 #include "globals.h"
 #include "defs.h"
 
-Protocol* protocol;
+// Protocol* protocol;
+BlipBoxProtocol* protocol;
 BlipBoxProtocol blipboxProtocol;
 
 // uint8_t rowpins[] = {2, 4, 7, 8, 6};

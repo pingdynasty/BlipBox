@@ -6,29 +6,11 @@
 #include <wiring.h>
 #include "device.h"
 
-#include "globals.h"
-
 #define DATA_TRANSFER_MODE TLC_SPI
 // #define DATA_TRANSFER_MODE TLC_BITBANG
 
 #define TLC_PWM_PERIOD    8192
-#define TLC_GSCLK_PERIOD     3
-// #define TLC_PWM_PERIOD    4096
-// #define TLC_GSCLK_PERIOD     1
-// #define TLC_PWM_PERIOD    12288
-// #define TLC_GSCLK_PERIOD      5
-
-/*
-TLC_GSCLK_PERIOD = ( ( 2 * TLC_PWM_PERIOD ) / 4096 ) - 1
-g = ( 2 * p / 4096 ) - 1
-g + 1 = p / 2048
-(g+1)*2048 = p
-
-TLC_PWM_PERIOD = ( TLC_GSCLK_PERIOD + 1 ) * 4096 / 2
-p = ((g + 1) * 4096 ) / 2
-(p / (4096/2) ) - 1 = g
-p / 2048 - 1 = g
-*/
+#define TLC_GSCLK_PERIOD    3
 
 /** Enables the Timer1 Overflow interrupt, which will fire after an XLAT
     pulse */
@@ -67,7 +49,6 @@ ISR(TIMER1_OVF_vect)
 //         sei();
 //         tlc_onUpdateFinished();
 //     }
-    leds.counter.increment();
 }
 
 #ifdef TLC_VPRG_PIN
@@ -84,7 +65,7 @@ static void shift6bits(uint8_t value) {
 }
 #endif
 
-/* send 12 bits over the TLC5940 data line using an 8 bit value 
+/* send 10 bits over the TLC5940 data line using an 8 bit value 
    and 4 (least significant) bits padding */
 static void shift12bits(uint8_t value) {
   for(uint8_t i=0x80; i; i>>=1){
@@ -108,8 +89,8 @@ static void shift12bits(uint8_t value) {
 }
 
 void LedMatrix::init(){
-  counter.init();
-  counter.reset();
+//   counter.init();
+//   counter.reset();
 
       /* Pin Setup */
     TLC_XLAT_DDR |= _BV(TLC_XLAT_PIN);
@@ -134,63 +115,6 @@ void LedMatrix::init(){
 
 
     /* Timer Setup */
-
-    /*
-      TCNT      Timer/Counter
-      OCR       Output Compare Registers
-      TCCR      Timer/Counter Control Registers
-      TIFR      Timer Interrupt Flag Register
-      TIMSK     Timer Interrupt Mask Register
-      OC1A/B    Output Compare Pin
-
-      OCF1A/B   Output Compare Flag
-      
-
-To do a 16-bit write, the high byte must be written before the low byte. For a 16-bit read, the low 
-byte must be read before the high byte. 
-
-
-The Timer/Counter can be clocked by an internal or an external clock source. The clock source 
-is selected by the Clock Select logic which is controlled by the Clock Select (CS12:0) bits 
-located in the Timer/Counter control Register B (TCCR1B).
-
-
-
-
-CS20 set : clk/T2S with no prescaling (CS21 and CS22 not set)
-
-WGM    Waveform Generation Mode
-WGM22 = 1: Toggle OC2A on Compare Match. 
-
-WGM13
-WGM21
-WGM20
-WGM22
-
-TCCR2A 
-Bits 5:4 - COM2B1:0: Compare Match Output B Mode
-only COM2B1 set: Clear OC2B on Compare Match (non-PWM Mode)
-                 Clear OC2B on Compare Match, set OC2B at BOTTOM, (non-inverting mode) (fast PWM Mode)
-                 Clear OC2B on Compare Match when up-counting. Set OC2B on Compare Match when down-counting. (Phase Correct PWM Mode)
-
-
-TCCR1A:
-
-p4
-BLANK  PB2
-XLAT   PB1
-SCLK   PB0
-GSCLK  PB3 :  MOSI / OC2A / PCINT3
-SIN    PB5
-
-v6
-BLANK  PB2 :  SS / OC1B / PCINT2
-XLAT   PB1 :  OC1A / PCINT1
-SCLK   PB5 :  SCK / PCINT5
-GSCLK  PD3 :  INT1 / OC2B / PCINT19
-SIN    PB3
-
-     */
 
     /* Timer 1 - BLANK / XLAT */
     TCCR1A = _BV(COM1B1);  // non inverting, output on OC1B, BLANK
@@ -241,9 +165,8 @@ uint8_t LedMatrix::update(void)
         pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
     }
 
-    uint8_t row = counter.getPosition();
     for(uint8_t i=0;i<LED_CHANNELS;i++)
-      shift12bits(values[row][i]);
+      shift12bits(values[i]);
 //       shift12bits(row.values[i]);
 
 //     uint8_t *p = tlc_GSData;
@@ -256,7 +179,6 @@ uint8_t LedMatrix::update(void)
     tlc_needXLAT = 1;
     enable_XLAT_pulses();
     set_XLAT_interrupt();
-
     return 0;
 }
 

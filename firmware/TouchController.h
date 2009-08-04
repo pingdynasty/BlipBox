@@ -13,13 +13,16 @@ private:
 public:
   void init();
   uint16_t getX(){
-    return xval;
+/*     return xval; */
+    return readX();
   }
   uint16_t getY(){
-    return yval;
+/*     return yval; */
+    return readY();
   }
   uint16_t getTouch(){
-    return tval;
+/*     return tval; */
+    return check();
   }
   uint16_t check();
   uint16_t readX();

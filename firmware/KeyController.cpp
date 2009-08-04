@@ -43,6 +43,7 @@ uint16_t touchscreen_y_range = 784 - touchscreen_y_min;
 bool KeyController::keyscan(){
   uint8_t oldRow = row;
   uint8_t oldCol = col;
+
   if(this->check() < SENSITIVITY){
     this->update(); // sets row/col, calls readX() and readY()
     if(!pressed){

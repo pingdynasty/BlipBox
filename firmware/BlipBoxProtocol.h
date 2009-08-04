@@ -5,13 +5,16 @@
 #include "defs.h"
 #include "Protocol.h"
 
-class BlipBoxProtocol : public Protocol {
+class BlipBoxProtocol {
+/* class BlipBoxProtocol : public Protocol { */
 public:
   BlipBoxProtocol(){}
 /*   ~BlipBoxProtocol(){} */
 /*  data sizes without destructors: 6640, one destructor: 6700 (+60bytes), two destructors: 6712 (+12 bytes) */
-  virtual void init();
-  virtual void process();
+ void init();
+ void process();
+/*   virtual void init(); */
+/*   virtual void process(); */
 private:
   void readSensors();
   void readMessage();

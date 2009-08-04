@@ -4,6 +4,7 @@
 /* Header file containing device-specific defines */
 
 #define BLIPBOX_V6
+/* #define BLIPBOX_P4 */
 
 #if defined BLIPBOX_P2
 
@@ -72,6 +73,12 @@
 #define TLC_SIN_PIN    PB5
 
 #define TLC_GSCLK_OC   COM2A0
+
+#define LED_ROW_1      3
+#define LED_ROW_2      7
+#define LED_ROW_3      6
+#define LED_ROW_4      5
+#define LED_ROW_5      4
 
 #define LED_ROW_1_PIN      PD3
 #define LED_ROW_1_DDR      DDRD

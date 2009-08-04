@@ -94,10 +94,10 @@ void error(uint8_t code){
 
 // hack/workaround to get round problem with virtual constructors/methods:
 // undefined reference to `__cxa_pure_virtual'
-extern "C" {
-  void __cxa_pure_virtual(){}
-  // todo: error handling within function
-}
+// extern "C" {
+//   void __cxa_pure_virtual(){}
+//   // todo: error handling within function
+// }
 
 // Interrupt routines 
 
