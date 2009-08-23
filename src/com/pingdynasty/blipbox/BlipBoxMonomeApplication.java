@@ -93,7 +93,7 @@ public class BlipBoxMonomeApplication
 
     public void press(int x, int y, boolean state){
         log.trace("/press "+x+" "+y+" "+state);
-        osc.sendOscCommand(prefix + "/press", new Object[]{x, maxRows - y, state ? 1 : 0}, DEBUG);
+        osc.sendOscCommand(prefix + "/press", new Object[]{maxColumns  - x, maxRows - y, state ? 1 : 0}, DEBUG);
     }
 
 //     private void clear() {
