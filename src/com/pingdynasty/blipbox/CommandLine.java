@@ -24,14 +24,15 @@ public class CommandLine {
 
         for(int i=0; i<args.length; ++i){
             if(args[i].equals("-h")){
-                log.info("usage: \t-l\t\tlist ports\n"+
+                log.info("usage:\n"+
+                         " \t-l\t\tlist ports\n"+
+                         "\t-o file\t\tlog serial output to file\n"+
+                         "\t-p port\t\tspecify port\n"+
+                         "\t-b rate\t\tspecify baud rate (default 115200)\n"+
                          "\t--graph\t\tgraph mode\n"+
                          "\t--midi\t\tMIDI mode\n"+
                          "\t--text\t\ttext processing mode\n"+
                          "\t-t\t\ttaquito configuration (default: blipbox)\n"+
-                         "\t-o file\t\tlog serial output to file\n"+
-                         "\t-p port\t\tspecify port\n"+
-                         "\t-b rate\t\tspecify baud rate (default 115200)\n"+
                          "\t-h\t\tprint help info (this message)");
                 return;
             }else if(args[i].equals("--text")){
