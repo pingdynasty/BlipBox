@@ -84,7 +84,7 @@ public class BlipBox extends BlipBoxDataSender
      * @return true iff the touch screen is being touched
      */
     public boolean isScreenPressed(){
-        return getSensorValue(SensorType.TOUCH_SENSOR) == 0;
+        return getSensorValue(SensorType.TOUCH_SENSOR) != 0;
     }
 
     /**
@@ -94,11 +94,19 @@ public class BlipBox extends BlipBoxDataSender
         return getSensorValue(SensorType.X_SENSOR);
     }
 
+    public int getX(int min, int max){
+        return getSensorValue(SensorType.X_SENSOR, min, max);
+    }
+
     /**
      * Convenience method for getting Y sensor value
      */
     public int getY(){
         return getSensorValue(SensorType.Y_SENSOR);
+    }
+
+    public int getY(int min, int max){
+        return getSensorValue(SensorType.Y_SENSOR, min, max);
     }
 
 //     public boolean isButtonPressed(int buttonIndex){

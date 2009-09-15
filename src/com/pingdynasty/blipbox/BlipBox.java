@@ -32,6 +32,9 @@ public class BlipBox {
     private static final int Y_RANGE_PARAMETER_ID         = (0x07 << 2);
     private static final int SERIAL_SPEED_PARAMETER_ID    = (0x08 << 2);
 
+    private static final int MAX_ROW = 8;
+    private static final int MAX_COL = 10;
+
     private OutputStream outStream;
     private long timestamp;
     private long frequency = 0;
@@ -108,23 +111,37 @@ public class BlipBox {
         serialWrite(new int[]{SHIFT_LEDS_MESSAGE | ((direction & 0x3) << 2) | (steps & 0x3)});
     }
 
+    public void shiftHorizontal(int steps){
+        if(steps < 0)
+            shiftLeft(steps*-1);
+        else
+            shiftRight(steps);
+    }
+
     public void shiftLeft(int steps){
-        log.debug("Shift left");
+        log.debug("Shift left "+steps+" steps");
         shift(2, steps);
     }
 
     public void shiftRight(int steps){
-        log.debug("Shift right");
+        log.debug("Shift right "+steps+" steps");
         shift(3, steps);
     }
 
+    public void shiftVertical(int steps){
+        if(steps < 0)
+            shiftDown(steps*-1);
+        else
+            shiftUp(steps);
+    }
+
     public void shiftUp(int steps){
-        log.debug("Shift up");
+        log.debug("Shift up "+steps+" steps");
         shift(0, steps);
     }
 
     public void shiftDown(int steps){
-        log.debug("Shift down");
+        log.debug("Shift down "+steps+" steps");
         shift(1, steps);
     }
 
@@ -209,14 +226,16 @@ public class BlipBox {
 
     public void setLedColumn(int col, int data){
         log.debug("Set led column "+col+" to "+data);
-        if(col < 10) // todo: remove restriction or make the size configurable
-            serialWrite(new int[]{SET_LED_COL_MESSAGE | (col & 0x0f), data});
+        if(col >= MAX_COL)
+            throw new IllegalArgumentException("Column index out of bounds: "+col);
+        serialWrite(new int[]{SET_LED_COL_MESSAGE | (col & 0x0f), data});
     }
 
     public void setLedRow(int row, int data){
         log.debug("Set led row "+row+" to "+data);
-        if(row < 8) // todo: remove restriction or make the size configurable
-            serialWrite(new int[]{SET_LED_ROW_MESSAGE | (row & 0x0f), data});
+        if(row >= MAX_ROW)
+            throw new IllegalArgumentException("Row index out of bounds: "+row);
+        serialWrite(new int[]{SET_LED_ROW_MESSAGE | (row & 0x0f), data});
     }
 
     public void serialWrite(int[] data){
