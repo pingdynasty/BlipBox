@@ -46,7 +46,7 @@
           h1 { margin-top: 2px; }
 	  .header { position: absolute;	 top: 30px; left: 180px; width: 620px;	}
 	  .sidebar { position: absolute;  top: 30px; left: 60px; width: 100px;	}
-	  .content { position: absolute; top: 100px; left: 180px; width: 620px; }
+	  .content { position: absolute; top: 130px; left: 180px; width: 620px; }
 	  .menubar { }
 	  .example {font-size: small; font-family: 'Courier New', 'Courier'; }
 	  .markup  {color: darkblue}
@@ -61,8 +61,7 @@
       </head>
       <body>
 	<div class="header">
-	  <a href="http://blipbox.org"><img src="images/blipbox_logo_red_black_medium.png"/></a>
-<!--	       <a href="http://www.pingdynasty.com"><img src="images/pingdynasty.gif"/></a> -->
+	  <a href="http://blipbox.org"><img src="images/blipbox_banner_0101.png"/></a>
 	</div>
 	<div class="sidebar">
 	  <xsl:apply-templates select="document('sidebar.xml')/sidebar/*"/>

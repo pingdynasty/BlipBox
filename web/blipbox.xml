@@ -7,14 +7,14 @@
 
   <mediaobject>
     <imageobject>
-      <imagedata fileref="images/DSC00125.JPG"/>
+      <imagedata fileref="images/IMG_0785.jpg"/>
     </imageobject>
-    <caption>
-      <para>BlipBox second prototype</para>
-    </caption>
+<!--     <caption> -->
+<!--       <para>BlipBox prototype</para> -->
+<!--     </caption> -->
   </mediaobject>
 
-  <para>What is that? The BlipBox is all of the following:</para>
+  <para>What is it? The BlipBox is all of the following:</para>
 
   <itemizedlist>
     <listitem><para>a creative tool and musical instrument</para></listitem>
