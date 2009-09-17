@@ -13,6 +13,7 @@ public class BlipBox extends BlipBoxDataSender
     private BlipBoxDataReceiver receiver;
     private String serialport;
     private int serialspeed;
+    private int[] leds = new int[16*16];
 
 //     private Map<int, int> sensorValues = new HashMap<int, int>();
     private Map<Integer, Integer> parameterValues = new HashMap<Integer, Integer>();
@@ -52,8 +53,11 @@ public class BlipBox extends BlipBoxDataSender
     }
 
     public void closeSerialPort(){
-//         throws IOException {
         receiver.closeSerialPort();
+    }
+
+    public void fade(){
+        sendDisplayEffect(5);
     }
 
     public void sensorChange(SensorDefinition def){
@@ -77,6 +81,19 @@ public class BlipBox extends BlipBoxDataSender
     public int getSensorValue(SensorType type, int min, int max){
         SensorDefinition def =  receiver.getSensorDefinition(type);
         return def.scale(min, max);
+    }
+
+    public void setLed(int index, int value){
+        super.setLed(index, value);
+        leds[index] = value;
+    }
+
+    public int getLed(int index){
+        return leds[index];
+    }
+
+    public int getLed(int x, int y){
+        return getLed(x*16+y);
     }
 
     /**

@@ -166,6 +166,10 @@ public class BlipBoxDataSender implements BlipBoxOutput {
         shift(1, steps);
     }
 
+    public void sendDisplayEffect(int effect){
+        serialWrite(new int[]{DISPLAY_EFFECT_MESSAGE | (effect & 0x0f)});
+    }
+
     public void setParameter(int pid, int value){
         log.debug("Set parameter id "+pid+" to value "+value);
         // set parameter message: 11ppppvv vvvvvvvv
