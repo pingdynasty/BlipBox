@@ -5,9 +5,11 @@
 /* #include "LedMatrix.h" */
 #include "LedController.h"
 #include "KeyController.h"
+#include "Animator.h"
 
 extern LedController leds;
 extern KeyController keys;
+extern SignalAnimator signal;
 
 // some global parameters that really should be dealt more intelligently
 extern uint16_t touchscreen_x_min;

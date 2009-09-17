@@ -10,10 +10,6 @@
 
 #define BRIGHTNESS 0xff
 
-/* #define SENSE_DELAY 10 */
-/* sleep time between configuring and reading touch screen values */
-#define SENSE_DELAY 1
-
 // used for inverting sensor input values: 10 bits max value
 #define SENSOR_MAX 1023
 

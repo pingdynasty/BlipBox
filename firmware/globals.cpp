@@ -6,6 +6,7 @@
 // LedMatrix leds;
 LedController leds;
 KeyController keys;
+SignalAnimator signal;
 
 // macro to perfom a soft reset using the watchdog timer
 // #define soft_reset()        \
@@ -70,16 +71,7 @@ uint8_t readByte(){
 }
 
 void error(uint8_t code){
-  // signal an error
-    leds.setLed(0, 0, 0xff);
-
-//   indicate fault by flashing an LED a certain number of times
-  for(uint8_t i=0; i<code; ++i){
-    leds.setLed(0, 0, 0xff);
-    delay(200);
-    leds.setLed(0, 0, 0);
-    delay(200);
-  }
+  signal.setSignal(code);
 }
 
 // void setmode(uint8_t mode){

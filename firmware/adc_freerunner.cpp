@@ -5,7 +5,7 @@
 uint16_t adc_values[ADC_CHANNELS];
 
 void setup_adc(){
-   ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 128 - 125KHz sample rate @ 16MHz
+   ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescaler to 128 - 125KHz sample rate @ 16MHz
 
    ADMUX |= (1 << REFS0); // Set ADC reference to AVCC
 //   ADMUX |= (1 << ADLAR); // Left adjust ADC result to allow easy 8 bit reading

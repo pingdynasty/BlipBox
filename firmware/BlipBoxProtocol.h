@@ -16,9 +16,9 @@ public:
 /*   virtual void init(); */
 /*   virtual void process(); */
 private:
+  uint8_t counter;
   void readSensors();
   void readMessage();
-
   void setSensitivity(uint16_t value);
   void setBrightness(uint16_t value);
 };

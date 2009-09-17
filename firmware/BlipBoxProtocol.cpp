@@ -30,6 +30,8 @@ uint8_t holding;
 uint8_t holdCol, holdRow;
 uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
 uint8_t brightness;
+Animator* animator;
+// FadeAnimator fader(10);
 
 void BlipBoxProtocol::init(){
 
@@ -38,7 +40,7 @@ void BlipBoxProtocol::init(){
   leds.init();
   sender.init();
 
-  greeting(leds);
+//   greeting(leds);
 
   // set serial speed
 //   uint16_t val = getParameter(SERIAL_SPEED_PARAMETER_ID);
@@ -108,11 +110,16 @@ void BlipBoxProtocol::process(){
     sender.updateRelease();
   }
 
-  this->readSensors();
+//   this->readSensors();
 
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
     sender.sendNextMessage();
     previousMillis = millis();   // remember the last time we did this
+
+    // counter overflows automatically from 255 back to 0
+    signal.tick(counter++);
+    if(animator)
+      animator->tick(counter);
   }
 
 }
@@ -155,6 +162,8 @@ void BlipBoxProtocol::readMessage(){
     break;
   case DISPLAY_EFFECT_MESSAGE:
 //     displayEffect(receiver.getFourBitValue());
+    if(receiver.getFourBitValue() == 5)
+      leds.fade(1);
     break;
   case SET_LED_MESSAGE:
     if(follow){
