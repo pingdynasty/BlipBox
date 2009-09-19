@@ -29,11 +29,12 @@ class SignalAnimator : public Animator {
  public:
   virtual void tick(uint8_t counter){
     if(signals){
-      if(counter % 25 == 0){
+      if(counter % 25 < 12){
         leds.setLed(0, 0, 0xff);
       }else if(counter % 25 == 12){
-        leds.setLed(0, 0, 0);
         --signals;
+      }else{
+        leds.setLed(0, 0, 0);
       }
     }
   }
@@ -43,5 +44,23 @@ class SignalAnimator : public Animator {
  private:
   uint8_t signals;
 };
+
+// class CrossAnimator : public Animator {
+//  public:
+//   virtual void tick(uint8_t counter){
+//     if(keys.isPressed()){
+//       leds.setLed
+//     }
+//   }
+// };
+
+// class TextAnimator : public Animator {
+// public:
+//   virtual void tick(uint8_t counter){
+//   }
+// private:
+//   char* text;
+//   uint8_t prescaler
+// };
 
 #endif /* _ANIMATOR_H_ */
