@@ -14,8 +14,8 @@ all: $(TARGETS)
 %.hex: %.bdf
 	$(HEX_CONVERTER) $*.bdf > $@
 
-draw: $(TARGET).hex
-	$(HEXDRAW) $(TARGET).hex
+%.txt: %.hex
+	$(HEXDRAW) $*.hex
 
 clean:
 	rm -f $(TARGETS) *.hex
