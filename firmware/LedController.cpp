@@ -6,44 +6,6 @@
 #include <wiring.h>
 #include "device.h"
 
-#if defined BLIPBOX_P2
-
-uint8_t rowOffsets[] = {
-  2, 1, 0, 3, 4, 
-  3, 1, 0, 2, 4 
-};
-
-uint8_t colOffsets[] = {
-  6, 4, 7, 5, 1, 3, 0, 2, 
-  10, 8, 11, 9, 13, 15, 12, 14
-};
-
-#elif defined BLIPBOX_P4
-
-uint8_t rowOffsets[] = {
-  4, 0, 1, 2, 3,
-  4, 0, 1, 2, 3
-};
-
-uint8_t colOffsets[] = {
-  8, 9, 10, 11, 12, 13, 14, 15,
-  0, 1,  2,  3,  4,  5,  6,  7
-};
-
-#elif defined BLIPBOX_V6
-
-uint8_t rowOffsets[] = {
-  4, 0, 1, 2, 3,
-  4, 0, 1, 2, 3
-};
-
-uint8_t colOffsets[] = {
-  8, 9, 10, 11, 12, 13, 14, 15,
-  0, 1, 2, 3, 4, 5, 6, 7
-};
-
-#endif /* BLIPBOX_xx */
-
 #ifdef TLC_VPRG_PIN
 /* send 6 bits from an 8 bit value over the TLC5940 data line */
 static void shift6bits(uint8_t value) {
@@ -131,25 +93,6 @@ void LedController::setSquare(uint8_t row, uint8_t col, uint8_t value){
   setLed(row+1, col-1, value);
   setLed(row-1, col-1, value);
 }
-
-// void LedController::setLed(uint8_t row, uint8_t col, uint8_t value){
-//   if(col < 8){
-//     if(row < 5)
-//       leds[rowOffsets[row]].setLed(colOffsets[col], value);
-//     else if(row < 10)
-//       leds[rowOffsets[row]].setLed(colOffsets[col+8], value);
-//   }
-// }
-
-// uint8_t LedController::getLed(uint8_t row, uint8_t col){
-//   if(col < 8){
-//     if(row < 5)
-//       return leds[rowOffsets[row]].values[colOffsets[col]];
-//     else if(row < 10)
-//       return leds[rowOffsets[row]].values[colOffsets[col+8]];
-//   }
-//   return 0;
-// }
 
 /* set the dot correction value for all pins to a value between 0 and 63 */
 #ifdef TLC_VPRG_PIN
@@ -291,13 +234,16 @@ void LedController::shift(uint8_t direction){
 
 void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
   // row goes from 0-9, col from 0-7
+  // font height/width = 8/5 for 6x9 font
   for(int i=0; i<getCharacterHeight(); ++i){
-    for(int j=8-getCharacterWidth(); j<8; ++j){
+    // font data is 8 bits left adjusted
+    uint8_t offset = 8 - getCharacterWidth();
+    for(int j=0; j<getCharacterWidth(); ++j){
       // only shift out the relevant bits
-      if(character[i] & _BV(j))
-        setLed(j+row, col+i, brightness);
+      if(character[i] & _BV(j+offset))
+        setLed(j+row, i+col, brightness);
       else
-        setLed(j+row, col+i, 0x00);
+        setLed(j+row, i+col, 0x00);
     }
   }
 }
@@ -306,7 +252,7 @@ void LedController::displayCurrentRow() {
   // shift data out
   uint8_t row = counter.getPosition();
   for(uint8_t i=0;i<LED_CHANNELS;i++)
-    shift12bits(values[row][i]);
+    shift12bits(led_buffer[row][i]);
 
   // blank
   TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);

@@ -320,29 +320,27 @@ void handleSetLedColumnMessage(){
 void handleWriteCharacterMessage(){
   rx_buffer_head = 0;
   leds.printCharacter(getCharacterData(rx_buffer[1]),
-                      9 - getFourBitValue(), 0, brightness);
+                      getFourBitValue(), 0, brightness);
 }
 
 void handleSetParameterMessage(){
-    rx_buffer_head = 0;
+  rx_buffer_head = 0;
   // todo! ignored for now
 }
 
 void handleClearMessage(){
-    rx_buffer_head = 0;
-  leds.clear();
+  rx_buffer_head = 0;
+  leds.fill(getFourBitValue() * 0x11);
 }
 
 void handleShiftLedsMessage(){
-    rx_buffer_head = 0;
+  rx_buffer_head = 0;
   leds.shift(getFourBitValue());
 }
 
 void handleCommandMessage(){
-    rx_buffer_head = 0;
-  // previously display effect message
-  if(getFourBitValue() == 5)
-    leds.fade(1);
+  rx_buffer_head = 0;
+  displayEffect(getFourBitValue());
 }
 
 
