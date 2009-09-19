@@ -100,21 +100,21 @@ public class BlipBoxDataSender implements BlipBoxOutput {
 
     /**
      * set value of all LEDs
+     * @param brightness in the range 0-255. Note that this value will be scaled down to four bits.
      */
-    public void fill(int value){
-        log.debug("Flush");
-        if(value == 0){
-            clear();
-        }else{
-            for(int i=0; i<10; ++i)
-                setLedColumn(i, value);
-        }
+    public void fill(int brightness){
+        log.debug("Fill with "+brightness);
+        if(brightness > 0xff || brightness < 0)
+            throw new IllegalArgumentException("Fill value out of bounds: "+brightness);
+        brightness /= 0x11;
+        serialWrite(new int[]{CLEAR_MESSAGE|brightness});
     }
 
     public void writeText(String str, long delay){
         for(char c: str.toCharArray()){
             shiftHorizontal(-1);
             sleep(delay);
+            // currently this writes backwards!
             for(int pos=9; pos>4; --pos){
                 shiftLeft(1);
                 writeCharacter(pos, c);

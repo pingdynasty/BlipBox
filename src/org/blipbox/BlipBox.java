@@ -58,6 +58,14 @@ public class BlipBox extends BlipBoxDataSender
 
     public void fade(){
         sendDisplayEffect(5);
+        for(int i=0; i<leds.length; ++i)
+            leds[i] >>= 1;
+    }
+
+    public void brighten(){
+        sendDisplayEffect(6);
+        for(int i=0; i<leds.length; ++i)
+            leds[i] = (leds[i] << 1) | 1;
     }
 
     public void sensorChange(SensorDefinition def){
@@ -86,6 +94,16 @@ public class BlipBox extends BlipBoxDataSender
     public void setLed(int index, int value){
         super.setLed(index, value);
         leds[index] = value;
+    }
+
+    public void clear(){
+        fill(0);
+    }
+
+    public void fill(int value){
+        super.fill(value);
+        for(int i=0; i<leds.length; ++i)
+            leds[i] = value;
     }
 
     public int getLed(int index){
