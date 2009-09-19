@@ -31,7 +31,7 @@ class SignalAnimator : public Animator {
     if(signals){
       if(counter % 25 < 12){
         leds.setLed(0, 0, 0xff);
-      }else if(counter % 25 == 12){
+      }else if(counter % 25 == 24){
         --signals;
       }else{
         leds.setLed(0, 0, 0);

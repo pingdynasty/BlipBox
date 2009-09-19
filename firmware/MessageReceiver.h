@@ -41,7 +41,6 @@
 #include <inttypes.h>
 
 #ifndef MESSAGE_RECEIVER_TEST
-#include <wiring.h>
 #include "globals.h"
 #endif // MESSAGE_RECEIVER_TEST
 

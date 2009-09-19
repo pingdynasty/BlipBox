@@ -1,6 +1,9 @@
 #include "Characters.h"
 
 // #include "fonts/emptyfont.c"
+// #include "fonts/5x8.c"
+
+// sizes relevant only for [0-9a-zA-Z] font files
 #include "fonts/6x9.c" // adds 578 bytes to program size
 // #include "fonts/Misc-Fixed-Medium-R-Normal-7.c" // 506 bytes
 // #include "fonts/Misc-Fixed-Medium-R-Normal-8.c" // 578 bytes

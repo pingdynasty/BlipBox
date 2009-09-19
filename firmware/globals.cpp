@@ -64,11 +64,11 @@ SignalAnimator signal;
 //     sei();
 // }
 
-// blocking call to serialRead
-uint8_t readByte(){
-  while(!serialAvailable());
-  return serialRead();
-}
+// // blocking call to serialRead
+// uint8_t readByte(){
+//   while(!serialAvailable());
+//   return serialRead();
+// }
 
 void error(uint8_t code){
   signal.setSignal(code);

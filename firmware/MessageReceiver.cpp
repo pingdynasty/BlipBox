@@ -1,5 +1,7 @@
 #include "MessageReceiver.h"
 
+#include <wiring.h>
+
 // #define MAX_MESSAGE_LENGTH 3
 // uint8_t messagedata[MAX_MESSAGE_LENGTH];
 

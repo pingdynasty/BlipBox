@@ -41,7 +41,7 @@ AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = Greeting.cpp LedController.cpp TouchController.cpp KeyController.cpp BlipBoxProtocol.cpp MessageReceiver.cpp MessageSender.cpp Characters.cpp Parameters.cpp globals.cpp DirectDigitalCounter.cpp
+CPP_SRC = Greeting.cpp LedController.cpp TouchController.cpp KeyController.cpp BlipBoxProtocol.cpp MessageSender.cpp Characters.cpp Parameters.cpp globals.cpp DirectDigitalCounter.cpp
 # MonomeSeriesProtocol.cpp Tlc5940.cpp LedMatrix.cpp DirectCounter.cpp 
 ############################################################################
 # Below here nothing should be changed...
@@ -50,9 +50,10 @@ ARDUINO = $(INSTALL_DIR)/hardware/cores/arduino
 AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
 SRC =  $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c \
 $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
-$(ARDUINO)/wiring_pulse.c $(ARDUINO)/wiring_serial.c \
-$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
-CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp $(CPP_SRC)
+$(ARDUINO)/wiring_pulse.c \
+$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c \
+serial.c # $(ARDUINO)/wiring_serial.c
+CXXSRC = $(ARDUINO)/WMath.cpp $(CPP_SRC)
 # below 2 lines are taken from 0016
 # CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp \
 # $(ARDUINO)/Print.cpp $(CPP_SRC)
