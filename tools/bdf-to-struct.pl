@@ -19,9 +19,15 @@ elsif (/^FONTBOUNDINGBOX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/) {
     print "struct glyph { char c; uint8_t d[FONT_HEIGHT]; };\n"; 
     print "glyph typeface[] = {\n"; 
 }
-elsif (/^STARTCHAR\s+(.)$/) { 
-    $INCHAR=1; 
-    printf("    '%s', ", $1); 
+# elsif (/^STARTCHAR\s+(.)$/) {  # only matches single char symbols: 0-9, a-z, A-Z
+elsif (/^STARTCHAR\s+(.*)$/) { 
+    printf("\t/* %s */\n", $1);
+}
+elsif (/^ENCODING\s+([0-9]+)$/) { 
+    if($1 > 32 && $1 < 127){
+        $INCHAR=1; 
+        printf("\t%s, ", $1); 
+    }
 }
 elsif (/^BBX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/ && $INCHAR) {
     $OFFSET=$HEIGHT-$2+$BASELINE-$4; # calculate how much top padding is needed
