@@ -233,6 +233,10 @@ void LedController::shift(uint8_t direction){
 }
 
 void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
+
+  // writing to row (horizontal offset) 0 puts character furthest right
+  // row 5 is furthest left (while fitting 5 pixels)
+
   // row goes from 0-9, col from 0-7
   // font height/width = 8/5 for 6x9 font
   for(int i=0; i<getCharacterHeight(); ++i){
