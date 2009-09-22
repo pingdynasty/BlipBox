@@ -1,4 +1,4 @@
-#include "DirectDigitalCounter.h"
+#include "Counter.h"
 #include <stdlib.h>
 #include <avr/io.h>
 #include <wiring.h>
@@ -50,12 +50,5 @@ void Counter::on(){
   volatile uint8_t *out = portOutputRegister(ports[pos]);
   *out |= bits[pos];
 //   digitalWrite(pins[pos], HIGH);
-}
-
-void Counter::increment(){
-  off();
-  if(++pos == CNT_PINS)
-    pos = 0;
-  on();
 }
 

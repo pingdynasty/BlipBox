@@ -10,9 +10,7 @@
 
 #define LED_BUFFER_LENGTH LED_STRIPS * LED_CHANNELS
 
-// #include "JohnsonCounter.h"
-#include "DirectCounter.h"
-/* #include "DirectDigitalCounter.h" */
+#include "Counter.h"
 
 #include <string.h>
 
@@ -39,7 +37,9 @@ public:
     else
       led_buffer[row - LED_STRIPS][col + 8] = brightness;
 /*     led_buffer[0][row * LED_CHANNELS + col] = brightness; */
+/*     led_buffer[0][(row % LED_STRIPS) * LED_CHANNELS + col + (row / LED_STRIPS) * 8] = brightness; */
   }
+
   inline uint8_t getLed(uint8_t row, uint8_t col){
     if(row > 9 || col > 7)
       return 0;
@@ -48,7 +48,8 @@ public:
     return led_buffer[row - LED_STRIPS][col + 8];
 //     return led_buffer[0][row * LED_CHANNELS + col];
   }
-//   // shifts the led data in the given direction
+
+  /** shifts the led data in the given direction */
   void shift(uint8_t direction);
   void printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness);
   void brighten(uint8_t factor){
@@ -59,9 +60,6 @@ public:
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
         led_buffer[0][i] >>= factor;
   }
-
-//   void fade(uint8_t factor);
-//   void brighten(uint8_t factor);
   void setCross(uint8_t row, uint8_t col, uint8_t brightness);
   void setBlob(uint8_t row, uint8_t col, uint8_t brightness);
   void setDiagonalCross(uint8_t row, uint8_t col, uint8_t brightness);
