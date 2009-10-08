@@ -45,14 +45,16 @@ class SignalAnimator : public Animator {
   uint8_t signals;
 };
 
-// class CrossAnimator : public Animator {
-//  public:
-//   virtual void tick(uint8_t counter){
-//     if(keys.isPressed()){
-//       leds.setLed
-//     }
-//   }
-// };
+/* class CrossAnimator : public Animator { */
+/*  public: */
+/*   virtual void tick(uint8_t counter){ */
+/*     leds.fade(1); */
+/*     if(keys.isPressed()){ */
+/*       leds.setLed(9 - keys.getColumn(), 7 - keys.getRow()); */
+/*       // and then do cross */
+/*     } */
+/*   } */
+/* }; */
 
 // class TextAnimator : public Animator {
 // public:

@@ -165,11 +165,10 @@ void LedController::init() {
     div 64: CS11 | CS10 
     div 256: CS12
     div 1024: CS12 | CS10
+it seems that with a prescaler of 8, nothing works, with 256 there is a slight shimmer/flicker
   */
   // Fast PWM 8-bit  : 1/4096th of OC2A, div 64 prescaler
-//   TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
-  // div 8 prescaler
-  TCCR1B = (_BV(CS11) | __BV(WGM12));
+  TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
 
   // Enable overflow interrupt
   TIMSK1 = _BV(TOIE1);     

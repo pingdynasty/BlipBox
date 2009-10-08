@@ -1,6 +1,7 @@
 package org.blipbox;
 
 import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
 import java.io.IOException;
 import org.apache.log4j.Logger;
@@ -30,11 +31,11 @@ public class BlipBox extends BlipBoxDataSender
         this.serialspeed = serialspeed;
     }
 
-    public void setSerialSpeed(int speed){
+    public void setSerialSpeed(int serialspeed){
         this.serialspeed = serialspeed;
     }
 
-    public void setSerialPort(String port){
+    public void setSerialPort(String serialport){
         this.serialport = serialport;
     }
 
@@ -44,6 +45,10 @@ public class BlipBox extends BlipBoxDataSender
 
     public void removeInputHandler(BlipBoxInput inputhandler){
         receiver.removeInputHandler(inputhandler);
+    }
+
+    public List<String> getSerialPorts(){
+        return receiver.getSerialPorts();
     }
 
     public void openSerialPort()

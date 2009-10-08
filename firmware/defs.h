@@ -2,7 +2,11 @@
 #define _DEFS_H_
 
 /* #define DEFAULT_SERIAL_SPEED 9600 */
-#define DEFAULT_SERIAL_SPEED 115200L
+/* #define DEFAULT_SERIAL_SPEED 19200L */
+/* #define DEFAULT_SERIAL_SPEED 38400L */
+/* #define DEFAULT_SERIAL_SPEED 57600L */
+#define DEFAULT_SERIAL_SPEED 31250L /* MIDI SPEED */
+/* #define DEFAULT_SERIAL_SPEED 115200L */
 
 /* #define SENSITIVITY 120 // the lower the value, the less sensitive */
 /* #define SENSITIVITY 600 // the lower the value, the less sensitive */
