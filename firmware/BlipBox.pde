@@ -1,60 +1,67 @@
-// some current measurements on prototype I:
-// 4.88mA all leds on, 9v battery power
-// 4.79mA all leds on, usb power
-// 0.44 no leds on
-// 68k resistor
-
-// 184mA all on
-// 14.2mA all off, 17.2 one on
-// 474Ohm resistor
-
-// much less difference (none?) between single led brightness and whole row when using high (68k) resistor
-
-// arduino max DC current per I/O pin : 40mA
-// #include <avr/eeprom.h>
-#include "BlipBoxProtocol.h"
-// #include "MonomeSeriesProtocol.h"
-#include "globals.h"
 #include "defs.h"
+#include "device.h"
+#include "globals.h"
+#include "MessageSender.h"
+#include "SerialProtocolReader.h"
 
-// Protocol* protocol;
-BlipBoxProtocol* protocol;
-BlipBoxProtocol blipboxProtocol;
-
-// uint8_t rowpins[] = {2, 4, 7, 8, 6};
-// uint8_t rowcount = 5;
+unsigned long previousMillis = 0;        // will store last time write was done
+uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
+MessageSender sender;
+Animator* animator;
+uint8_t counter;
 
 void setup() {
-//   pinMode(12, OUTPUT);
-//   digitalWrite(12, HIGH);
-
-//   for(uint8_t i=0; i<rowcount; ++i)
-//     pinMode(rowpins[i], OUTPUT);
-
-//   for(uint8_t i=0; i<rowcount; ++i)
-//     digitalWrite(rowpins[i], HIGH);
 
 //   disable_watchdog(); // disable watchdog timer
   // wdt_init causes device to hang? setup gets stuck?
 
-//   pinMode(BUTTON1_PIN, INPUT);
+  keys.init();
+  leds.init();
+  sender.init();
 
-//   if(digitalRead(BUTTON1_PIN))
-//     protocol = &monomeseriesProtocol;
-//   else
-//     protocol = &blipboxProtocol;
-
-  // set blipbox or monome mode
-//   uint8_t val = eeprom_read_byte(EEPROM_MODE_ADDRESS);
-//   if(val == EEPROM_MODE_MONOME_SERIES)
-//     protocol = &monomeseriesProtocol;
-//   else
-
-    protocol = &blipboxProtocol;
-
-  protocol->init();
+  beginSerial(DEFAULT_SERIAL_SPEED);
+    
 }
 
 void loop() {
-  protocol->process();
+  if(keys.getTouch() < sensitivity){
+    // inverse X value
+    sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getTouch());
+  }else{
+    sender.updateRelease();
+  }
+
+//   readSensors();
+
+  if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
+    sender.sendNextMessage();
+    previousMillis = millis();   // remember the last time we did this
+
+    // counter overflows automatically from 255 back to 0
+    signal.tick(counter++);
+    if(animator)
+      animator->tick(counter);
+  }
 }
+
+// Interrupt routines 
+
+#if defined(__AVR_ATmega168__)
+SIGNAL(SIG_USART_RECV)
+#else
+SIGNAL(SIG_UART_RECV)
+#endif
+{
+#if defined(__AVR_ATmega168__)
+  unsigned char c = UDR0;
+#else
+  unsigned char c = UDR;
+#endif
+  serialInput(c);
+}
+
+ISR(TIMER1_OVF_vect){
+  leds.displayCurrentRow();
+}
+
+// EMPTY_INTERRUPT(TIMER1_OVF_vect);

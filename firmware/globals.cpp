@@ -90,11 +90,3 @@ void error(uint8_t code){
 //   void __cxa_pure_virtual(){}
 //   // todo: error handling within function
 // }
-
-// Interrupt routines 
-
-ISR(TIMER1_OVF_vect){
-  leds.displayCurrentRow();
-}
-
-// EMPTY_INTERRUPT(TIMER1_OVF_vect);

@@ -3,37 +3,36 @@
 
 #include "LedController.h"
 
-/* void rain(LedController& leds); */
-/* void fade(LedController& leds); */
-/* void bounce(LedController& leds); */
-/* void explode(LedController& leds); */
-/* void greeting(LedController& leds); */
+void rain(LedController& leds);
+void fade(LedController& leds);
+void bounce(LedController& leds);
+void explode(LedController& leds);
+void greeting(LedController& leds);
 
-void displayEffect(uint8_t type){
-  switch(type){
-/*   case 0: */
-/*     greeting(leds); */
+/* void displayEffect(uint8_t type){ */
+/*   switch(type){ */
+/* /\*   case 0: *\/ */
+/* /\*     greeting(leds); *\/ */
+/* /\*     break; *\/ */
+/* /\*   case 1: *\/ */
+/* /\*     rain(leds); *\/ */
+/* /\*     break; *\/ */
+/* /\*   case 2: *\/ */
+/* /\*     bounce(leds); *\/ */
+/* /\*     break; *\/ */
+/* /\*   case 3: *\/ */
+/* /\*     fade(leds); *\/ */
+/* /\*     break; *\/ */
+/* /\*   case 4: *\/ */
+/* /\*     explode(leds); *\/ */
+/* /\*     break; *\/ */
+/*   case 5: */
+/*     leds.fade(1); */
 /*     break; */
-/*   case 1: */
-/*     rain(leds); */
+/*   case 6: */
+/*     leds.brighten(1); */
 /*     break; */
-/*   case 2: */
-/*     bounce(leds); */
-/*     break; */
-/*   case 3: */
-/*     fade(leds); */
-/*     break; */
-/*   case 4: */
-/*     explode(leds); */
-/*     break; */
-  case 5:
-    leds.fade(1);
-    break;
-  case 6:
-    leds.brighten(1);
-    break;
-  }
-}
-
+/*   } */
+/* } */
 
 #endif /* _GREETING_H_ */
