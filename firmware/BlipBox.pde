@@ -5,26 +5,28 @@
 #include "SerialProtocolReader.h"
 
 unsigned long previousMillis = 0;        // will store last time write was done
-uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
 MessageSender sender;
 Animator* animator;
 uint8_t counter;
+
 
 void setup() {
 
 //   disable_watchdog(); // disable watchdog timer
   // wdt_init causes device to hang? setup gets stuck?
 
+  config.init();
+
   keys.init();
   leds.init();
   sender.init();
 
-  beginSerial(DEFAULT_SERIAL_SPEED);
+  beginSerial(config.serialSpeed);
     
 }
 
 void loop() {
-  if(keys.getTouch() < sensitivity){
+  if(keys.getTouch() < config.sensitivity){
     // inverse X value
     sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getTouch());
   }else{

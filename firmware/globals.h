@@ -6,10 +6,12 @@
 #include "LedController.h"
 #include "KeyController.h"
 #include "Animator.h"
+#include "Configuration.h"
 
 extern LedController leds;
 extern KeyController keys;
 extern SignalAnimator signal;
+extern Configuration config;
 
 // some global parameters that really should be dealt more intelligently
 extern uint16_t touchscreen_x_min;

@@ -7,6 +7,7 @@
 LedController leds;
 KeyController keys;
 SignalAnimator signal;
+Configuration config;
 
 // macro to perfom a soft reset using the watchdog timer
 // #define soft_reset()        \
