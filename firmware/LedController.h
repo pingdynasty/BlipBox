@@ -16,6 +16,7 @@
 
 class LedController {
 public:
+
   void init();
 
   void clear(){
@@ -26,6 +27,7 @@ public:
     memset(led_buffer, brightness, LED_BUFFER_LENGTH);
   }
 
+  uint8_t update();
   void displayCurrentRow();
 
   // row goes from 0-9, col from 0-7

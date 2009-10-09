@@ -9,6 +9,7 @@ MessageSender sender;
 Animator* animator;
 uint8_t counter;
 
+DotAnimator dot;
 
 void setup() {
 
@@ -22,10 +23,13 @@ void setup() {
   sender.init();
 
   beginSerial(config.serialSpeed);
-    
+
+//   animator = &dot;
 }
 
 void loop() {
+  keys.keyscan();
+
   if(keys.getTouch() < config.sensitivity){
     // inverse X value
     sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getTouch());
@@ -62,8 +66,14 @@ SIGNAL(SIG_UART_RECV)
   serialInput(c);
 }
 
-ISR(TIMER1_OVF_vect){
+/** Interrupt called after an XLAT pulse to prevent more XLAT pulses. */
+ISR(TIMER1_OVF_vect)
+{
   leds.displayCurrentRow();
 }
+
+// ISR(TIMER1_OVF_vect){
+//   leds.displayCurrentRow();
+// }
 
 // EMPTY_INTERRUPT(TIMER1_OVF_vect);

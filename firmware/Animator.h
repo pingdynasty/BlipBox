@@ -33,6 +33,10 @@ class SignalAnimator : public Animator {
         leds.setLed(0, 0, 0xff);
       }else if(counter % 25 == 24){
         --signals;
+/*       if(counter < 127){ */
+/*         leds.setLed(0, 0, 0xff); */
+/*       }else if(counter == 0xff){ */
+/*         --signals; */
       }else{
         leds.setLed(0, 0, 0);
       }
@@ -43,6 +47,16 @@ class SignalAnimator : public Animator {
   }
  private:
   uint8_t signals;
+};
+
+class DotAnimator : public Animator {
+ public:
+  virtual void tick(uint8_t counter){
+    if(counter % 0xf == 0)
+      leds.fade(1);
+    if(keys.isPressed())
+      leds.setLed(keys.getColumn(), 7 - keys.getRow(), 0xff);
+  }
 };
 
 /* class CrossAnimator : public Animator { */
