@@ -19,14 +19,6 @@ public:
 
   void init();
 
-  void clear(){
-    memset(led_buffer, 0, LED_BUFFER_LENGTH);
-  }
-
-  void fill(uint8_t brightness){
-    memset(led_buffer, brightness, LED_BUFFER_LENGTH);
-  }
-
   uint8_t update();
   void displayCurrentRow();
 
@@ -51,9 +43,14 @@ public:
 //     return led_buffer[0][row * LED_CHANNELS + col];
   }
 
-  /** shifts the led data in the given direction */
-  void shift(uint8_t direction);
-  void printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness);
+  void clear(){
+    memset(led_buffer, 0, LED_BUFFER_LENGTH);
+  }
+
+  void fill(uint8_t brightness){
+    memset(led_buffer, brightness, LED_BUFFER_LENGTH);
+  }
+
   void brighten(uint8_t factor){
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
       led_buffer[0][i] = (led_buffer[0][i] << factor) | 0x01;
@@ -62,21 +59,15 @@ public:
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
         led_buffer[0][i] >>= factor;
   }
-  void setCross(uint8_t row, uint8_t col, uint8_t brightness);
-  void setBlob(uint8_t row, uint8_t col, uint8_t brightness);
-  void setDiagonalCross(uint8_t row, uint8_t col, uint8_t brightness);
-  void setStar(uint8_t row, uint8_t col, uint8_t brightness);
-  void setSquare(uint8_t row, uint8_t col, uint8_t brightness);
 
 #ifdef TLC_VPRG_PIN
   void setGlobalDotCorrection(uint8_t dcval);
 #endif
 
 private:
+  void sendBufferData(uint8_t row);
   uint8_t led_buffer[LED_STRIPS][LED_CHANNELS];
   Counter counter;
-//   LedRow leds[ROWS];
-  bool doExtraPulse;
 };
 
 #endif /* _LEDCONTROLLER_H_ */

@@ -71,8 +71,8 @@ void handleSetLedColumnMessage(){
 
 void handleWriteCharacterMessage(){
   rx_buffer_head = 0;
-  leds.printCharacter(getCharacterData(rx_buffer[1]),
-                      getFourBitValue(), 0, config.brightness);
+  display.printCharacter(getCharacterData(rx_buffer[1]),
+                         getFourBitValue(), 0, config.brightness);
 }
 
 #define BRIGHTNESS_PARAMETER_ID       (0x01 << 2)
@@ -124,7 +124,7 @@ void handleClearMessage(){
 
 void handleShiftLedsMessage(){
   rx_buffer_head = 0;
-  leds.shift(getFourBitValue());
+  display.shift(getFourBitValue());
 }
 
 void handleCommandMessage(){

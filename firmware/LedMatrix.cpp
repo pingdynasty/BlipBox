@@ -7,7 +7,6 @@
 #include "device.h"
 #include "globals.h"
 
-
 /** SS will be set to output as to not interfere with SPI master operation.
     If you have changed the pin-outs and the library doesn't seem to work
     or works intermittently, make sure this pin is set correctly.  This pin
@@ -164,12 +163,12 @@ uint8_t LedController::update(void)
     if (tlc_needXLAT) {
         return 1;
     }
-//     disable_XLAT_pulses();
+    disable_XLAT_pulses();
 
-    displayCurrentRow();
+    sendBufferData(counter.getPosition());
 
     tlc_needXLAT = 1;
-//     enable_XLAT_pulses();
+    enable_XLAT_pulses();
     set_XLAT_interrupt();
     return 0;
 }
@@ -182,35 +181,39 @@ void LedController::displayCurrentRow(void)
     isShifting = 1;
     sei();
 
-    if (firstGSInput) {
-      // adds an extra SCLK pulse unless we've just set dot-correction data
-      firstGSInput = 0;
-    } else {
-      pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
-    }
-
     counter.off();
     // increment active anode pin
     counter.increment();
     counter.on();
 
     // shift data out
-    uint8_t row = counter.getPosition();
-//       for(uint8_t i=0;i<LED_CHANNELS;i++)
-//         shift12bits(led_buffer[row][i]);
-    for(uint8_t i=0;i<LED_CHANNELS;i++){
-      // shift out 24 bits for bytes a and b (i and i+1):
-      // not 0000aaaa aaaa0000 bbbbbbbb
-      // aaaaaaaa 0000bbbb bbbb0000
-      tlc_shift8(led_buffer[row][i++]);
-      tlc_shift8(led_buffer[row][i] >> 4);
-      tlc_shift8(led_buffer[row][i] << 4);
-    }
+    sendBufferData(counter.getPosition());
 
     enable_XLAT_pulses();
     isShifting = 0;
+
+    tlc_needXLAT = 0; // assuming this has been called from XLAT interrupt
   }
 
+}
+
+void LedController::sendBufferData(uint8_t row){
+  if (firstGSInput) {
+    // adds an extra SCLK pulse unless we've just set dot-correction data
+    firstGSInput = 0;
+  } else {
+    pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
+  }
+
+  //       for(uint8_t i=0;i<LED_CHANNELS;i++)
+  //         shift12bits(led_buffer[row][i]);
+  for(uint8_t i=0;i<LED_CHANNELS;i++){
+    // shift out 24 bits for bytes a and b:
+    // aaaaaaaa 0000bbbb bbbb0000
+    tlc_shift8(led_buffer[row][i++]);
+    tlc_shift8(led_buffer[row][i] >> 4);
+    tlc_shift8(led_buffer[row][i] << 4);
+  }
 }
 
 #if DATA_TRANSFER_MODE == TLC_BITBANG
@@ -260,67 +263,4 @@ void tlc_shift8(uint8_t byte)
         ; // wait for transmission complete
 }
 
-#endif
-
-
-
-
-////////// below is code copied from LedController.cpp
-
-
-  // shifts the led data in the given direction
-void LedController::shift(uint8_t direction){
-  // the leftmost 2 bits determine the direction: 0: left, 1: right, 2: up, 3: down
-  // the rightmost 2 bits determines the number of steps: 1-4
-  switch(direction & 0xc){
-  case 0x0: // shift left
-    for(uint8_t col=7; col>0; --col)
-      for(uint8_t row=0; row<10; ++row)
-        setLed(row, col, getLed(row, col-1));
-    for(uint8_t row=0; row<10; ++row)
-      setLed(row, 0, 0);
-    break;
-  case 0x4: // shift right
-    for(uint8_t col=0; col<7; ++col)
-      for(uint8_t row=0; row<10; ++row)
-        setLed(row, col, getLed(row, col+1));
-    for(uint8_t row=0; row<10; ++row)
-      setLed(row, 7, 0);
-    break;
-  case 0x8:
-    for(uint8_t col=0; col<8; ++col)
-      for(uint8_t row=0; row<9; ++row)
-        setLed(row, col, getLed(row+1, col));
-    for(uint8_t col=0; col<8; ++col)
-      setLed(9, col, 0);
-    break;
-  case 0xc:
-    for(uint8_t col=0; col<8; ++col)
-      for(uint8_t row=9; row>0; --row)
-        setLed(row, col, getLed(row-1, col));
-    for(uint8_t col=0; col<8; ++col)
-      setLed(0, col, 0);
-    break;
-  }
-}
-
-#include "Characters.h"
-void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
-
-  // writing to row (horizontal offset) 0 puts character furthest right
-  // row 5 is furthest left (while fitting 5 pixels)
-
-  // row goes from 0-9, col from 0-7
-  // font height/width = 8/5 for 6x9 font
-  for(int i=0; i<getCharacterHeight(); ++i){
-    // font data is 8 bits left adjusted
-    uint8_t offset = 8 - getCharacterWidth();
-    for(int j=0; j<getCharacterWidth(); ++j){
-      // only shift out the relevant bits
-      if(character[i] & _BV(j+offset))
-        setLed(j+row, i+col, brightness);
-      else
-        setLed(j+row, i+col, 0x00);
-    }
-  }
-}
+#endif // DATA_TRANSFER_MODE

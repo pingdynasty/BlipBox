@@ -1,9 +1,6 @@
 #include "LedController.h"
 #include "Characters.h"
 #include <stdlib.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <wiring.h>
 #include "device.h"
 
 #ifdef TLC_VPRG_PIN
@@ -41,57 +38,6 @@ static void shift12bits(uint8_t value) {
     TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
     TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
   }
-}
-
-void LedController::setDiagonalCross(uint8_t row, uint8_t col, uint8_t value){
-  //   row goes to 10, ie row is x coordinate on screen
-//   uint8_t d1 = row - col;
-//   uint8_t d2 = 7 - row - col;
-//   for(uint8_t i=0; i<8; ++i){
-//     if(i+d1 >= 0 && i+d1 < 10)
-// //       setLed(i+d1, i, value);
-//       setLed(i+d1, i, value * abs(i-col) / 7);
-//     if(i-d2 >= 0 && i-d2 < 10)
-// //       setLed(i-d2, 7-i, value);
-//       setLed(i-d2, 7-i, value * abs(7-i-col) / 7);
-//   }
-  for(int8_t i=-8; i<8; ++i){
-    setLed(row+i, col+i, value / (2*abs(i) + 1));
-    setLed(row-i, col+i, value / (2*abs(i) + 1));
-  }
-}
-
-// todo: set blob with 10 or 8 bit precision location
-void LedController::setBlob(uint8_t row, uint8_t col, uint8_t value){
-  for(int8_t i=-3; i<4; i+=2){
-    setLed(row+i, col+i, value / (2*abs(i) + 1));
-    setLed(row+i, col-i, value / (2*abs(i) + 1));
-    setLed(row-i, col+i, value / (2*abs(i) + 1));
-    setLed(row-i, col-i, value / (2*abs(i) + 1));
-  }
-}
-
-void LedController::setCross(uint8_t row, uint8_t col, uint8_t value){
-  for(uint8_t i=0; i<10; ++i)
-    setLed(i, col, value / (4*abs(row-i) + 1));
-  for(uint8_t i=0; i<8; ++i)
-    setLed(row, i, value / (4*abs(col-i) + 1));
-}
-
-void LedController::setStar(uint8_t row, uint8_t col, uint8_t value){
-  setLed(row+1, col, value);
-  setLed(row, col+1, value);
-  setLed(row-1, col, value);
-  setLed(row, col-1, value);
-}
-
-void LedController::setSquare(uint8_t row, uint8_t col, uint8_t value){
-  setStar(row, col, value);
-  value >>= 1;
-  setLed(row+1, col+1, value);
-  setLed(row-1, col+1, value);
-  setLed(row+1, col-1, value);
-  setLed(row-1, col-1, value);
 }
 
 /* set the dot correction value for all pins to a value between 0 and 63 */
@@ -195,62 +141,6 @@ it seems that with a prescaler of 8, nothing works, with 256 there is a slight s
 //     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
 
   sei();
-}
-
-  // shifts the led data in the given direction
-void LedController::shift(uint8_t direction){
-  // the leftmost 2 bits determine the direction: 0: left, 1: right, 2: up, 3: down
-  // the rightmost 2 bits determines the number of steps: 1-4
-  switch(direction & 0xc){
-  case 0x0: // shift left
-    for(uint8_t col=7; col>0; --col)
-      for(uint8_t row=0; row<10; ++row)
-        setLed(row, col, getLed(row, col-1));
-    for(uint8_t row=0; row<10; ++row)
-      setLed(row, 0, 0);
-    break;
-  case 0x4: // shift right
-    for(uint8_t col=0; col<7; ++col)
-      for(uint8_t row=0; row<10; ++row)
-        setLed(row, col, getLed(row, col+1));
-    for(uint8_t row=0; row<10; ++row)
-      setLed(row, 7, 0);
-    break;
-  case 0x8:
-    for(uint8_t col=0; col<8; ++col)
-      for(uint8_t row=0; row<9; ++row)
-        setLed(row, col, getLed(row+1, col));
-    for(uint8_t col=0; col<8; ++col)
-      setLed(9, col, 0);
-    break;
-  case 0xc:
-    for(uint8_t col=0; col<8; ++col)
-      for(uint8_t row=9; row>0; --row)
-        setLed(row, col, getLed(row-1, col));
-    for(uint8_t col=0; col<8; ++col)
-      setLed(0, col, 0);
-    break;
-  }
-}
-
-void LedController::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
-
-  // writing to row (horizontal offset) 0 puts character furthest right
-  // row 5 is furthest left (while fitting 5 pixels)
-
-  // row goes from 0-9, col from 0-7
-  // font height/width = 8/5 for 6x9 font
-  for(int i=0; i<getCharacterHeight(); ++i){
-    // font data is 8 bits left adjusted
-    uint8_t offset = 8 - getCharacterWidth();
-    for(int j=0; j<getCharacterWidth(); ++j){
-      // only shift out the relevant bits
-      if(character[i] & _BV(j+offset))
-        setLed(j+row, i+col, brightness);
-      else
-        setLed(j+row, i+col, 0x00);
-    }
-  }
 }
 
 void LedController::displayCurrentRow() {

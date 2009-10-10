@@ -5,6 +5,7 @@
 
 // LedMatrix leds;
 LedController leds;
+DisplayManager display;
 KeyController keys;
 SignalAnimator signal;
 Configuration config;

@@ -2,13 +2,14 @@
 #define _GLOBALS_H_
 
 /* #include <avr/wdt.h> */
-/* #include "LedMatrix.h" */
 #include "LedController.h"
+#include "DisplayManager.h"
 #include "KeyController.h"
 #include "Animator.h"
 #include "Configuration.h"
 
 extern LedController leds;
+extern DisplayManager display;
 extern KeyController keys;
 extern SignalAnimator signal;
 extern Configuration config;

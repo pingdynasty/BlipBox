@@ -41,7 +41,7 @@ AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = Greeting.cpp TouchController.cpp KeyController.cpp MessageSender.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp
+CPP_SRC = TouchController.cpp KeyController.cpp MessageSender.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp
 ############################################################################
 # Below here nothing should be changed...
 
