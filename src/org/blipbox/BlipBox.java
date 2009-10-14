@@ -43,6 +43,11 @@ public class BlipBox extends BlipBoxDataSender
         receiver.addInputHandler(inputhandler);
     }
 
+    public void addInputHandler(BlipBoxInput inputhandler, SensorType type){
+        receiver.addInputHandler(new FilteringInput(inputhandler, type));
+        // todo: an input handler added this way cannot be removed with removeInputHandler()
+    }
+
     public void removeInputHandler(BlipBoxInput inputhandler){
         receiver.removeInputHandler(inputhandler);
     }
