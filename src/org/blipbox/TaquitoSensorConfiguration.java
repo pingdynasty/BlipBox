@@ -12,13 +12,13 @@ public class TaquitoSensorConfiguration extends SensorConfiguration {
     public static final int POT_MAX = 1023;    
 
     {
-        setBlipSensor(new BlipSensor("z", TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
-        setBlipSensor(new BlipSensor("x", X_SENSOR_MSG, X_MIN, X_MAX));
-        setBlipSensor(new BlipSensor("y", Y_SENSOR_MSG, Y_MIN, Y_MAX));
-//         setBlipSensor(new BlipSensor(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
-//         setBlipSensor(new BlipSensor(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
-        setBlipSensor(new BlipSensor("button1", BUTTON2_SENSOR_MSG, 0, 1));
-        setBlipSensor(new BlipSensor("button2", BUTTON3_SENSOR_MSG, 0, 1));
+        setBlipSensor(new BlipSensor(SensorType.TOUCH_SENSOR, TOUCH_MIN, TOUCH_MAX));
+        setBlipSensor(new BlipSensor(SensorType.X_SENSOR, X_MIN, X_MAX));
+        setBlipSensor(new BlipSensor(SensorType.Y_SENSOR, Y_MIN, Y_MAX));
+//         setBlipSensor(new BlipSensor(SensorType.POT_SENSOR, POT_MIN, POT_MAX));
+//         setBlipSensor(new BlipSensor(SensorType.BUTTON1_SENSOR, 0, 1));
+        setBlipSensor(new BlipSensor(SensorType.BUTTON2_SENSOR, 0, 1));
+        setBlipSensor(new BlipSensor(SensorType.BUTTON3_SENSOR, 0, 1));
     }
 
 }

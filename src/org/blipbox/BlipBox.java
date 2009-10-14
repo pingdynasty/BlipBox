@@ -21,7 +21,7 @@ public class BlipBox extends BlipBoxDataSender
 
     public BlipBox() {
         receiver = new BlipBoxDataReceiver();
-        receiver.setSensorConfiguration(SensorConfiguration.createSensorConfiguration("blipbox"));
+        receiver.setSensorConfiguration(new BlipBoxSensorConfiguration());
         addInputHandler(this);
     }
 

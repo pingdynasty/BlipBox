@@ -63,10 +63,10 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
         data[0] = readSerial();
         BlipSensor sensor;
         switch(data[0] & MESSAGE_ID_MASK){
-        case SensorConfiguration.RELEASE_MSG:
+        case SensorConfiguration.RELEASE_MSG_ID:
             readReleaseMessage();
             break;
-        case SensorConfiguration.XY_MSG:
+        case SensorConfiguration.XY_MSG_ID:
             readXYMessage();
             break;
         default:
