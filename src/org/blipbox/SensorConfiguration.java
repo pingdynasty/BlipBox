@@ -5,13 +5,9 @@ import java.util.HashMap;
 
 public class SensorConfiguration {
 
-//     private Map<SensorType, SensorDefinition> sensors = new HashMap<SensorType, SensorDefinition>();
-    private Map<Integer, SensorDefinition> sensors = new HashMap<Integer, SensorDefinition>();
+    private Map<String, BlipSensor> sensorsByName = new HashMap<String, BlipSensor>();
+    private Map<Integer, BlipSensor> sensorsById = new HashMap<Integer, BlipSensor>();
 
-    public static final int TOUCH_MIN = 20;
-    public static final int TOUCH_MAX = 200;
-    public static final int POT_MIN = 252;
-    public static final int POT_MAX = 1023;
     public static final int XY_MSG             = 0x5 << 4;
     public static final int RELEASE_MSG        = 0x7 << 4;
     public static final int TOUCH_SENSOR_MSG   = 0x80 | (0x1 << 2);
@@ -23,65 +19,31 @@ public class SensorConfiguration {
     public static final int BUTTON3_SENSOR_MSG = 0x80 | (0x7 << 2);
     public static final int PING_SENSOR_MSG =    0x80 | (0x8 << 2);
 
-    public void setSensorDefinition(SensorDefinition sensor){
-//         sensors.put(sensor.getSensorType().getMessageId(), sensor);
-        sensors.put(sensor.getMessageId(), sensor);
+    public void setBlipSensor(BlipSensor sensor){
+        sensorsByName.put(sensor.getSensorName(), sensor);
+        sensorsById.put(sensor.getMessageId(), sensor);
     }
 
-    public SensorDefinition getSensorDefinition(SensorType type){
-        return sensors.get(type.getMessageId());
+    public BlipSensor getBlipSensor(String name){
+        return sensorsByName.get(name);
     }
 
-    public SensorDefinition getSensorDefinition(int messageId){
-        return sensors.get(messageId);
+    public BlipSensor getBlipSensor(int messageId){
+        return sensorsById.get(messageId);
+    }
+
+    public BlipSensor getBlipSensor(SensorType type){
+        return sensorsById.get(type.getMessageId());
     }
 
     // todo: MidiConfiguration gets details from SensorConfiguration to set up
     // modes and sensors
     public static SensorConfiguration createSensorConfiguration(String config){
         if("taquito".equalsIgnoreCase(config))
-            return createTaquitoSensorConfiguration();
+            return new TaquitoSensorConfiguration();
         else if("blipbox".equalsIgnoreCase(config))
-            return createBlipBoxSensorConfiguration();
+            return new BlipBoxSensorConfiguration();
         else
             throw new IllegalArgumentException("No such configuration: "+config);
-    }
-
-    public static SensorConfiguration createBlipBoxSensorConfiguration(){
-        SensorConfiguration sensors = new SensorConfiguration();
-        // 260 x 210
-        // 800 x 780
-        int X_MIN = 260;
-        int X_MAX = 800;
-        int Y_MIN = 210;
-        int Y_MAX = 780;
-//         int X_MIN = 170;
-//         int X_MAX = 860;
-//         int Y_MIN = 130;
-//         int Y_MAX = 860;
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
-//         sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON2_SENSOR, BUTTON2_SENSOR_MSG, 0, 1));
-//         sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON3_SENSOR, BUTTON3_SENSOR_MSG, 0, 1));
-        return sensors;
-    }
-
-    public static SensorConfiguration createTaquitoSensorConfiguration(){
-        SensorConfiguration sensors = new SensorConfiguration();
-        int X_MIN = 40;
-        int X_MAX = 1023;
-        int Y_MIN = 270;
-        int Y_MAX = 880;
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.TOUCH_SENSOR, TOUCH_SENSOR_MSG, TOUCH_MIN, TOUCH_MAX));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.X_SENSOR, X_SENSOR_MSG, X_MIN, X_MAX));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.Y_SENSOR, Y_SENSOR_MSG, Y_MIN, Y_MAX));
-//         sensors.setSensorDefinition(new SensorDefinition(SensorType.POT_SENSOR, POT_SENSOR_MSG, POT_MIN, POT_MAX));
-//         sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON1_SENSOR, BUTTON1_SENSOR_MSG, 0, 1));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON2_SENSOR, BUTTON2_SENSOR_MSG, 0, 1));
-        sensors.setSensorDefinition(new SensorDefinition(SensorType.BUTTON3_SENSOR, BUTTON3_SENSOR_MSG, 0, 1));
-        return sensors;
     }
 }

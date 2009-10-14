@@ -73,7 +73,7 @@ public class BlipBox extends BlipBoxDataSender
             leds[i] = (leds[i] << 1) | 1;
     }
 
-    public void sensorChange(SensorDefinition def){
+    public void sensorChange(BlipSensor sensor){
         // do naught
 //         sensorValues.put(def.getSensorType(), def.getValue())
     }
@@ -87,12 +87,12 @@ public class BlipBox extends BlipBoxDataSender
     }
 
     public int getSensorValue(SensorType type){
-        SensorDefinition def =  receiver.getSensorDefinition(type);
+        BlipSensor def =  receiver.getBlipSensor(type);
         return def.getValue();
     }
 
     public int getSensorValue(SensorType type, int min, int max){
-        SensorDefinition def =  receiver.getSensorDefinition(type);
+        BlipSensor def =  receiver.getBlipSensor(type);
         return def.scale(min, max);
     }
 

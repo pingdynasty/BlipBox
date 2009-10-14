@@ -1,13 +1,21 @@
 package org.blipbox;
 
-public class SensorDefinition {
-    private SensorType type;
-    private int min, max;
+public class BlipSensor {
+
+    private String name;
     private int messageId;
+    private int min, max;
     private int value;
 
-    public SensorDefinition(SensorType type, int messageId, int min, int max){
-        this.type = type;
+    public BlipSensor(SensorType type, int min, int max){
+        this.name = type.getSensorName();
+        this.messageId = type.getMessageId();
+        this.min = min;
+        this.max = max;
+    }
+
+    public BlipSensor(String name, int messageId, int min, int max){
+        this.name = name;
         this.messageId = messageId;
         this.min = min;
         this.max = max;
@@ -29,8 +37,8 @@ public class SensorDefinition {
         return toMin + (value - min) * (toMax - toMin) / (max - min);
     }
 
-    public SensorType getSensorType(){
-        return type;
+    public String getSensorName(){
+        return name;
     }
 
     public int getMinimumValue(){

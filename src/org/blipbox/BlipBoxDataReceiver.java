@@ -21,13 +21,11 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     private static final int SENSOR_VALUE_MASK  = 0x3;
 //     private static final int SENSOR_FILTER_MASK = 0x03fe; // cut off last bit
     private static final int SENSOR_FILTER_MASK = 0x03ff; // 10 bit value
-
     private static final int MAX_SENSOR_VALUE = 1023;
 
     private int[] data = new int[3]; // length of longest message: 3 bytes
-
-    private SensorConfiguration sensors;
     private List<BlipBoxInput> inputhandlers = new ArrayList<BlipBoxInput>();
+    private SensorConfiguration sensors;
 
     public BlipBoxDataReceiver(){
     }
@@ -40,7 +38,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
         inputhandlers.remove(inputhandler);
     }
 
-    public void sensorChange(SensorDefinition sensor){
+    public void sensorChange(BlipSensor sensor){
         for(BlipBoxInput handler: inputhandlers)
             handler.sensorChange(sensor);
     }
@@ -63,7 +61,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     public void readEvent()
         throws IOException {
         data[0] = readSerial();
-        SensorDefinition sensor;
+        BlipSensor sensor;
         switch(data[0] & MESSAGE_ID_MASK){
         case SensorConfiguration.RELEASE_MSG:
             readReleaseMessage();
@@ -78,7 +76,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     }
 
     public void readReleaseMessage(){
-        SensorDefinition sensor = sensors.getSensorDefinition(SensorType.TOUCH_SENSOR);
+        BlipSensor sensor = sensors.getBlipSensor(SensorType.TOUCH_SENSOR);
         sensor.setValue(0);
         sensorChange(sensor);
     }
@@ -93,25 +91,29 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
         xval |= data[1] >> 2;
         int yval = (data[1] & 0x3) << 8;
         yval |= data[2];
-        SensorDefinition sensor = sensors.getSensorDefinition(SensorType.X_SENSOR);
+        BlipSensor sensor = sensors.getBlipSensor(SensorType.X_SENSOR);
         sensor.setValue(xval);
         sensorChange(sensor);
-        sensor = sensors.getSensorDefinition(SensorType.Y_SENSOR);
+        sensor = sensors.getBlipSensor(SensorType.Y_SENSOR);
         sensor.setValue(yval);
         sensorChange(sensor);
-        sensor = sensors.getSensorDefinition(SensorType.TOUCH_SENSOR);
+        sensor = sensors.getBlipSensor(SensorType.TOUCH_SENSOR);
         sensor.setValue(MAX_SENSOR_VALUE);
         sensorChange(sensor);
     }
 
-    public SensorDefinition getSensorDefinition(SensorType type){
-        return sensors.getSensorDefinition(type);
+    public BlipSensor getBlipSensor(SensorType type){
+        return sensors.getBlipSensor(type);
+    }
+
+    public BlipSensor getBlipSensor(String name){
+        return sensors.getBlipSensor(name);
     }
 
     public void readSensorMessage()
         throws IOException {
         int messageId = data[0] & SENSOR_ID_MASK;
-        SensorDefinition sensor = sensors.getSensorDefinition(messageId);
+        BlipSensor sensor = sensors.getBlipSensor(messageId);
         if(sensor == null){
             log.warn("Unrecognized sensor message: 0x"+Integer.toHexString(messageId));
         }else{
