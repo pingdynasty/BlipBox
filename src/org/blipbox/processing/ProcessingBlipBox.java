@@ -13,6 +13,7 @@ public class ProcessingBlipBox extends BlipBox {
         this.parent = parent;
         if(parent != null)
             parent.registerDispose(this);
+        addInputHandler(new DynamicBlipAction(parent));
     }
 
     public ProcessingBlipBox(PApplet parent, String serialport) {

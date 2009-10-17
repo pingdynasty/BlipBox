@@ -4,7 +4,7 @@ public abstract class AbstractBlipAction implements BlipBoxInput {
     private int x, y, z;
     private int dx, dy;
     private long tapmoment;
-    private long taptime = 250; // max milliseconds between double taps
+    private long taptime = 200; // max milliseconds between double taps
     private boolean pressed;
 
     public void sensorChange(BlipSensor sensor){
@@ -14,19 +14,19 @@ public abstract class AbstractBlipAction implements BlipBoxInput {
             if(sensor.getValue() == 0){
                 if(pressed){
                     pressed = false;
-                    release(x, y);
+                    release(dx, dy);
                 }
             }else{
                 position(dx, dy);
                 if(!pressed){
-                    pressed = true;
-                    tap(x, y);
                     long now = System.currentTimeMillis();
-                    if(now - taptime <= tapmoment){
+                    pressed = true;
+                    if(now - tapmoment <= taptime){
                         tapmoment = now;
                         taptap(x, y);
                     }else{
                         tapmoment = now;
+                        tap(x, y);
                     }
                 }else{
                     drag(x, y, dx, dy);
