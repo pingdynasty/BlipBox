@@ -51,7 +51,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     public void serialWrite(int[] data){
         long now = System.currentTimeMillis();
         while(timestamp + frequency > now){
-            log.debug("Stalling "+(timestamp + frequency - now)+"ms");
+//             log.debug("Stalling "+(timestamp + frequency - now)+"ms");
             sleep(timestamp + frequency - now);
             now = System.currentTimeMillis();
         }
@@ -70,21 +70,21 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     }
 
     public void setLed(int led, int value){
-        log.debug("Set led "+led+" to "+value);
+//         log.debug("Set led "+led+" to "+value);
         if(((led | value) & 0xff00) != 0)
             throw new IllegalArgumentException("Invalid LED index or brightness: "+led+"/"+value);
         serialWrite(new int[]{SET_LED_MESSAGE, led, value});
     }
 
     public void setLedColumn(int col, int data){
-        log.debug("Set led column "+col+" to "+data);
+//         log.debug("Set led column "+col+" to "+data);
         if(col >= MAX_COL)
             throw new IllegalArgumentException("Column index out of bounds: "+col);
         serialWrite(new int[]{SET_LED_COL_MESSAGE | (col & 0x0f), data});
     }
 
     public void setLedRow(int row, int data){
-        log.debug("Set led row "+row+" to "+data);
+//         log.debug("Set led row "+row+" to "+data);
         if(row >= MAX_ROW)
             throw new IllegalArgumentException("Row index out of bounds: "+row);
         serialWrite(new int[]{SET_LED_ROW_MESSAGE | (row & 0x0f), data});
@@ -94,7 +94,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
      * clear all LEDs
      */
     public void clear(){
-        log.debug("Clear");
+//         log.debug("Clear");
         serialWrite(new int[]{CLEAR_MESSAGE});
     }
 
@@ -103,7 +103,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
      * @param brightness in the range 0-255. Note that this value will be scaled down to four bits.
      */
     public void fill(int brightness){
-        log.debug("Fill with "+brightness);
+//         log.debug("Fill with "+brightness);
         if(brightness > 0xff || brightness < 0)
             throw new IllegalArgumentException("Fill value out of bounds: "+brightness);
         brightness /= 0x11;
@@ -124,7 +124,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     }
 
     public void writeCharacter(int pos, char c){
-        log.debug("Sending character "+c+" at pos "+pos);
+//         log.debug("Sending character "+c+" at pos "+pos);
         serialWrite(new int[]{WRITE_CHARACTER_MESSAGE | (pos & 0x0f), (int)c});
     }
 
@@ -140,12 +140,12 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     }
 
     public void shiftLeft(int steps){
-        log.debug("Shift left "+steps+" steps");
+//         log.debug("Shift left "+steps+" steps");
         shift(2, steps);
     }
 
     public void shiftRight(int steps){
-        log.debug("Shift right "+steps+" steps");
+//         log.debug("Shift right "+steps+" steps");
         shift(3, steps);
     }
 
@@ -157,12 +157,12 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     }
 
     public void shiftUp(int steps){
-        log.debug("Shift up "+steps+" steps");
+//         log.debug("Shift up "+steps+" steps");
         shift(0, steps);
     }
 
     public void shiftDown(int steps){
-        log.debug("Shift down "+steps+" steps");
+//         log.debug("Shift down "+steps+" steps");
         shift(1, steps);
     }
 
@@ -171,7 +171,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     }
 
     public void setParameter(int pid, int value){
-        log.debug("Set parameter id "+pid+" to value "+value);
+//         log.debug("Set parameter id "+pid+" to value "+value);
         // set parameter message: 11ppppvv vvvvvvvv
         // 0x3c is 00111100, same as 0xf<<2
         if((pid & 0xc3) != 0)

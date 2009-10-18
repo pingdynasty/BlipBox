@@ -78,6 +78,14 @@ public class BlipBox extends BlipBoxDataSender
             leds[i] = (leds[i] << 1) | 1;
     }
 
+    public BlipSensor getBlipSensor(SensorType type){
+        return receiver.getBlipSensor(type);
+    }
+
+    public BlipSensor getBlipSensor(String name){
+        return receiver.getBlipSensor(name);
+    }
+
     public void sensorChange(BlipSensor sensor){
         // do naught
 //         sensorValues.put(def.getSensorType(), def.getValue())

@@ -212,8 +212,10 @@ public class SerialDataHandler implements SerialPortEventListener {
                 throw new IOException("couldn't add listener");
             }		
         }catch(NoSuchPortException exc){
+            log.error("Opening port: "+port, exc);
             throw new IOException("No such port: "+port);
         }catch(PortInUseException exc){
+            log.error(exc);
             throw new IOException("Port in use: "+port);
         }
     }
