@@ -1,6 +1,6 @@
 package org.blipbox;
 
-public abstract class AbstractBlipAction implements BlipBoxInput {
+public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
     private int x, y, z;
     private int dx, dy;
     private long tapmoment;

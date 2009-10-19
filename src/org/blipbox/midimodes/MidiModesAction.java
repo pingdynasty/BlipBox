@@ -9,19 +9,7 @@ public class MidiModesAction extends AbstractBlipAction {
     private BlipBox blipbox;
     private MidiOutput output;
     private MidiMode mode;
-
-    public class MidiMode extends AbstractBlipAction {
-        private int modeId;
-        public MidiMode(int modeId){
-            this.modeId = modeId;
-        }
-        public int getModeId(){
-            return modeId;
-        }
-        public void start(){}
-        public void stop(){}
-        public void tick(long clock){}
-    }
+    private int channel = 0;
 
     public MidiModesAction(MidiModesBlipBox blipbox){
         this.blipbox = blipbox;
@@ -44,7 +32,7 @@ public class MidiModesAction extends AbstractBlipAction {
 
     public void tap(int x, int y){
         if(blipbox.getX(0, 10) == 9)
-            changeMode(blipbox.getY(0, 8));
+            changeMode(blipbox.getY(8, 0));
         else
             mode.tap(x, y);
     }
@@ -79,69 +67,19 @@ public class MidiModesAction extends AbstractBlipAction {
         switch(modeId){
         case 0:
         case 1:
-            mode = new NotePlayerMode(modeId);
+            mode = new NotePlayerMode();
             break;
         case 2:
         case 3:
-            mode = new ControlChangeMode(modeId);
+            mode = new ControlChangeMode(18, 19);
             break;
         default:
-            mode = new MidiMode(modeId);
+            mode = new ButtonMode();
         }
+        mode.setModeId(modeId);
+        mode.setMidiOutput(output);
+        mode.setMidiChannel(channel);
+        mode.setBlipBox(blipbox);
         return mode;
     }
-
-    public class NotePlayerMode extends MidiMode {
-        int tone;
-        int velocity;
-        int root = 60;
-        int range = 20;
-        int channel = 0;
-
-        public NotePlayerMode(int modeId){
-            super(modeId);
-        }
-        public void tap(int x, int y){
-            tone = blipbox.getX(root, root+range);
-            log.debug("note player on: "+tone);
-            output.sendNoteOn(channel, tone, blipbox.getY(0, 127));
-        }
-        public void release(int x, int y){
-            log.debug("note player off: "+tone);
-            output.sendNoteOff(channel, tone, 0);
-        }
-    }
-
-    public class ControlChangeMode extends MidiMode {
-        int channel = 0;
-        int cc1 = 18;
-        int cc2 = 19;
-        int cc1value = 64;
-        int cc2value = 64;
-
-        public ControlChangeMode(int modeId){
-            super(modeId);
-        }
-
-        public void drag(int x, int y, int dx, int dy){
-            log.debug("cc drag");
-            cc1value = normalize(x - dx, cc1value);
-            output.sendController(channel, cc1, cc1value);
-            cc2value = normalize(x - dx, cc2value);
-            output.sendController(channel, cc2, cc2value);
-        }
-
-        private int normalize(int difference, int value){
-            if(difference > 10){
-                if(++value > 127)
-                    value = 127;
-            }
-            else if(difference < -10){
-                if(--value < 0)
-                    value = 0;
-            }
-            return value;
-        }
-    }
-
 }

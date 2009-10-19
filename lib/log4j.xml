@@ -18,54 +18,12 @@
           </layout>           
         </appender>
 
-	<logger name="org.springframework.beans">
-		<level value="warn" />
-	</logger>
-
-	<logger name="org.springframework.binding">
-		<level value="debug" />
-	</logger>
-	
-	<logger name="org.springframework.jdbc">
-		<level value="warn" />
-	</logger>
-
-	<logger name="org.springframework.orm">
-		<level value="warn" />
-	</logger>
-
-	<logger name="org.springframework.web">
-		<level value="debug" />
-	</logger>
-
-	<logger name="org.springframework.faces">
-		<level value="debug" />
-	</logger>
-	
-	<logger name="org.springframework.webflow">
-		<level value="debug" />
-	</logger>
-
-        <!-- log transaction activity -->
-	<logger name="org.springframework.transaction">
-		<level value="debug" />
-	</logger>
-
-	<logger name="org.hibernate.transaction">
-          <level value="debug"/>
-        </logger>
-
-
 	<logger name="com.pingdynasty">
-		<level value="info" />
-	</logger>
-
-	<logger name="com.pingdynasty.blipbox">
-          <!--  these are not the ... you are looking for -->
 		<level value="debug" />
 	</logger>
 
-	<logger name="blip">
+	<logger name="org.blipbox">
+          <!--  these are not the ... you are looking for -->
 		<level value="debug" />
 	</logger>
 	

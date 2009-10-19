@@ -48,14 +48,17 @@ public class NoteParser {
         return note + ++octave * 12;
     }
 
-    public static String getStringNote(int note){
+    public static String getStringNote(int note, boolean sharp){
         int octave = note / 12 - 1;
-        return sharps[note % 12] + octave;
+        if(sharp)
+            return sharps[note % 12] + octave;
+        else
+            return flats[note % 12] + octave;
     }
 
     public static void main(String[] args){
         for(int i=0; i<args.length; ++i)
             System.out.println(args[i]+"\t"+getMidiNote(args[i])
-                               +"\t"+getStringNote(getMidiNote(args[i])));
+                               +"\t"+getStringNote(getMidiNote(args[i]), true));
     }
 }

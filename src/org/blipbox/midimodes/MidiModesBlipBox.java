@@ -13,8 +13,9 @@ public class MidiModesBlipBox extends BlipBox {
     }
 
     public void start(){
+        long clock = 0;
         for(;;)
-            action.tick(System.currentTimeMillis());
+            action.tick(clock);
     }
 
     public void dispose() {
