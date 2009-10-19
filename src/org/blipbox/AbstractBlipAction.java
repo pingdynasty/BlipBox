@@ -1,8 +1,8 @@
 package org.blipbox;
 
 public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
-    private int x, y, z;
-    private int dx, dy;
+    private Position apos = new Position();
+    private Position bpos = new Position();
     private long tapmoment;
     private long taptime = 200; // max milliseconds between double taps
     private boolean pressed;
@@ -10,49 +10,51 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
     public void sensorChange(BlipSensor sensor){
         switch(sensor.getMessageId()){
         case SensorConfiguration.TOUCH_SENSOR_MSG_ID:
-            z = sensor.getValue();
+            bpos.setZ(sensor);
             if(sensor.getValue() == 0){
                 if(pressed){
                     pressed = false;
-                    release(dx, dy);
+                    release(bpos);
                 }
             }else{
-                position(dx, dy);
+                position(bpos);
                 if(!pressed){
+                    apos.setZ(sensor);
                     long now = System.currentTimeMillis();
                     pressed = true;
                     if(now - tapmoment <= taptime){
                         tapmoment = now;
-                        taptap(x, y);
+                        taptap(apos);
                     }else{
                         tapmoment = now;
-                        tap(x, y);
+                        tap(apos);
                     }
                 }else{
-                    drag(x, y, dx, dy);
+                    drag(apos, bpos);
                 }
             }
             break;            
         case SensorConfiguration.X_SENSOR_MSG_ID:
             if(!pressed)
-                x = sensor.getValue();
-            dx = sensor.getValue();
+                apos.setX(sensor);
+            bpos.setX(sensor);
             break;            
         case SensorConfiguration.Y_SENSOR_MSG_ID:
             if(!pressed)
-                y = sensor.getValue();
-            dy = sensor.getValue();
+                apos.setY(sensor);
+            bpos.setY(sensor);
             break;            
         }
     }
-    public void parameterValue(int pid, int value){}
-    public void tap(int x, int y){}
-    public void taptap(int x, int y){}
-    public void release(int x, int y){}
-    public void drag(int x, int y, int dx, int dy){}
-    public void position(int x, int y){}
 
     public void setTapTime(int taptime){
         this.taptime = (long)taptime;
     }
+
+    public void parameterValue(int pid, int value){}
+    public void tap(Position pos){}
+    public void taptap(Position pos){}
+    public void release(Position pos){}
+    public void drag(Position from, Position to){}
+    public void position(Position pos){}
 }

@@ -10,13 +10,13 @@ public class NotePlayerMode extends AbstractMidiMode {
     int range = 20;
     int channel = 0;
 
-    public void tap(int x, int y){
-        tone = blipbox.getX(root, root+range);
+    public void tap(Position pos){
+        tone = pos.getX(root, root+range);
         log.debug("note player on: "+tone);
-        output.sendNoteOn(channel, tone, blipbox.getY(0, 127));
+        output.sendNoteOn(channel, tone, pos.getY(0, 127));
     }
 
-    public void release(int x, int y){
+    public void release(Position pos){
         log.debug("note player off: "+tone);
         output.sendNoteOff(channel, tone, 0);
     }

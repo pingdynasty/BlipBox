@@ -30,27 +30,31 @@ public class MidiModesAction extends AbstractBlipAction {
         mode.tick(clock);
     }
 
-    public void tap(int x, int y){
+    public void tap(Position pos){
         if(blipbox.getX(0, 10) == 9)
             changeMode(blipbox.getY(8, 0));
         else
-            mode.tap(x, y);
+            mode.tap(pos);
     }
 
-    public void taptap(int x, int y){
-        mode.taptap(x, y);
+    public void taptap(Position pos){
+        if(blipbox.getX(0, 10) != 9)
+            mode.taptap(pos);
     }
 
-    public void release(int x, int y){
-        mode.release(x, y);
+    public void release(Position pos){
+        if(blipbox.getX(0, 10) != 9)
+            mode.release(pos);
     }
 
-    public void drag(int x, int y, int dx, int dy){
-        mode.drag(x, y, dx, dy);
+    public void drag(Position from, Position to){
+        if(blipbox.getX(0, 10) != 9)
+            mode.drag(from, to);
     }
 
-    public void position(int x, int y){
-        mode.position(x, y);
+    public void position(Position pos){
+        if(blipbox.getX(0, 10) != 9)
+            mode.position(pos);
     }
 
     public void changeMode(int modeId){

@@ -12,5 +12,4 @@ public interface MidiMode extends BlipAction {
     public void start();
     public void stop();
     public void tick(long clock);
-
 }
