@@ -15,7 +15,7 @@ public class MidiModesAction extends AbstractBlipAction {
         this.blipbox = blipbox;
         for(MidiOutputDevice device: RWMidi.getOutputDevices())
             log.info("MIDI output device: "+device.getName());
-        this.output = RWMidi.getOutputDevices()[1].createOutput();
+        this.output = RWMidi.getOutputDevices()[0].createOutput();
         log.info("Using MIDI output "+output.getName());
         mode = getMode(0);
     }

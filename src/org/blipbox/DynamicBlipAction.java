@@ -18,6 +18,7 @@ public class DynamicBlipAction extends AbstractBlipAction {
         drag = getMethod("drag", new Class[]{Position.class, Position.class});
         position = getMethod("position", new Class[]{Position.class});
     }
+
     private Method getMethod(String name, Class[] sig){
         try{
             return obj.getClass().getMethod(name, sig);

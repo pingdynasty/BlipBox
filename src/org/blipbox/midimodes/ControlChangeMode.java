@@ -4,8 +4,8 @@ import rwmidi.*;
 import org.blipbox.*;
 
 public class ControlChangeMode extends AbstractMidiMode {
-    int cc1;
-    int cc2;
+    private int cc1;
+    private int cc2;
 
     public ControlChangeMode(int cc1, int cc2){
         this.cc1 = cc1;
@@ -13,7 +13,7 @@ public class ControlChangeMode extends AbstractMidiMode {
     }
 
     public void position(Position pos){
-        log.debug("cc drag");
+        log.debug("cc "+pos);
         output.sendController(channel, cc1, pos.getX(0, 127));
         output.sendController(channel, cc2, pos.getY(0, 127));
     }

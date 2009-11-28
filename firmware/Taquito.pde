@@ -1,9 +1,9 @@
-// make TARGET=Taquito F_CPU=8000000 MCU=atmega8 UPLOAD_RATE=9600 CPP_SRC=MessageSender.cpp clean all
-// doesn't work?!
+// make TARGET=Taquito F_CPU=8000000 MCU=atmega8 UPLOAD_RATE=19200 CPP_SRC=MessageSender.cpp clean all
+// make TARGET=Taquito CPP_SRC=MessageSender.cpp clean all
 
 #include "defs.h"
 #include "MessageSender.h"
-#include "MessageReceiver.h"
+// #include "MessageReceiver.h"
 
 #define POT_PIN 0
 #define MPX_PIN 1
@@ -23,7 +23,7 @@
 uint16_t values[4];
 
 MessageSender sender;
-MessageReceiver receiver;
+// MessageReceiver receiver;
 
 unsigned long previousMillis = 0;        // will store last time write was done
 
@@ -32,6 +32,10 @@ void setup() {
   pinMode(BUTTON3_PIN, INPUT);
 //   pinMode(LED_PIN, OUTPUT); // not required for PWM output
   sender.init();
+
+//   beginSerial(config.serialSpeed);
+//   beginSerial(DEFAULT_SERIAL_SPEED);
+  beginSerial(57600L);
 }
 
 void readSensors() {
@@ -51,7 +55,7 @@ void readSensors() {
   sender.updateSensor(POT_SENSOR, pot);
 
   // read pressure sensor (breath control)
-  value= analogRead(MPX_PIN) & 0x1fffe; // filter least significant bit;
+  value = analogRead(MPX_PIN) & 0x1fffe; // filter least significant bit;
   if(value < MPX_THRESH){
     sender.updateRelease();
   }else{

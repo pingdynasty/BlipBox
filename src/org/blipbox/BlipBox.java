@@ -10,6 +10,7 @@ public class BlipBox extends BlipBoxDataSender
     implements BlipBoxProxy, BlipBoxInput {
 
     private static final Logger log = Logger.getLogger(BlipBox.class);
+    private static final int DEFAULT_SERIAL_SPEED = 57600;
 
     private BlipBoxDataReceiver receiver;
     private String serialport;
@@ -20,15 +21,13 @@ public class BlipBox extends BlipBoxDataSender
     private Map<Integer, Integer> parameterValues = new HashMap<Integer, Integer>();
 
     public BlipBox() {
-        receiver = new BlipBoxDataReceiver();
-        receiver.setSensorConfiguration(new BlipBoxSensorConfiguration());
-        addInputHandler(this);
+        this(new BlipBoxSensorConfiguration());
     }
 
-    public BlipBox(String serialport, int serialspeed) {
-        this();
-        this.serialport = serialport;
-        this.serialspeed = serialspeed;
+    public BlipBox(SensorConfiguration config) {
+        receiver = new BlipBoxDataReceiver();
+        receiver.setSensorConfiguration(config);
+        addInputHandler(this);
     }
 
     public void setSerialSpeed(int serialspeed){
@@ -37,6 +36,42 @@ public class BlipBox extends BlipBoxDataSender
 
     public void setSerialPort(String serialport){
         this.serialport = serialport;
+    }
+
+    public void openSerialPort(int portindex)
+        throws IOException {
+        openSerialPort(getSerialPorts().get(portindex), DEFAULT_SERIAL_SPEED);
+    }
+
+    public void openSerialPort(int portindex, int serialspeed)
+        throws IOException {
+        openSerialPort(getSerialPorts().get(portindex), serialspeed);
+    }
+
+    public void openSerialPort(String serialport)
+        throws IOException {
+        openSerialPort(serialport, DEFAULT_SERIAL_SPEED);
+    }
+
+    public void openSerialPort(String serialport, int serialspeed)
+        throws IOException {
+        setSerialPort(serialport);
+        setSerialSpeed(serialspeed);
+        openSerialPort();
+    }
+
+    public void openSerialPort()
+        throws IOException {
+        receiver.openSerialPort(serialport, serialspeed);
+        setOutputStream(receiver.getOutputStream());
+    }
+
+    public void closeSerialPort(){
+        receiver.closeSerialPort();
+    }
+
+    public List<String> getSerialPorts(){
+        return receiver.getSerialPorts();
     }
 
     public void addInputHandler(BlipBoxInput inputhandler){
@@ -50,20 +85,6 @@ public class BlipBox extends BlipBoxDataSender
 
     public void removeInputHandler(BlipBoxInput inputhandler){
         receiver.removeInputHandler(inputhandler);
-    }
-
-    public List<String> getSerialPorts(){
-        return receiver.getSerialPorts();
-    }
-
-    public void openSerialPort()
-        throws IOException {
-        receiver.openSerialPort(serialport, serialspeed);
-        setOutputStream(receiver.getOutputStream());
-    }
-
-    public void closeSerialPort(){
-        receiver.closeSerialPort();
     }
 
     public void fade(){
@@ -91,8 +112,9 @@ public class BlipBox extends BlipBoxDataSender
 //         sensorValues.put(def.getSensorType(), def.getValue())
     }
 
-    public void parameterValue(int pid, int value){
+    public void setParameterValue(int pid, int value){
         parameterValues.put(pid, value);
+        setParameter(pid, value);
     }
 
     public int getParameterValue(int pid){

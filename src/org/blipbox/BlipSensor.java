@@ -49,6 +49,14 @@ public class BlipSensor {
         return max;
     }
 
+    public void setMinimumValue(int min){
+        this.min = min;
+    }
+
+    public void setMaximumValue(int max){
+        this.max = max;
+    }
+
     public int getMessageId(){
         return messageId;
     }
