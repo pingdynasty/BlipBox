@@ -5,6 +5,12 @@ import supercollider.*;
 Synth synth;
 ProcessingTaquito taquito;
 
+/* SuperCollider
+SynthDef(\sine, { |amp = 0.5, freq = 440|
+	var data = SinOsc.ar(freq, 0, amp);
+	Out.ar(0, data ! 2);
+}).store;
+*/
 void setup() {
   size(800, 200);
   synth = new Synth("sine");
@@ -14,38 +20,34 @@ void setup() {
   taquito = new ProcessingTaquito(this, 0);
 }
 
-int freq;
-float amp;
 int freqmin = 440;
 int freqmax = 880; // 3520;
-float ymin = 270;
-float ymax = 880;
 
 public void release(Position pos){
   println("release "+pos);
-  amp = 0.0;
-  synth.set("amp", amp); 
+  synth.set("amp", 0.0); 
 }
 
 public void position(Position pos){
   println(pos.toString());
-  freq = pos.getX(440, freqmax+1);
-  synth.set("freq", freq);
-  amp = (pos.getY() - ymin) / (ymax - ymin);
-  synth.set("amp", amp);
+  synth.set("freq", pos.getX(freqmin, freqmax+1));
+  synth.set("amp", pos.getY());
 }
 
 void draw (){
   background(0);
   stroke(255);
-  int x = (freq - freqmin)*width/(freqmax - freqmin);
-  int y = height - (int)(amp*height);
-  line(x, 0, x, height);
-  line(0, y, width, y);
+  if(taquito.isScreenPressed()){
+    int x = taquito.getX(0, width);
+    int y = height - taquito.getY(0, height);
+    line(x, 0, x, height);
+    line(0, y, width, y);
+  }
 }
 
 void stop (){
   synth.free();
 }
+
 
 
