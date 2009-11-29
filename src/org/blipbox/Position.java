@@ -25,16 +25,28 @@ public class Position {
         this.z = z;
     }
 
-    public int getX(){
+    public float getX(){
         return x.getValue();
     }
 
-    public int getY(){
+    public float getY(){
         return y.getValue();
     }
 
-    public int getZ(){
+    public float getZ(){
         return z.getValue();
+    }
+
+    public float getX(float min, float max){
+        return x.scale(min, max);
+    }
+
+    public float getY(float min, float max){
+        return y.scale(min, max);
+    }
+
+    public float getZ(float min, float max){
+        return z.scale(min, max);
     }
 
     public int getX(int min, int max){

@@ -121,9 +121,15 @@ public class BlipBox extends BlipBoxDataSender
         return parameterValues.get(pid);
     }
 
-    public int getSensorValue(SensorType type){
+    /* Get the value of the specified sensor as a float in the range [0-1) */
+    public float getSensorValue(SensorType type){
         BlipSensor def =  receiver.getBlipSensor(type);
         return def.getValue();
+    }
+
+    public float getSensorValue(SensorType type, float min, float max){
+        BlipSensor def =  receiver.getBlipSensor(type);
+        return def.scale(min, max);
     }
 
     public int getSensorValue(SensorType type, int min, int max){
@@ -165,8 +171,12 @@ public class BlipBox extends BlipBoxDataSender
     /**
      * Convenience method for getting X sensor value
      */
-    public int getX(){
+    public float getX(){
         return getSensorValue(SensorType.X_SENSOR);
+    }
+
+    public float getX(float min, float max){
+        return getSensorValue(SensorType.X_SENSOR, min, max);
     }
 
     public int getX(int min, int max){
@@ -176,8 +186,12 @@ public class BlipBox extends BlipBoxDataSender
     /**
      * Convenience method for getting Y sensor value
      */
-    public int getY(){
+    public float getY(){
         return getSensorValue(SensorType.Y_SENSOR);
+    }
+
+    public float getY(float min, float max){
+        return getSensorValue(SensorType.Y_SENSOR, min, max);
     }
 
     public int getY(int min, int max){

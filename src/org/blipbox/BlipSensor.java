@@ -61,8 +61,21 @@ public class BlipSensor {
         return messageId;
     }
 
-    public int getValue(){
+    public int getRawValue(){
         return value;
+    }
+
+    /* Get the sensor value as a float in the range [0-1) */
+    public float getValue(){
+        return scale(0, 10000)/10000.0f;
+    }
+
+    public float scale(float toMin, float toMax){
+        if(value < min)
+            return toMin;
+        if(value >= max)
+            return toMax-1;
+        return toMin + (value - min) * (toMax - toMin) / (max - min);
     }
 
     public void setValue(int value){
