@@ -20,17 +20,19 @@ void setup() {
   taquito = new ProcessingTaquito(this, 0);
 }
 
-int freqmin = 440;
-int freqmax = 880; // 3520;
-
 public void release(Position pos){
   println("release "+pos);
   synth.set("amp", 0.0); 
 }
 
+float midicps(float note){
+  return 440.0 * pow(2, (note - 69) / 12);
+}
+
 public void position(Position pos){
   println(pos.toString());
-  synth.set("freq", pos.getX(freqmin, freqmax+1));
+  synth.set("freq", midicps(pos.getX(40, 53)));
+//  synth.set("freq", pos.getX(freqmin, freqmax+1));
   synth.set("amp", pos.getY());
 }
 

@@ -16,12 +16,7 @@ void setup() {
   blipbox = new ProcessingBlipBox(this, 0);
 
   for(int i=0; i<faders.length; ++i)
-    setFader(i+20, i);
-}
-
-public void drawFaders(){
-  for(int i=0; i<faders.length; ++i)
-    faders[i].draw();
+    setFader(10-i, i);
 }
 
 public void setFader(int cc, int position){
@@ -31,6 +26,11 @@ public void setFader(int cc, int position){
 
 public Fader getFader(int cc){
   return faders[cctable[cc]];
+}
+
+public void drawFaders(){
+  for(int i=0; i<faders.length; ++i)
+    faders[i].draw();
 }
 
 class Fader {

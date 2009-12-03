@@ -6,7 +6,24 @@ Synth guitarX;
 Synth guitarY;
 ProcessingBlipBox blipbox;
 
-/* SuperCollider // arg1(0.1 - 10), arg2(1 - 13)
+/* SuperCollider // pos (0.0-1.0)
+SynthDef(\strumguitar, {
+     arg pos=0, root=52;
+	var pitch, out;
+	pitch = [ root, root+5, root+10, root+15, root+19, root+24 ];		// e a d g b e
+	out = Mix.fill(pitch.size, { arg i;
+		var trigger, pluck, period, string;
+		// place trigger points from 0.25 to 0.75
+		trigger = HPZ1.kr(pos > (0.25 + (i * 0.1))).abs;
+		pluck = PinkNoise.ar(Decay.kr(trigger, 0.05));
+		period = pitch.at(i).midicps.reciprocal;
+		string = CombL.ar(pluck, period, period, 4);
+		Pan2.ar(string, i * 0.2 - 0.5);
+	});
+	LPF.ar(out, 12000);
+	LeakDC.ar(out);
+	Out.ar(0, out ! 2);
+}).store;
 */
 
 void setup() {
@@ -23,7 +40,7 @@ void setup() {
 public void position(Position pos){
   guitarX.set("pos", pos.getX());
   guitarY.set("pos", pos.getY());
-  blipbox.setLed(pos.getX(0, 10), pos.getY(0, 9), 255);
+//  blipbox.setLed(pos.getX(0, 10), 8-pos.getY(0, 9), 255);
 }
 
 public void mouseMoved(){
@@ -34,8 +51,9 @@ public void mouseMoved(){
 int counter;
 
 void draw (){
-  if(counter++ % 127 == 0)
   blipbox.fade();
+  blipbox.setLed(blipbox.getX(0, 10), 8-blipbox.getY(0, 9), 255);
+
   background(0);
   stroke(255);
   if(blipbox.isScreenPressed()){

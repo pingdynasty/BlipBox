@@ -19,8 +19,6 @@ int channel = 0;
 int breathCC = 1;
 
 public void release(Position pos){
-  println("release "+pos);
-  println("note off "+note);
   if(note != -1)
     output.sendNoteOff(channel, note, 0);
   note = -1;
