@@ -1,3 +1,8 @@
+/* 
+   Sine wave table generator
+   gcc SineWaveTableGenerator.c -o sines
+*/
+
 #include <math.h>
 #include <stdio.h>
 
@@ -19,7 +24,7 @@ int main(int argc, char *argv[]){
     precision = atoi(argv[2]);
   offset = pow(2, precision-1)-1;
   printf("/* sine wavetable: %d %d bit values */\n", size, precision);
-  puts("int table [] = {");
+  puts("int table[] = {");
   int i=0;
   while(i<size){
     if(i % 16 == 0)
