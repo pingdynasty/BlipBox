@@ -71,8 +71,9 @@ void handleSetLedColumnMessage(){
 
 void handleWriteCharacterMessage(){
   rx_buffer_head = 0;
-  display.printCharacter(getCharacterData(rx_buffer[1]),
-                         getFourBitValue(), 0, config.brightness);
+  uint8_t data[getCharacterHeight()];
+  getCharacterData(rx_buffer[1], data);
+  display.printCharacter(data, getFourBitValue(), 0, config.brightness);
 }
 
 #define BRIGHTNESS_PARAMETER_ID       (0x01 << 2)

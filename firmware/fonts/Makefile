@@ -1,6 +1,8 @@
 # Makefile that generates C code and/or GNU Unifont files from BDF font files
 
-C_CONVERTER=../../tools/bdf-to-struct.pl
+# C_CONVERTER=../../tools/bdf-to-struct.pl
+# C_CONVERTER=../../tools/bdf-to-pgmspace.pl
+C_CONVERTER=../../tools/bdf-to-array.pl
 HEX_CONVERTER=../../tools/bdf-to-unifont.pl
 HEXDRAW=hexdraw
 
