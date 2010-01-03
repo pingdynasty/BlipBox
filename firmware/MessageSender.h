@@ -17,14 +17,14 @@
 #include <inttypes.h>
 
 #define XY_SENSOR          0
-#define RELEASE_SENSOR     1
-#define TOUCH_SENSOR       2
-#define POT_SENSOR         3
-#define BUTTON1_SENSOR     4
-#define BUTTON2_SENSOR     5
-#define BUTTON3_SENSOR     6
+#define RELEASE_SENSOR     2
+#define POT1_SENSOR        3
+#define POT2_SENSOR        4
+#define BUTTON1_SENSOR     5
+#define BUTTON2_SENSOR     6
+#define BUTTON3_SENSOR     7
 
-#define SENSOR_COUNT 7 // todo: make sensordata and sensorids configurable for different devices (Taquito, BlipBox)
+#define SENSOR_COUNT 8 // todo: make sensordata and sensorids configurable for different devices (Taquito, BlipBox)
 
 class MessageSender {
 

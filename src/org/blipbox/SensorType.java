@@ -2,9 +2,9 @@ package org.blipbox;
 
 public enum SensorType { 
 
-        TOUCH_SENSOR       ("z", SensorConfiguration.TOUCH_SENSOR_MSG_ID), 
         X_SENSOR           ("x", SensorConfiguration.X_SENSOR_MSG_ID),
         Y_SENSOR           ("y", SensorConfiguration.Y_SENSOR_MSG_ID), 
+        Z_SENSOR           ("z", SensorConfiguration.Z_SENSOR_MSG_ID), 
         POT_SENSOR         ("analog1", SensorConfiguration.POT_SENSOR_MSG_ID), 
         BUTTON1_SENSOR     ("button1", SensorConfiguration.BUTTON1_SENSOR_MSG_ID),
         BUTTON2_SENSOR     ("button2", SensorConfiguration.BUTTON2_SENSOR_MSG_ID),

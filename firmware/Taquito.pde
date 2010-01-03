@@ -9,7 +9,7 @@
 #define MPX_PIN 1
 #define BUTTON2_PIN 4
 #define BUTTON3_PIN 7
-#define LED_PIN 5
+#define LED_PIN 5 // digital pin 5 is not PWM capable on ATmega8! 9/10/11
 
 #define POT_THRESH 40
 #define MPX_THRESH 270 // seems to oscillate strictly from 264-266 when resting
@@ -30,12 +30,10 @@ unsigned long previousMillis = 0;        // will store last time write was done
 void setup() {
   pinMode(BUTTON2_PIN, INPUT);
   pinMode(BUTTON3_PIN, INPUT);
-//   pinMode(LED_PIN, OUTPUT); // not required for PWM output
+  pinMode(LED_PIN, OUTPUT); // not required for PWM output
   sender.init();
 
-//   beginSerial(config.serialSpeed);
-//   beginSerial(DEFAULT_SERIAL_SPEED);
-  beginSerial(57600L);
+  beginSerial(DEFAULT_SERIAL_SPEED);
 }
 
 void readSensors() {
@@ -49,20 +47,23 @@ void readSensors() {
   sender.updateSensor(BUTTON3_SENSOR, value);
 
   // read softpot (pitch control)
-  pot = analogRead(POT_PIN) & 0x1fffe; // filter least significant bit
+  pot = analogRead(POT_PIN);
   if(pot < POT_THRESH)
     pot = 0;
-  sender.updateSensor(POT_SENSOR, pot);
+  sender.updateSensor(POT1_SENSOR, pot);
 
   // read pressure sensor (breath control)
-  value = analogRead(MPX_PIN) & 0x1fffe; // filter least significant bit;
+  value = analogRead(MPX_PIN);
   if(value < MPX_THRESH){
     sender.updateRelease();
+    digitalWrite(LED_PIN, LOW);
+//     analogWrite(LED_PIN, 0);
   }else{
     sender.updateXY(pot, value, 0);
+    digitalWrite(LED_PIN, HIGH);
+    // light up the LED using pulse width modulation - scale 270-840 to 0-255
+//     analogWrite(LED_PIN, ((value - MPX_THRESH) * 43) / 100);
   }
-  // light up the LED using pulse width modulation
-  analogWrite(LED_PIN, value);
 }
 
 // void readMessage(){

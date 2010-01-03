@@ -61,6 +61,18 @@ public class Position {
         return z.scale(min, max);
     }
 
+    public int getRawX(){
+        return x.getRawValue();
+    }
+
+    public int getRawY(){
+        return y.getRawValue();
+    }
+
+    public int getRawZ(){
+        return z.getRawValue();
+    }
+
     public String toString(){
         return "pos["+x.getValue()+","+y.getValue()+","+z.getValue()+"]";
     }

@@ -13,6 +13,8 @@ DotAnimator dot;
 
 void setup() {
 
+  cli(); // disable interrupts
+
 //   disable_watchdog(); // disable watchdog timer
   // wdt_init causes device to hang? setup gets stuck?
 
@@ -21,6 +23,8 @@ void setup() {
   keys.init();
   leds.init();
   sender.init();
+
+  sei(); // enable interrupts
 
   beginSerial(config.serialSpeed);
 
@@ -66,7 +70,6 @@ SIGNAL(SIG_UART_RECV)
   serialInput(c);
 }
 
-/** Interrupt called after an XLAT pulse to prevent more XLAT pulses. */
 ISR(TIMER1_OVF_vect)
 {
   leds.displayCurrentRow();

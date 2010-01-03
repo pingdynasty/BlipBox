@@ -76,7 +76,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     }
 
     public void readReleaseMessage(){
-        BlipSensor sensor = sensors.getBlipSensor(SensorType.TOUCH_SENSOR);
+        BlipSensor sensor = sensors.getBlipSensor(SensorType.Z_SENSOR);
         sensor.setValue(0);
         sensorChange(sensor);
     }
@@ -97,7 +97,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
         sensor = sensors.getBlipSensor(SensorType.Y_SENSOR);
         sensor.setValue(yval);
         sensorChange(sensor);
-        sensor = sensors.getBlipSensor(SensorType.TOUCH_SENSOR);
+        sensor = sensors.getBlipSensor(SensorType.Z_SENSOR);
         sensor.setValue(MAX_SENSOR_VALUE);
         sensorChange(sensor);
     }

@@ -9,7 +9,7 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
 
     public void sensorChange(BlipSensor sensor){
         switch(sensor.getMessageId()){
-        case SensorConfiguration.TOUCH_SENSOR_MSG_ID:
+        case SensorConfiguration.Z_SENSOR_MSG_ID:
             bpos.setZ(sensor);
             if(sensor.getValue() == 0){
                 if(pressed){

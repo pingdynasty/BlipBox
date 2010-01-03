@@ -10,7 +10,7 @@ public class SensorConfiguration {
 
     public static final int XY_MSG_ID             = 0x5 << 4;
     public static final int RELEASE_MSG_ID        = 0x7 << 4;
-    public static final int TOUCH_SENSOR_MSG_ID   = 0x80 | (0x1 << 2);
+    public static final int Z_SENSOR_MSG_ID       = 0x80 | (0x1 << 2);
     public static final int X_SENSOR_MSG_ID       = 0x80 | (0x2 << 2);
     public static final int Y_SENSOR_MSG_ID       = 0x80 | (0x3 << 2);
     public static final int POT_SENSOR_MSG_ID     = 0x80 | (0x4 << 2);

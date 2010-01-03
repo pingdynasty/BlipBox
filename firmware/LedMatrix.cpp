@@ -34,6 +34,7 @@
     output. */
 #define TLC_SS_PIN       PB2
 #define TLC_SS_DDR       DDRB
+// PB2 is used for BLANK
 
 #ifdef BLIPBOX_V6
 #define DATA_TRANSFER_MODE TLC_SPI
@@ -46,37 +47,16 @@
 #error "Invalid DATA_TRANSFER_MODE specified, see DATA_TRANSFER_MODE"
 #endif
 
-#define TLC_PWM_PERIOD    8192
-#define TLC_GSCLK_PERIOD    3
-
-/** Enables the Timer1 Overflow interrupt, which will fire after an XLAT
-    pulse */
-#define set_XLAT_interrupt()    TIFR1 |= _BV(TOV1); TIMSK1 = _BV(TOIE1)
-/** Disables any Timer1 interrupts */
-#define clear_XLAT_interrupt()  TIMSK1 = 0
-
-/** Enables the output of XLAT pulses */
-#define enable_XLAT_pulses()    TCCR1A = _BV(COM1A1) | _BV(COM1B1)
-/** Disables the output of XLAT pulses */
-#define disable_XLAT_pulses()   TCCR1A = _BV(COM1B1)
+// tried 3, 5, 7, 15 (31 seems to get stuck)
+#define TLC_GSCLK_PERIOD 7
+#define TLC_PWM_PERIOD (TLC_GSCLK_PERIOD+1)*2048
+// TLC_GSCLK_PERIOD = TLC_PWM_PERIOD/2048 -1
 
 /** Pulses a pin - high then low. */
 #define pulse_pin(port, pin)   port |= _BV(pin); port &= ~_BV(pin)
 
-/** This will be true (!= 0) if update was just called and the data has not
-    been latched in yet. */
-volatile uint8_t tlc_needXLAT;
-
-/** Some of the extened library will need to be called after a successful
-    update. */
-// volatile void (*tlc_onUpdateFinished)(void);
-
-static uint8_t firstGSInput;
-
 void tlc_shift8_init(void);
 void tlc_shift8(uint8_t byte);
-
-volatile uint8_t isShifting;
 
 #ifdef TLC_VPRG_PIN
 /* send 6 bits from an 8 bit value over the TLC5940 data line */
@@ -134,96 +114,120 @@ void LedController::init(){
     TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN); // leave blank high (until the timers start)
 
     tlc_shift8_init();
-    update();
-    disable_XLAT_pulses();
-    clear_XLAT_interrupt();
-    tlc_needXLAT = 0;
-    pulse_pin(TLC_XLAT_PORT, TLC_XLAT_PIN);
-
-    /* Timer Setup */
 
     /* Timer 1 - BLANK / XLAT */
-    TCCR1A = _BV(COM1B1);  // non inverting, output on OC1B, BLANK
-    TCCR1B = _BV(WGM13);   // Phase/freq correct PWM, ICR1 top
-    OCR1A = 1;             // duty factor on OC1A, XLAT is inside BLANK
-    OCR1B = 2;             // duty factor on BLANK (larger than OCR1A (XLAT))
-    ICR1 = TLC_PWM_PERIOD; // see tlc_config.h
+    /* 'old' version
+  // Latch timer
+  TCCR1A = (_BV(WGM10));   // Fast PWM 8-bit
+  // Fast PWM 8-bit  : 1/4096th of OC2A, div 64 prescaler
+  TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
+  // CS10 | CS11 : clkI/O/64 (From prescaler)
+  // WGM12 : mode 4
+  // Timer/Counter Mode of Operation: CTC
+  // TOP OCR1A
+  TIMSK1 = _BV(TOIE1);
+  TCNT1 = 0;
+    */
 
-    /* Timer 2 - GSCLK */
-#ifdef TLC_ATMEGA_8_H
-    TCCR2  = _BV(COM20)       // set on BOTTOM, clear on OCR2A (non-inverting),
-           | _BV(WGM21);      // output on OC2B, CTC mode with OCR2 top
-    OCR2   = TLC_GSCLK_PERIOD / 2; // see tlc_config.h
-    TCCR2 |= _BV(CS20);       // no prescale, (start pwm output)
-#else
+    // OC1A is PB1, XLAT
+    // OC1B is PB2, BLANK
+    // OC2A is PB3, SIN
+    // OC2B is PD3, GSCLK
+    // TCCR1A and TCCR1B control timer 1
+    // TCCR2A and TCCR2B control timer 2
+// #define TLC_GSCLK_OC   COM2B0
+
+    // 'old' version for both timers
+    /*
+  TCCR2A = (_BV(WGM21) |   // CTC (Clear Timer on Compare Match)
+            _BV(TLC_GSCLK_OC));  // toggle OC2A or OC2B on match to drive GSCLK
+  TCCR2B = _BV(CS20);      // No prescaler
+  OCR2B = 64;               // toggle every timer clock cycle -> 4 MHz
+  OCR2A = 64;               // toggle every timer clock cycle -> 4 MHz
+  TCNT2 = 0;
+  TCCR1A = (_BV(WGM10));   // Fast PWM 8-bit
+  TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
+  TIMSK1 = _BV(TOIE1);     
+  TCNT1 = 0;
+    */
+
+    // Timer 1 drives TIMER1_OVF_vect, BLANK / XLAT
+    TCCR1A = 0;               // OC1A/OC1B disconnected.
+    TCCR1B = _BV(WGM13);      // Phase/freq correct PWM, ICR1 top.
+    ICR1 = TLC_PWM_PERIOD;
+    TIFR1 |= _BV(TOV1);
+    TIMSK1 = _BV(TOIE1);
+
+    // Timer 2 drives GSCLK
     TCCR2A = _BV(COM2B1)      // set on BOTTOM, clear on OCR2A (non-inverting),
                               // output on OC2B
            | _BV(WGM21)       // Fast pwm with OCR2A top
            | _BV(WGM20);      // Fast pwm with OCR2A top
     TCCR2B = _BV(WGM22);      // Fast pwm with OCR2A top
     OCR2B = 0;                // duty factor (as short a pulse as possible)
-    OCR2A = TLC_GSCLK_PERIOD; // see tlc_config.h
+    
+    OCR2A = TLC_GSCLK_PERIOD;
     TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
-#endif
     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
-    update();
 }
 
-/** Shifts in the data from the grayscale data array, #tlc_GSData.
-    If data has already been shifted in this grayscale cycle, another call to
-    update() will immediately return 1 without shifting in the new data.  To
-    ensure that a call to update() does shift in new data, use
-    \code while(Tlc.update()); \endcode
-    or
-    \code while(tlc_needXLAT); \endcode
-    \returns 1 if there is data waiting to be latched, 0 if data was
-             successfully shifted in */
-uint8_t LedController::update(void)
-{
-    if (tlc_needXLAT) {
-        return 1;
-    }
-    disable_XLAT_pulses();
+/*
+    /// need to add these? ->
+//     sendBufferData(counter.getPosition());
+//     pulse_pin(TLC_XLAT_PORT, TLC_XLAT_PIN);
 
-    sendBufferData(counter.getPosition());
+// TCCR1B = _BV(WGM13) :
+// PWM, Phase and Frequency Correct
+// ICR1 top
+// Update of OCR1x at BOTTOM
+// TOV1 Flag Set on BOTTOM
 
-    tlc_needXLAT = 1;
-    enable_XLAT_pulses();
-    set_XLAT_interrupt();
-    return 0;
+// TCCR1A = _BV(COM1B1) :
+// Clear OC1A/OC1B on Compare Match, set OC1A/OC1B at BOTTOM (non-inverting mode)
+
+// #define TLC_PWM_PERIOD    8192
+// #define TLC_GSCLK_PERIOD    3
+
+// Output Compare Register B (OCR1B)
+
+// TCCR1A = _BV(COM1B1) enables output on BLANK
+// TCCR1A = _BV(COM1A1) enables output on XLAT
+
+    // Enables the Timer1 Overflow interrupt
+    // Timer Interrupt Flag Register
+    TIFR1 |= _BV(TOV1); 
+    // Timer Interrupt Mask Register
+    TIMSK1 = _BV(TOIE1);
+    // The corresponding Interrupt Vector is executed when the TOV1 Flag, located in TIFR1, is set.
 }
+*/
 
-void LedController::displayCurrentRow(void)
-{
-  if(!isShifting) {
+void LedController::displayCurrentRow(void){
+  // called by Timer 2 overflow ISR
+  // shift, blank, increment, latch, unblank
 
-    disable_XLAT_pulses();
-    isShifting = 1;
-    sei();
+  // shift data out
+  sendBufferData(counter.getPosition());
 
-    counter.off();
-    // increment active anode pin
-    counter.increment();
-    counter.on();
+  // blank
+  TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);
 
-    // shift data out
-    sendBufferData(counter.getPosition());
+  // increment
+  counter.off();
+  counter.increment();
+  counter.on();
 
-    enable_XLAT_pulses();
-    isShifting = 0;
+  // latch
+  TLC_XLAT_PORT |= _BV(TLC_XLAT_PIN);
+  TLC_XLAT_PORT &= ~_BV(TLC_XLAT_PIN);
 
-    tlc_needXLAT = 0; // assuming this has been called from XLAT interrupt
-  }
-
+  // unblank
+  TLC_BLANK_PORT &= ~_BV(TLC_BLANK_PIN);
 }
 
 void LedController::sendBufferData(uint8_t row){
-  if (firstGSInput) {
-    // adds an extra SCLK pulse unless we've just set dot-correction data
-    firstGSInput = 0;
-  } else {
-    pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
-  }
+  // extra clock pulse for grayscale data
+  pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
 
   //       for(uint8_t i=0;i<LED_CHANNELS;i++)
   //         shift12bits(led_buffer[row][i]);

@@ -11,7 +11,7 @@
 #define SCK_PIN  13      // SCK clock pin
 #define SDI_PIN  11      // SDI MOSI pin: master out, slave in
 
-void spi_transfer(uint8_t working) {
+static void spi_transfer(uint8_t working) {
   // function to actually bit shift the data byte out
   for(int i = 1; i <= 8; i++) {
     if(working > 127)
@@ -24,22 +24,34 @@ void spi_transfer(uint8_t working) {
   }
 }
 
-void spi_out(uint8_t high, uint8_t low) {
+static void spi_out(uint8_t high, uint8_t low) {
   digitalWrite(CS_PIN, LOW);
   spi_transfer(high);
   spi_transfer(low);
   digitalWrite(CS_PIN, HIGH);
 }
 
+static void spi_init() {
+  pinMode(CS_PIN, OUTPUT); // set CS pin to output
+  pinMode(SCK_PIN, OUTPUT); // set SCK pin to output
+  pinMode(SDI_PIN, OUTPUT); // set MOSI pin to output
+  digitalWrite(CS_PIN, HIGH); // hold slave select 1 pin high, so that chip is not selected to begin with
+}
+
 /*
+// this didn't work because pins weren't initialised properly
+
+#define CS_DDR   DDRB
 #define CS_PIN   PB1       // CS slave select pin
 #define CS_PORT  PORTB
+#define SCK_DDR  DDRB
 #define SCK_PIN  PB5      // SCK clock pin
 #define SCK_PORT PORTB
+#define SDI_DDR  DDRB
 #define SDI_PIN  PB3      // SDI MOSI pin: master out, slave in
 #define SDI_PORT PORTB
 
-void spi_transfer(uint8_t value) {
+static void spi_transfer(uint8_t value) {
   for(uint8_t i=0x80; i; i>>=1){
     if(value & i)
       SDI_PORT |= _BV(SDI_PIN);
@@ -51,11 +63,20 @@ void spi_transfer(uint8_t value) {
   }
 }
 
-void spi_out(uint8_t high, uint8_t low) {
-  CS_PORT &= ~_BV(CS_PIN);
+static void spi_out(uint8_t high, uint8_t low) {
+  CS_PORT &= ~_BV(CS_PIN); // LOW
   spi_transfer(high);
   spi_transfer(low);
-  CS_PORT |= _BV(CS_PIN);
+  CS_PORT |= _BV(CS_PIN); // HIGH
+}
+
+static void spi_init(){
+  // set pins to output
+  CS_DDR |= _BV(CS_PIN);
+  SCK_DDR |= _BV(SCK_PIN);
+  SDI_DDR |= _BV(SDI_PIN);
+  // hold slave select 1 pin high, so that chip is not selected to begin with
+  CS_PORT |= _BV(CS_PIN); // HIGH
 }
 */
 
@@ -63,14 +84,11 @@ void spi_out(uint8_t high, uint8_t low) {
 //#define TRANSFER_BITS (_BV(DAC_SHDN_BIT) | _BV(DAC_GA_BIT))
 
 void MCP492xController::init(){
-  pinMode(CS_PIN, OUTPUT); // set CS pin to output
-  pinMode(SCK_PIN, OUTPUT); // set SCK pin to output
-  pinMode(SDI_PIN, OUTPUT); // set MOSI pin to output
-  digitalWrite(CS_PIN, HIGH); // hold slave select 1 pin high, so that chip is not selected to begin with
+  spi_init();
 }
 
 void MCP492xController::send(uint8_t data){
-    spi_out(TRANSFER_BITS, data & 0xff);
+  spi_out(TRANSFER_BITS, data & 0xff);
 }
 
 void MCP492xController::send(uint8_t high, uint8_t low){

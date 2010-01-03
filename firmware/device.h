@@ -3,9 +3,6 @@
 
 /* Header file containing device-specific defines */
 
-#define BLIPBOX_V6
-/* #define BLIPBOX_P4 */
-
 #if defined BLIPBOX_P4
 
 #define TLC_SCLK_DDR   DDRB
@@ -120,18 +117,28 @@
 #define LED_ROW_5_PORT     PORTD
 #define LED_ROW_5_DDR      DDRD
 
-#define PIN_RT 0 // right top // pin 1 // PC0
-#define PIN_RL 1 // right low // pin 2 // PC1
-#define PIN_SG 2 // wiper     // pin 3 // PC2
-#define PIN_LT 3 // left top  // pin 4 // PC3
-#define PIN_LL 4 // left low  // pin 5 // PC4
+#define PIN_RT             0 // right top
+#define PIN_RL             1 // right low
+#define PIN_SG             2 // wiper    
+#define PIN_LT             3 // left top 
+#define PIN_LL             4 // left low 
 
 // external connections
 #define POT_PIN     5 // PC5 // arduino analog pin
 #define BUTTON1_PIN 5 // PD5 // arduino digital pin
 #define BUTTON2_PIN 5 // PD5 // arduino digital pin
 
-#endif /* BLIPBOX_xx */
+#elif defined UNITAR_P1  /* end if BLIPBOX_xx */
+
+#define POT_PIN            1
+#define PIN_TOP            2
+#define PIN_BOTTOM         3
+#define PIN_LEFT           4
+#define PIN_RIGHT          5
+
+#else
+#error "No valid device defined"
+#endif
 
 /*
  Arduino digital pin 0-7  = PORTD, PD0-7

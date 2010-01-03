@@ -83,6 +83,14 @@ public class BlipBox extends BlipBoxDataSender
         // todo: an input handler added this way cannot be removed with removeInputHandler()
     }
 
+    public void addInputHandler(BlipBoxInput inputhandler, String type){
+        BlipSensor sensor = getBlipSensor(type);
+        if(sensor == null)
+            throw new IllegalArgumentException("No such sensor: "+type);
+        receiver.addInputHandler(new FilteringInput(inputhandler, sensor.getMessageId()));
+        // todo: an input handler added this way cannot be removed with removeInputHandler()
+    }
+
     public void removeInputHandler(BlipBoxInput inputhandler){
         receiver.removeInputHandler(inputhandler);
     }
@@ -162,10 +170,10 @@ public class BlipBox extends BlipBoxDataSender
 
     /**
      * Convenience method for getting touch sensor value
-     * @return true iff the touch screen is being touched
+     * @return true iff the touch screen is pressed
      */
     public boolean isScreenPressed(){
-        return getSensorValue(SensorType.TOUCH_SENSOR) != 0;
+        return getSensorValue(SensorType.Z_SENSOR) != 0;
     }
 
     /**
