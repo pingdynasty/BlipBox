@@ -35,7 +35,7 @@ public:
       midi->controlChange(data, read_console_hex()*16+read_console_hex());
       break;
     case 'p':
-      midi->pitchBend(data*16+read_console_hex());
+      midi->pitchBend((data*16+read_console_hex())*16+read_console_hex());
       break;
     case 'n':
       midi->noteOn(data, 0x7f);

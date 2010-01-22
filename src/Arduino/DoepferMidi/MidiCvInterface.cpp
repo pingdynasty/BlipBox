@@ -96,6 +96,7 @@ void MidiCvInterface::midiClock(){
 */
 void MidiCvInterface::pitchBend(int16_t value){
   cv1 += pitchbend_to_cv(value);
+  dac.send(cv1); 
 }
 
 void MidiCvInterface::controlChange(int cc, int value){
