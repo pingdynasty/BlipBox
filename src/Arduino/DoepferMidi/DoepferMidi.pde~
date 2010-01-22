@@ -1,0 +1,262 @@
+#include "MidiReader.h"
+#include "MCP492xController.h"
+
+#define CV2_PIN   5
+#define CV3_PIN   6
+#define GATE1_PIN 7
+#define GATE2_PIN 8
+#define REF_NOTE 36
+#define NOTE_RANGE 60
+
+uint16_t cv1;
+uint8_t cv2, cv3;
+
+// PWM cv outputs square pulse wave (at the 15kHz sampling rate probably)
+// vactrol? 100uF cap to ground seems to cut the noise.
+
+#define LED1_PIN 2
+#define LED2_PIN 3
+
+// #define PIN_CS           9
+// #define PIN_SCK          13
+// #define PIN_MISO         12
+// #define PIN_MOSI         11
+
+MCP492xController dac;
+
+void timer_setup(){
+  //Timer2 setup  This is the audio rate timer, fires an interrupt at 15625 Hz sampling rate
+  TIMSK2 = 1<<OCIE2A;  // interrupt enable audio timer
+  OCR2A = 127;
+  TCCR2A = 2;               // CTC mode, counts up to 127 then resets
+  TCCR2B = 0<<CS22 | 1<<CS21 | 0<<CS20;   // different for atmega8 (no 'B' i think)
+}
+
+// void spi_setup(){
+//   SPCR = 0x50;   // set up SPI port
+//   SPSR = 0x01;
+//   DDRB |= 0x2E;       // PB output for DAC CS, and SPI port
+//   PORTB |= (1<<1);
+//   sei();			// global interrupt enable
+// }
+
+uint8_t factor = 0x59; 
+uint16_t note_to_cv(uint8_t note){
+   return (note-REF_NOTE)*factor; 
+}
+
+void console_setup(){
+  Serial.begin(9600);
+  Serial.println("hello");
+  Serial.println("welcome to synthesizer");
+}
+
+void setup(){
+  dac.init();
+  
+  pinMode(CV2_PIN, OUTPUT);
+  pinMode(CV3_PIN, OUTPUT);
+  pinMode(LED1_PIN, OUTPUT);
+  pinMode(LED2_PIN, OUTPUT);
+  pinMode(GATE1_PIN, OUTPUT);
+  pinMode(GATE2_PIN, OUTPUT);
+
+  midi_setup();
+//  console_setup();
+  timer_setup();
+}
+
+void loop () {
+  read_midi();
+ // read_console();
+}
+
+byte read_console_char(){
+  while(!Serial.available());
+  return Serial.read();
+}
+
+int read_console_hex(){
+  byte b = read_console_char();
+  if(b > 0x30 && b < 0x3a) // 0=0x30, 9=0x39
+    return b-0x30;
+  if(b > 0x60 && b < 0x67) // a=0x61, f=0x66
+    return b-0x57;
+  return 0;
+}
+
+void read_console(){
+    char type = read_console_char();
+    uint8_t data = read_console_hex() * 16;
+    data += read_console_hex();
+    switch(type){
+      case '1':
+      cv1 = data*16+read_console_hex();
+      dac.send(cv1);
+      break;
+      case 'f':
+//      factor = data*16+read_console_hex();
+      factor = data;
+      break;
+      case '2':
+      cv2 = data;
+      break;
+      case '3':
+      cv3 = data;
+      break;
+      case 'c':
+      controlChange(1, data);
+      break;
+      case 'p':
+      pitchBend(data<<7);
+      break;
+      case 'n':
+      noteOn(data, 0x7f);
+      break;
+      case 'o':
+      noteOff(data, 0x00);
+    }
+    Serial.print(type, BYTE);
+    Serial.print(": 0x");
+    Serial.println(data, HEX);
+    Serial.print("cv1: 0x");
+    Serial.print(cv1, HEX);
+//    Serial.print(cv1>>8, HEX);
+//    Serial.print(cv1&0xff, HEX);
+    Serial.print("\tcv2: 0x");
+    Serial.print(cv2, HEX);
+    Serial.print("\tcv3: 0x");
+    Serial.print(cv3, HEX);
+    Serial.print("\tfac: 0x");
+    Serial.println(factor, HEX);
+}
+
+void channelPressure(int value){
+  if(value)
+    digitalWrite(LED1_PIN, HIGH);
+  else
+    digitalWrite(LED1_PIN, LOW);
+}
+
+void startSong(){
+  digitalWrite(GATE2_PIN, HIGH);
+}
+
+void stopSong(){
+  digitalWrite(GATE2_PIN, LOW);
+}
+
+void midiClock(){
+  digitalWrite(GATE2_PIN, HIGH);
+  digitalWrite(GATE2_PIN, LOW);
+}
+
+/*
+Standard MIDI Files use a pitch wheel range of +/-2 semitones = 200 cents. MIDI pitch bend wheel resolution (according to the spec) is +8192/-8191. That means there are 8192/200 = 40.96 pitch bend units to 1 cent
+ */
+/*
+The two bytes of the pitch bend message form a 14 bit number, 0 to 16383. The value 8192 (sent, LSB first, as 0x00 0x40), is centered, or "no pitch bend."
+ */
+void pitchBend(int16_t value){
+  //  2 = 136 (two semitones = 136.53333)
+  //  scale 0, 16383 to -136, 135
+  cv1 += -136 + value * 272 / 16383;
+  // scale min-max to min2-max2: 
+  // value = min2 + (value - min) * (max2 - min2) / (max - min)
+}
+
+void controlChange(int cc, int value){
+  //  if(cc == 1)
+  cv3 = value << 2;
+}
+
+void noteOff(int note, int velocity){
+  if(note < REF_NOTE || note > REF_NOTE+NOTE_RANGE)
+    return;
+  if(--keydowns)
+    return; // there are still some keys pressed
+  cv2 = velocity;
+  digitalWrite(GATE1_PIN, LOW);
+  digitalWrite(LED2_PIN, LOW);
+}
+
+void noteOn(int note, int velocity){
+  if(note < REF_NOTE || note >= REF_NOTE+NOTE_RANGE)
+    return;
+
+  if(velocity == 0)
+    return noteOff(note, velocity);
+
+  //  1v/octave with 0-5v means 5 octave, 60 semitone range.
+  // scale REF_NOTE - REF_NOTE+60 to 0-4096 (12 bits)
+  cv1 = note_to_cv(note);
+  cv2 = velocity<<2;
+
+  dac.send(cv1);
+//   spi_send(cv1);
+
+  if(keydowns++ && staccato)
+    digitalWrite(GATE1_PIN, LOW);
+  digitalWrite(GATE1_PIN, HIGH);
+  digitalWrite(LED2_PIN, HIGH);
+}
+
+// // the two bytes that go to the DAC over SPI
+// uint8_t dacSPI0;
+// uint8_t dacSPI1;
+
+// void spi_send(uint16_t value){
+//   value <<= 4;
+
+//   // format sample for SPI port
+//   dacSPI0 = value >> 8;
+//   dacSPI0 >>= 4;
+//   dacSPI0 |= 0x30;
+//   dacSPI1 = value >> 4;
+
+//   // transmit value out the SPI port
+//   PORTB &= ~(1<<1); // Frame sync low
+//   SPDR = dacSPI0;
+//   while (!(SPSR & (1<<SPIF)));
+//   SPDR = dacSPI1;
+//   while (!(SPSR & (1<<SPIF)));
+//   PORTB |= (1<<1); // Frame sync high
+// }
+
+// timer 2 is audio interrupt timer
+ISR(TIMER2_COMPA_vect) {
+  OCR2A = 127;
+  analogWrite(CV2_PIN, cv2);
+  analogWrite(CV3_PIN, cv3);
+}
+
+/*
+  pinMode(PIN_CS, OUTPUT);
+ 
+ pinMode(PIN_SCK, OUTPUT);
+ digitalWrite(PIN_SCK, LOW);
+ pinMode(PIN_MOSI, OUTPUT);
+ digitalWrite(PIN_MOSI, LOW);
+ pinMode(PIN_MISO, INPUT);
+ digitalWrite(PIN_MISO,HIGH);
+ 
+ //  SPCR = B01110001;              // Auto SPI: no int, enable, LSB first, master, + edge, leading, f/16
+ //  SPSR = B00000000;              // not double data rate
+ 
+ // spi enabled, master mode, clock @ f/128 for init
+ //SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR1)|(1<<SPR0);
+ 
+ //  enableSPI();
+ 
+ digitalWrite(PIN_CS, LOW); // select chip
+ }
+ 
+ void enableSPI() {
+ SPCR |= 1 << SPE;
+ }
+ 
+ void disableSPI() {
+ SPCR &= ~(1 << SPE);
+ }
+ */
+
