@@ -3,23 +3,34 @@
 
 #include <wiring.h>
 
-#include "MidiInterface.h"
+#include "MidiCvInterface.h"
 
 class ConsoleReader {
 public:
 
-  void init(MidiInterface* _midi){
+  void init(MidiCvInterface* _midi){
     midi = _midi;
     Serial.begin(9600);
     Serial.println("hello");
-    Serial.println("welcome to midi console");
   }
 
   void read(){
     char type = read_console_char();
-    uint8_t data = read_console_hex()*16 + read_console_hex();
-/*     data += read_console_hex(); */
+    uint8_t data = read_console_hex() * 16;
+    data += read_console_hex();
     switch(type){
+    case '1':
+      midi->cv1 = data*16+read_console_hex();
+      break;
+    case 'f':
+      midi->factor = data;
+      break;
+    case '2':
+      midi->setCV(2, data);
+      break;
+    case '3':
+      midi->setCV(3, data);
+      break;
     case 'c':
       midi->controlChange(data, read_console_hex()*16+read_console_hex());
       break;
@@ -32,27 +43,26 @@ public:
     case 'o':
       midi->noteOff(data, 0x00);
       break;
-    case '>':
-      midi->startSong();
-      break;
-    case '<':
-      midi->stopSong();
-      break;
-    case '!':
-      midi->continueSong();
-      break;
     case 't':
       while(--data)
-        midi->midiClock();
+        midi->clock();
       break;
     }
     Serial.print(type, BYTE);
     Serial.print(": 0x");
     Serial.println(data, HEX);
+    Serial.print("cv1: 0x");
+    Serial.print(midi->cv1, HEX);
+    Serial.print("\tcv2: 0x");
+    Serial.print(midi->getCV(2), HEX);
+    Serial.print("\tcv3: 0x");
+    Serial.print(midi->getCV(3), HEX);
+    Serial.print("\tfac: 0x");
+    Serial.println(midi->factor, HEX);
   }
 
 private:
-  MidiInterface* midi;
+  MidiCvInterface* midi;
 
   byte read_console_char(){
     while(!Serial.available());

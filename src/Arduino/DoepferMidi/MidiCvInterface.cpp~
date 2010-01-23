@@ -1,0 +1,8 @@
+#include "MidiCvInterface.h"
+
+// timer 2 is audio interrupt timer
+ISR(TIMER2_COMPA_vect) {
+  OCR2A = 127;
+  analogWrite(CV2_PIN, cv2);
+  analogWrite(CV3_PIN, cv3);
+}

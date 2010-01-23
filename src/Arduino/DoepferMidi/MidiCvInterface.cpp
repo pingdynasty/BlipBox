@@ -105,9 +105,9 @@ void MidiCvInterface::controlChange(int cc, int value){
 }
 
 void MidiCvInterface::noteOff(int note, int velocity){
-  if(note < REF_NOTE || note > REF_NOTE+NOTE_RANGE)
-    return;
-  if(--keydowns)
+//   if(note < REF_NOTE || note > REF_NOTE+NOTE_RANGE)
+//     return;
+  if(keydowns && --keydowns) // keydowns underrun protection
     return; // there are still some keys pressed
   cv2 = velocity<<1;
   digitalWrite(GATE1_PIN, LOW);
@@ -115,8 +115,8 @@ void MidiCvInterface::noteOff(int note, int velocity){
 }
 
 void MidiCvInterface::noteOn(int note, int velocity){
-  if(note < REF_NOTE || note >= REF_NOTE+NOTE_RANGE)
-    return;
+//   if(note < REF_NOTE || note >= REF_NOTE+NOTE_RANGE)
+//     return;
 
   if(velocity == 0)
     return noteOff(note, velocity);
@@ -133,6 +133,16 @@ void MidiCvInterface::noteOn(int note, int velocity){
     digitalWrite(GATE1_PIN, LOW);
   digitalWrite(GATE1_PIN, HIGH);
   digitalWrite(LED2_PIN, HIGH);
+}
+
+void MidiCvInterface::allNotesOff(){
+  keydowns = 0;
+  cv1 = 0;
+  cv2 = 0;
+  cv3 = 0;
+  digitalWrite(GATE1_PIN, LOW);
+  digitalWrite(LED2_PIN, LOW);
+  digitalWrite(GATE2_PIN, LOW);
 }
 
 // timer 2 is audio interrupt timer

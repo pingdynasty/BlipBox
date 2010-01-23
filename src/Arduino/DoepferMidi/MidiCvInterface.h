@@ -17,6 +17,7 @@ public:
   void controlChange(int cc, int value);
   void noteOff(int note, int velocity);
   void noteOn(int note, int velocity);
+  void allNotesOff();
 
   void setCV(int cv, uint8_t value);
   uint8_t getCV(int cv);

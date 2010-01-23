@@ -1,10 +1,6 @@
 #ifndef _CONSOLEREADER_H_
 #define _CONSOLEREADER_H_
 
-#include <wiring.h>
-
-#include "MidiInterface.h"
-
 class ConsoleReader {
 public:
 
@@ -12,43 +8,48 @@ public:
     midi = _midi;
     Serial.begin(9600);
     Serial.println("hello");
-    Serial.println("welcome to midi console");
   }
 
   void read(){
     char type = read_console_char();
-    uint8_t data = read_console_hex()*16 + read_console_hex();
-/*     data += read_console_hex(); */
+    uint8_t data = read_console_hex() * 16;
+    data += read_console_hex();
     switch(type){
+    case '1':
+      cv.cv1 = data*16+read_console_hex();
+      break;
+    case 'f':
+      cv.factor = data;
+      break;
+    case '2':
+      cv.setCV(2, data);
+      break;
+    case '3':
+      cv.setCV(3, data);
+      break;
     case 'c':
-      midi->controlChange(data, read_console_hex()*16+read_console_hex());
+      cv.controlChange(data, read_console_hex()*16+read_console_hex());
       break;
     case 'p':
-      midi->pitchBend((data*16+read_console_hex())*16+read_console_hex());
+      cv.pitchBend(data*16+read_console_hex());
       break;
     case 'n':
-      midi->noteOn(data, 0x7f);
+      cv.noteOn(data, 0x7f);
       break;
     case 'o':
-      midi->noteOff(data, 0x00);
-      break;
-    case '>':
-      midi->startSong();
-      break;
-    case '<':
-      midi->stopSong();
-      break;
-    case '!':
-      midi->continueSong();
-      break;
-    case 't':
-      while(--data)
-        midi->midiClock();
-      break;
+      cv.noteOff(data, 0x00);
     }
     Serial.print(type, BYTE);
     Serial.print(": 0x");
     Serial.println(data, HEX);
+    Serial.print("cv1: 0x");
+    Serial.print(cv.cv1, HEX);
+    Serial.print("\tcv2: 0x");
+    Serial.print(cv.getCV(2), HEX);
+    Serial.print("\tcv3: 0x");
+    Serial.print(cv.getCV(3), HEX);
+    Serial.print("\tfac: 0x");
+    Serial.println(cv.factor, HEX);
   }
 
 private:

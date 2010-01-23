@@ -20,57 +20,76 @@ public:
   }
 
   void read(){
-    if(Serial.available() > 0) {
-      byte incomingByte = Serial.read();
-      switch(state){
-      case NOTE_ON:
-        if(data1 == -1){
-          data1 = incomingByte;
-        }
-        else if(data2 == -1){
-          data2 = incomingByte;
-          midi->noteOn(data1, data2);
-          reset();
-        }
+    byte incomingByte = Serial.read();
+    switch(state){
+    case NOTE_ON:
+      if(data1 == -1){
+        data1 = incomingByte;
+      }
+      else if(data2 == -1){
+        data2 = incomingByte;
+        midi->noteOn(data1, data2);
+        reset();
+      }
+      break;
+    case NOTE_OFF:
+      if(data1 == -1){
+        data1 = incomingByte;
+      }
+      else if(data2 == -1){
+        data2 = incomingByte;
+        midi->noteOff(data1, data2);
+        reset();
+      }
+      break;
+    case CONTROL_CHANGE:
+      if(data1 == -1){
+        data1 = incomingByte;
+      }
+      else if(data2 == -1){
+        data2 = incomingByte;
+        midi->controlChange(data1, data2);
+        if(data1 == 0x7b)
+          midi->allNotesOff();
+        reset();
+      }
+      break;
+    case PITCH_BEND:
+      if(data1 == -1){
+        data1 = incomingByte;
+      }
+      else if(data2 == -1){
+        data2 = incomingByte;
+        midi->pitchBend((data2 << 7) | data1);
+        reset();
+      }
+      break;
+    case CHANNEL_PRESSURE:
+      if(data1 == -1){
+        data1 = incomingByte;
+        midi->channelPressure(data1);
+        reset();
+      }
+      break;
+    case STANDBY:
+    default:
+      switch(incomingByte){
+      case 0xf8:
+        midi->midiClock();
         break;
-      case NOTE_OFF:
-        if(data1 == -1){
-          data1 = incomingByte;
-        }
-        else if(data2 == -1){
-          data2 = incomingByte;
-          midi->noteOff(data1, data2);
-          reset();
-        }
+      case 0xf9:
+        // A MIDI Tick message is sent at regular intervals of one message every 10 milliseconds. 
+        midi->midiTick();
         break;
-      case CONTROL_CHANGE:
-        if(data1 == -1){
-          data1 = incomingByte;
-        }
-        else if(data2 == -1){
-          data2 = incomingByte;
-          midi->controlChange(data1, data2);
-          reset();
-        }
+      case 0xfa:
+        midi->startSong();
         break;
-      case PITCH_BEND:
-        if(data1 == -1){
-          data1 = incomingByte;
-        }
-        else if(data2 == -1){
-          data2 = incomingByte;
-          midi->pitchBend((data2 << 8) | data1);
-          reset();
-        }
+      case 0xfb:
+        midi->continueSong();
         break;
-      case CHANNEL_PRESSURE:
-        if(data1 == -1){
-          data1 = incomingByte;
-          midi->channelPressure(data1);
-          reset();
-        }
+      case 0xfc:
+        midi->stopSong();
         break;
-      case STANDBY:
       default:
         switch(incomingByte & 0xf0){
         case 0x80:
@@ -88,14 +107,6 @@ public:
         case 0xe0:
           state = PITCH_BEND;
           break;
-        case 0xf8:
-          midi->midiClock();
-          break;
-        case 0xfa:
-          midi->startSong();
-          break;
-        case 0xfc:
-          midi->stopSong();
         }
       }
     }
