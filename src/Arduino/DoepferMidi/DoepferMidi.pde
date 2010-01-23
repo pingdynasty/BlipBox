@@ -25,12 +25,21 @@ void setup(){
   reader.init(&seq);
 }
 
-uint16_t counter;
 void loop() {
-  if(Serial.available())
-    reader.read();
-  if(counter++ == 512){
-    seq.midiClock();
-    counter = 0;
-  }
+  seq.midiTick();
+}
+
+/* Serial RX interrupt */
+#if defined(__AVR_ATmega168__)
+SIGNAL(SIG_USART_RECV)
+#else
+SIGNAL(SIG_UART_RECV)
+#endif
+{
+#if defined(__AVR_ATmega168__)
+  unsigned char c = UDR0;
+#else
+  unsigned char c = UDR;
+#endif
+  reader.read(c);
 }

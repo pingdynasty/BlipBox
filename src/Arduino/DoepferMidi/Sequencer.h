@@ -7,8 +7,8 @@
 class Step {
  public:
   Step() :
-//     note(60), duration(127), velocity(127) 
-    note(60), duration(63)
+    note(60), duration(127), velocity(63)
+/*     note(60), duration(63) */
   {}
 //     note = 60;
 // //     delay = 0;
@@ -20,7 +20,7 @@ class Step {
   int8_t note;
   int8_t delay;
   int8_t duration;
-//   int8_t velocity;
+  int8_t velocity;
 //   int8_t modulation;
 };
 
@@ -31,17 +31,24 @@ public:
     player = _player;
     controller = _controller;
     divisor = 24; // 24 MIDI clocks / quarter note.
-    playing = true;
+    frequency = 512;
   }
 
   void stepOn(const Step& step){
-    player->noteOn(step.note, 0x7f);
-//     player->noteOn(step.note, step.velocity);
+//     player->noteOn(step.note, 0x7f);
+    player->noteOn(step.note, step.velocity);
 //     player->controlChange(MODULATION_CC, step.modulation);
   }
 
   void stepOff(const Step& step){
     player->noteOff(step.note, 0);
+  }
+
+  void midiTick(){
+    if(internalClock && ++tick == frequency){
+      midiClock();
+      tick = 0;
+    }
   }
 
   void midiClock(){
@@ -70,17 +77,23 @@ public:
     clock = 0;
     playing = true;
     player->startSong();
+    controller->controlChange(81, 0x7f);
   }
 
   void stopSong(){
     playing = false;
     player->stopSong();
-    player->allNotesOff();
+    controller->controlChange(81, 0);
   }
 
   void continueSong(){
     playing = true;
     player->continueSong();
+    controller->controlChange(81, 0x7f);
+  }
+
+  void allNotesOff(){
+    player->allNotesOff();
   }
 
   void noteOff(int note, int velocity){
@@ -108,7 +121,7 @@ public:
     // continue      83
     // panic         84
     if(cc < 40){
-      --cc; // todo: remove
+      --cc; // adjust to 0-7 group
       Step& step = steps[cc%SEQUENCER_STEPS];
       switch(cc/SEQUENCER_STEPS){
       case 0:
@@ -120,37 +133,40 @@ public:
       case 2:
         step.duration = value;
         break;
-//     case 3:
-//       step.velocity = value;
-//       break;
+      case 3:
+        step.velocity = value;
+        break;
 //     case 4:
 //       step.modulation = value;
 //       break;
       }
+    }else if(cc == 55){
+      divisor = ++value;
     }else if(cc == 56){
-      divisor = value;
-    }else if(value > 63){
-      // buttons start at cc 65, must have value > 63 to switch
+      frequency = ++value << 7; // range from 128 to 16384
+    }else if(cc > 80 && cc < 85){
       switch(cc){
       case 81:
         if(playing)
           stopSong();
-        else
+        else if(value)
           startSong();
         break;
       case 82:
-        stopSong();
+        if(playing && value)
+          stopSong();
+        else if(value)
+          continueSong();
         break;
       case 83:
-        if(playing)
-          stopSong();
-        else
-          continueSong();
+        internalClock = value;
         break;
       case 84:
         allNotesOff();
         break;
       }
+    }else{
+      player->controlChange(cc, value);
     }
   }
 
@@ -160,8 +176,12 @@ private:
   MidiInterface* player;
   MidiInterface* controller;
   uint8_t divisor;
-  uint16_t clock;
+  uint8_t clock;
   boolean playing;
+
+  uint16_t tick;
+  uint16_t frequency;
+  boolean internalClock;  
 };
 
 #endif /* _SEQUENCER_H_ */

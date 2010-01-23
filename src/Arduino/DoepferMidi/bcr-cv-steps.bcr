@@ -446,7 +446,7 @@ $button 50
   .easypar CC 1 82 127 0 toggleoff
   .showvalue on
 $button 51
-  .easypar CC 1 83 127 0 toggleoff
+  .easypar CC 1 83 127 0 toggleon
   .showvalue on
 $button 52
   .easypar CC 1 84 127 0 toggleoff

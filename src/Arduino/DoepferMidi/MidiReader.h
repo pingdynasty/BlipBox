@@ -16,51 +16,54 @@ public:
   void init(MidiInterface* _midi){
     midi = _midi;
     reset();
-    Serial.begin(31250);        
+    beginSerial(31250);
   }
 
-  void read(){
-    byte incomingByte = Serial.read();
+  void read(char incomingByte){
     switch(state){
     case NOTE_ON:
       if(data1 == -1){
         data1 = incomingByte;
-      }
-      else if(data2 == -1){
+      }else if(data2 == -1){
         data2 = incomingByte;
         midi->noteOn(data1, data2);
+        reset();
+      }else{
         reset();
       }
       break;
     case NOTE_OFF:
       if(data1 == -1){
         data1 = incomingByte;
-      }
-      else if(data2 == -1){
+      }else if(data2 == -1){
         data2 = incomingByte;
         midi->noteOff(data1, data2);
+        reset();
+      }else{
         reset();
       }
       break;
     case CONTROL_CHANGE:
       if(data1 == -1){
         data1 = incomingByte;
-      }
-      else if(data2 == -1){
+      }else if(data2 == -1){
         data2 = incomingByte;
         midi->controlChange(data1, data2);
         if(data1 == 0x7b)
           midi->allNotesOff();
+        reset();
+      }else{
         reset();
       }
       break;
     case PITCH_BEND:
       if(data1 == -1){
         data1 = incomingByte;
-      }
-      else if(data2 == -1){
+      }else if(data2 == -1){
         data2 = incomingByte;
         midi->pitchBend((data2 << 7) | data1);
+        reset();
+      }else{
         reset();
       }
       break;
@@ -68,6 +71,8 @@ public:
       if(data1 == -1){
         data1 = incomingByte;
         midi->channelPressure(data1);
+        reset();
+      }else{
         reset();
       }
       break;

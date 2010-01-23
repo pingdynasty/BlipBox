@@ -52,10 +52,10 @@ SRC =  $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c \
 $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
 $(ARDUINO)/wiring_pulse.c \
 $(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c \
-$(ARDUINO)/wiring_serial.c
-# CXXSRC = $(ARDUINO)/WMath.cpp $(CPP_SRC)
+serial.c # $(ARDUINO)/wiring_serial.c
+CXXSRC = $(ARDUINO)/WMath.cpp $(CPP_SRC)
 # below 2 lines are taken from 0016
-CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp $(CPP_SRC)
+# CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp $(CPP_SRC)
 FORMAT = ihex
 
 # Name of this Makefile (used for "make depend").

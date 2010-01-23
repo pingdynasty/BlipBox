@@ -10,6 +10,9 @@ public:
 
   void init(MidiInterface* _midi){
     midi = _midi;
+/*     beginSerial(9600); */
+/*     printString("hello"); */
+/*     printString("welcome to midi console"); */
     Serial.begin(9600);
     Serial.println("hello");
     Serial.println("welcome to midi console");
