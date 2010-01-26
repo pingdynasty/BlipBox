@@ -41,7 +41,7 @@ AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = MCP492xController.cpp	MidiCvInterface.cpp
+CPP_SRC = MCP492xController.cpp	MidiCvInterface.cpp spi_hw.cpp
 
 ############################################################################
 # Below here nothing should be changed...

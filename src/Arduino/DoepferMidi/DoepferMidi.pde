@@ -23,6 +23,8 @@ void setup(){
   writer.init(1);
   seq.init(&cv, &writer);
   reader.init(&seq);
+  // bypass sequencer, send MIDI input straight to CV output.
+//   reader.init(&cv);
 }
 
 void loop() {
