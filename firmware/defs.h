@@ -1,9 +1,9 @@
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
-/* #define BLIPBOX_V6 */
+#define BLIPBOX_V6
 /* #define BLIPBOX_P4 */
-#define UNITAR_P1
+/* #define MONOTAR_P1 */
 
 /* #define DEFAULT_SERIAL_SPEED 9600 */
 /* #define DEFAULT_SERIAL_SPEED 19200L */

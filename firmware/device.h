@@ -128,7 +128,7 @@
 #define BUTTON1_PIN 5 // PD5 // arduino digital pin
 #define BUTTON2_PIN 5 // PD5 // arduino digital pin
 
-#elif defined UNITAR_P1  /* end if BLIPBOX_xx */
+#elif defined MONOTAR_P1  /* end if BLIPBOX_xx */
 
 #define POT_PIN            1
 #define PIN_TOP            2

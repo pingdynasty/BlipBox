@@ -30,7 +30,7 @@ public:
       led_buffer[row][col] = brightness;
     else
       led_buffer[row - LED_STRIPS][col + 8] = brightness;
-/*     led_buffer[0][row * LED_CHANNELS + col] = brightness; */
+/*     led_buffer[0][row * 10 + col] = brightness; */
 /*     led_buffer[0][(row % LED_STRIPS) * LED_CHANNELS + col + (row / LED_STRIPS) * 8] = brightness; */
   }
 
@@ -55,6 +55,7 @@ public:
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
       led_buffer[0][i] = (led_buffer[0][i] << factor) | 0x01;
   }
+
   void fade(uint8_t factor){
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
         led_buffer[0][i] >>= factor;

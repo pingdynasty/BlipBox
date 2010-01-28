@@ -34,9 +34,9 @@ void setup() {
 void loop() {
   keys.keyscan();
 
-  if(keys.getTouch() < config.sensitivity){
+  if(keys.getZ() < config.sensitivity){
     // inverse X value
-    sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getTouch());
+    sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getZ());
   }else{
     sender.updateRelease();
   }
