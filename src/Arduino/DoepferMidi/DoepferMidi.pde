@@ -21,10 +21,14 @@ void setup(){
   // and CV out for playback.
   cv.init();
   writer.init(1);
-  seq.init(&cv, &writer);
-  reader.init(&seq);
+//  seq.init(&cv, &writer);
+//  reader.init(&seq);
   // bypass sequencer, send MIDI input straight to CV output.
-//   reader.init(&cv);
+   reader.init(&cv);
+
+//   Serial.begin(9600);
+  beginSerial(38400);
+//     beginSerial(31250);
 }
 
 void loop() {

@@ -16,7 +16,6 @@ public:
   void init(MidiInterface* _midi){
     midi = _midi;
     reset();
-    beginSerial(31250);
   }
 
   void read(char incomingByte){
