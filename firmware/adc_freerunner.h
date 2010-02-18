@@ -5,7 +5,6 @@
 #include "defs.h"
 
 #define ADC_CHANNELS 5
-//#define FILTER_BITS 0xffff<<2
 
 extern uint16_t adc_values[ADC_CHANNELS];
 

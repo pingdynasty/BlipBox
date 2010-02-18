@@ -30,9 +30,6 @@ ISR(ADC_vect)
 
   adc_values[oldchan] = ADCL;
   adc_values[oldchan] |= ADCH << 8;
-#ifdef FILTER_BITS
-  adc_values[oldchan] &= FILTER_BITS;
-#endif
 
   oldchan = curchan;
 
