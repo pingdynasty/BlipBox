@@ -1,6 +1,5 @@
 #include "MidiReader.h"
 #include "MidiWriter.h"
-#include "Sequencer.h"
 #include "ConsoleReader.h"
 #include "ConsoleWriter.h"
 #include "MidiCvInterface.h"

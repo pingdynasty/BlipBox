@@ -112,14 +112,15 @@ void loop(){
       noteOff();
       // fall through
     case SUSTAIN_STATE:
-      if(string != getString())
+//       if(string != getString())
+      if(note != getPitch())
         noteOn();
       break;
     }
     // truncate CC values to 7 bits
     writer.controlChange(CC_X, x >> 3);
     writer.controlChange(CC_Y, y >> 3);
-    writer.controlChange(CC_Z, screen.getZ() >> 1);
+    writer.controlChange(CC_Z, screen.getZ() >> 2);
     writer.controlChange(CC_POT, pot >> 3);
     writer.controlChange(CC_DX, dx >> 3);
     writer.controlChange(CC_DY, dx >> 3);

@@ -45,13 +45,13 @@ public:
  }
 
  void noteOff(int note, int velocity){
-   write(0x90 | channel);
+   write(0x80 | channel);
    write(note & 0x7f);
    write(velocity & 0x7f);
  }
 
  void noteOn(int note, int velocity){
-   write(0x80 | channel);
+   write(0x90 | channel);
    write(note & 0x7f);
    write(velocity & 0x7f);
  }

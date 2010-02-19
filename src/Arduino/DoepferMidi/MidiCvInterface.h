@@ -19,6 +19,14 @@ public:
   void noteOn(int note, int velocity);
   void allNotesOff();
 
+  void setFactor(uint8_t _factor){
+    factor = _factor;
+  }
+
+  uint8_t getFactor(){
+    return factor;
+  }
+
   void setCV(int cv, uint8_t value);
   uint8_t getCV(int cv);
 
@@ -29,6 +37,7 @@ public:
 
   uint16_t cv1;
   uint8_t factor;
+  uint8_t clock_divider;
   int keydowns;
   bool staccato;
 

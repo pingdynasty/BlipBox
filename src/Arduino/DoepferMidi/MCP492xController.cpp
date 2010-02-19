@@ -8,8 +8,8 @@
 #define DAC_GA_BIT   5   // 0 = 2x gain,    1 = 1x gain
 #define DAC_SHDN_BIT 4
 
-// #define TRANSFER_BITS _BV(DAC_SHDN_BIT) // 2x gain
-#define TRANSFER_BITS (_BV(DAC_SHDN_BIT) | _BV(DAC_GA_BIT))
+#define TRANSFER_BITS _BV(DAC_SHDN_BIT) // 2x gain
+// #define TRANSFER_BITS (_BV(DAC_SHDN_BIT) | _BV(DAC_GA_BIT)) // 1x gain
 
 void MCP492xController::init(){
   spi_init();

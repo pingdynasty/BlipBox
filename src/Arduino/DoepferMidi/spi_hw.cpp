@@ -4,9 +4,14 @@
 
 // this didn't work because pins weren't initialised properly
 
-#define CS_DDR   DDRB
-#define CS_PIN   PB1       // CS slave select pin
-#define CS_PORT  PORTB
+#define CS_DDR   DDRD
+#define CS_PIN   PD2       // CS slave select pin
+#define CS_PORT  PORTD
+
+// #define CS_DDR   DDRB
+// #define CS_PIN   PB1       // CS slave select pin
+// #define CS_PORT  PORTB
+
 #define SCK_DDR  DDRB
 #define SCK_PIN  PB5      // SCK clock pin
 #define SCK_PORT PORTB
