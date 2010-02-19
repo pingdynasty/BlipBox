@@ -5,7 +5,8 @@ ProcessingBlipBox blipbox;
 
 void setup() {
   output = RWMidi.getOutputDevices()[0].createOutput();
-  blipbox = new ProcessingBlipBox(this, 0);
+  blipbox = new ProcessingBlipBox(this, 
+  "/dev/tty.usbserial-A60081h8");
 }
 
 int note;

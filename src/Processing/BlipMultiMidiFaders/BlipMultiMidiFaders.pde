@@ -14,7 +14,9 @@ int page = 0; // current page index;
 void setup() {
   input = RWMidi.getInputDevices()[0].createInput(this);
   output = RWMidi.getOutputDevices()[0].createOutput();
-  blipbox = new ProcessingBlipBox(this, "/dev/tty.usbserial-A60081h8");
+  println("output: "+RWMidi.getOutputDevices()[0]);
+  blipbox = new ProcessingBlipBox(this, 0);
+//  blipbox = new ProcessingBlipBox(this, "/dev/tty.usbserial-A60081h8");
   pages[0] = new Page(1);
   pages[1] = new Page(33);
   pages[2] = new Page(41);
@@ -87,7 +89,7 @@ class Fader {
       this.value = value;
       if(visible)
         draw();
-      println("updated "+this);
+//      println("updated "+this);
     }
   }
 
@@ -111,19 +113,19 @@ public Fader getFaderForCC(int cc){
 }
 
 public void controllerChangeReceived(Controller cc){
-  println("received "+cc);
+//  println("received "+cc);
   Fader fader = getFaderForCC(cc.getCC());
   if(fader != null)
     fader.update(cc.getValue());
 }
 
 public void tap(Position pos){
-  if(pos.getX(0, 10) > 8)
+  if(pos.getX(0, 10) >= 8)
     updatePages(pos);
 }
 
 public void position(Position pos){
-  if(pos.getX(0, 10) <= 8)
+  if(pos.getX(0, 10) < 8)
     pages[page].updateFaders(pos);
 }
 
@@ -134,7 +136,7 @@ public void updatePages(Position pos){
 }
 
 public void setPage(int index){
-  println("set page "+index);
+//  println("set page "+index);
   pages[page].hide();
   page = index;
   pages[page].show();

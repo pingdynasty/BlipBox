@@ -1,3 +1,4 @@
+import controlP5.*;
 import rwmidi.*;
 
 rwmidi.MidiInput input;
@@ -11,10 +12,17 @@ Control[] cctable = new Control[127];
 Surface[] pages = new Surface[4];
 int page = 0; // current page index;
 
+ControlP5 controlP5;
+Slider[] sliders;
+
 void setup() {
+  size(720, 200);
+  controlP5 = new ControlP5(this);
   input = RWMidi.getInputDevices()[0].createInput(this);
   output = RWMidi.getOutputDevices()[0].createOutput();
-  blipbox = new ProcessingBlipBox(this, "/dev/tty.usbserial-A60081hj");
+  blipbox = new ProcessingBlipBox(this, 
+  "/dev/tty.usbserial-A60081h8");
+//  blipbox = new ProcessingBlipBox(this, "/dev/tty.usbserial-A60081hj");
   pages[0] = new Surface(33, 34);
   pages[1] = new Surface(35, 36);
   pages[2] = new Surface(37, 38);
@@ -24,8 +32,11 @@ void setup() {
 
 class Control {
   int cc, value;
+  Slider slider;
   public Control(int cc){
     this.cc = cc;
+    slider = controlP5.addSlider("cc"+cc, 0, 127, 0, 80*(cc-32), 50, 10, 100);
+    slider.setId(cc);
   }
 }
 
@@ -45,6 +56,8 @@ class Surface {
     y.value = pos.getY(0, 128);
     output.sendController(channel, x.cc, x.value);
     output.sendController(channel, y.cc, y.value);
+    x.slider.changeValue(x.value);
+    y.slider.changeValue(y.value);
   }
 
   public void draw(){
@@ -57,11 +70,14 @@ public Control getControlForCC(int cc){
   return cctable[cc];
 }
 
-public void controllerChangeReceived(Controller cc){
+public void controllerChangeReceived(rwmidi.Controller cc){
 //  println("received "+cc);
   Control control = getControlForCC(cc.getCC());
-  if(control != null)
+  if(control != null){
     control.value = cc.getValue();
+//    setBroadcast(false);
+    control.slider.changeValue(control.value);
+  }
 }
 
 public void tap(Position pos){
@@ -70,7 +86,7 @@ public void tap(Position pos){
 }
 
 public void position(Position pos){
-  if(pos.getX(0, 10) <= 8)
+  if(pos.getX(0, 10) < 9)
     pages[page].update(pos);
 }
 
@@ -93,22 +109,24 @@ public void setPage(int index){
   pages[page].draw();
 }
 
+void controlEvent(ControlEvent event) {
+  println("got a control event from controller with id "+event.controller().id());
+  Control control = getControlForCC(event.controller().id());
+  if(control != null){
+    control.value = (int)event.controller().value();
+    output.sendController(channel, control.cc, control.value);
+    println("set cc "+control.cc+" to "+control.value);
+  }
+}
+
+
 void draw() {
+  background(0xaaddee);
   blipbox.setLedColumn(0, bits);
   blipbox.setLedColumn(1, bits);
   pages[page].draw();
   delay(speed);
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

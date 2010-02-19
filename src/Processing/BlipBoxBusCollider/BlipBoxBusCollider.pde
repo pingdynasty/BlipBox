@@ -11,8 +11,8 @@ void setup() {
   Server server = Server.local;
   xbus = new Bus("control", server, 1);
   ybus = new Bus("control", server, 1);
-  xbus.index = 12;
-  ybus.index = 13;
+  xbus.index = 0;
+  ybus.index = 1;
   blipbox = new ProcessingBlipBox(this, 0);
 }
 

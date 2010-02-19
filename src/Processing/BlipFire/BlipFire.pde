@@ -11,6 +11,7 @@ int intensity = 256;
 void position(int x, int y){
   sleeptime = blipbox.getY(0, 400);
   intensity = blipbox.getX(0, 256);
+  println("x/y "+x+"/"+y);
 }
 
 void draw(){
