@@ -1,7 +1,6 @@
 #include "MidiInterface.h"
 #include "MidiReader.h"
 #include "MidiWriter.h"
-#include "Sequencer.h"
 #include "TouchController.h"
 
 uint16_t touchscreen_x_min   = 250;
@@ -16,12 +15,13 @@ MidiWriter writer;
 
 #define CC_X         2
 #define CC_Y         3
-#define CC_Z         6
+#define CC_Z         1
 #define CC_POT       7
 #define CC_DX        4
 #define CC_DY        5
 
-#define TOUCH_THRESH        300
+#define SENSOR_MAX   1023
+#define TOUCH_THRESH        800
 #define STRUMMING_THRESHOLD 20
 
 class CommandInterface : public MidiInterface {
@@ -68,8 +68,8 @@ uint8_t getString(){
 
 uint8_t getPitch(){
   string = getString();
-  writer.controlChange(10, string);
-  return (pot*note_range)/1023 + string*5 + note_root;
+//   writer.controlChange(10, string);
+  return ((SENSOR_MAX-pot)*note_range)/1023 + string*5 + note_root;
 }
 
 uint8_t getVelocity(){
@@ -120,11 +120,11 @@ void loop(){
     // truncate CC values to 7 bits
     writer.controlChange(CC_X, x >> 3);
     writer.controlChange(CC_Y, y >> 3);
-    writer.controlChange(CC_Z, screen.getZ() >> 2);
-    writer.controlChange(CC_POT, pot >> 3);
-    writer.controlChange(CC_DX, dx >> 3);
-    writer.controlChange(CC_DY, dx >> 3);
-    writer.controlChange(1, screen.check() >> 3);
+    writer.controlChange(CC_Z, screen.getZ() >> 3);
+//     writer.controlChange(CC_POT, pot >> 3);
+//     writer.controlChange(CC_DX, dx >> 3);
+//     writer.controlChange(CC_DY, dx >> 3);
+//     writer.controlChange(1, screen.check() >> 3);
   }else if(state != STANDBY_STATE){
     noteOff();
     writer.controlChange(CC_X, 0);
@@ -137,7 +137,7 @@ void loop(){
 //     for(int i=0; i<6; ++i)
 //       writer.controlChange(i+1, screen.getValue(i));
 //   }
-  delay(120);
+//   delay(120);
 }
 
 /* Serial RX interrupt */
