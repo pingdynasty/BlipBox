@@ -1,28 +1,15 @@
+#include "device.h"
 #include "MidiInterface.h"
 #include "MidiReader.h"
 #include "MidiWriter.h"
 #include "TouchController.h"
 
-uint16_t touchscreen_x_min   = 250;
-uint16_t touchscreen_x_range = 810 - touchscreen_x_min;
-uint16_t touchscreen_y_min   = 210;
-uint16_t touchscreen_y_range = 784 - touchscreen_y_min;
-
 MidiReader reader;
 MidiWriter writer;
-// ConsoleReader reader;
-// ConsoleWriter writer;
 
-#define CC_X         2
-#define CC_Y         3
-#define CC_Z         1
-#define CC_POT       7
-#define CC_DX        4
-#define CC_DY        5
-
-#define SENSOR_MAX   1023
-#define TOUCH_THRESH        800
-#define STRUMMING_THRESHOLD 20
+#define SENSOR_MAX          1023
+#define TOUCH_THRESH        500
+#define VELOCITY            80
 
 class CommandInterface : public MidiInterface {
 public:
@@ -32,22 +19,52 @@ CommandInterface command;
 TouchController screen;
 
 #define STANDBY_STATE   0
-#define ACTIVATED_STATE 1
-#define STRUMMING_STATE 2
-#define SUSTAIN_STATE   3
+#define SUSTAIN_STATE   1
 
-// uint16_t tick;
 uint16_t x, y, pot;
-int8_t dx, dy;
 int8_t note;
 uint8_t state;
 uint8_t string;
 uint8_t note_root, note_range;
 
-void setup(){
+#define CC_X    0
+#define CC_Y    1
+#define CC_Z    2
+#define CC_POT1 3
+#define CC_POT2 4
 
+// #define CC_CODES_SET1 { 0, 0, 0, 1, 2 }
+// #define CC_CODES_SET2 { 0, 0, 1, 2, 0 }
+// #define CC_CODES_SET3 { 0, 0, 2, 1, 0 }
+
+uint8_t CC_CODES_SET1[] = { 2, 0, 0, 1, 0 };
+uint8_t CC_CODES_SET2[] = { 2, 0, 1, 0, 0 };
+uint8_t CC_CODES_SET3[] = { 1, 0, 2, 0, 0 };
+
+#define BUTTON1_PIN PD2
+#define BUTTON2_PIN PD4
+#define BUTTON_DDR  DDRD
+#define BUTTON_PORT PORTD
+
+#define BUTTON_PINMAP (_BV(BUTTON1_PIN) | _BV(BUTTON2_PIN))
+
+uint8_t ccvalues[6];
+uint8_t *cccodes;
+
+uint8_t buttons;
+
+void setup(){
   note_root = 36;
   note_range = 24;
+  note = -1;
+//   cccodes = CC_CODES_SET1;
+
+  pinMode(POT1_PIN, INPUT);
+  pinMode(POT2_PIN, INPUT);
+  BUTTON_DDR &= ~_BV(BUTTON1_PIN);
+  BUTTON_DDR &= ~_BV(BUTTON2_PIN);
+//   pinMode(BUTTON1_PIN, INPUT);
+//   pinMode(BUTTON2_PIN, INPUT);
 
   cli(); // disable interrupts
 
@@ -63,17 +80,13 @@ void setup(){
 }
 
 uint8_t getString(){
-  return (y * 6) / 1023 + 1;
+  return (y*6) / 1023 - 1;
 }
 
 uint8_t getPitch(){
   string = getString();
 //   writer.controlChange(10, string);
-  return ((SENSOR_MAX-pot)*note_range)/1023 + string*5 + note_root;
-}
-
-uint8_t getVelocity(){
-  return dy * 10;
+  return (pot*note_range)/1023 + string*5 + note_root;
 }
 
 void noteOff(){
@@ -86,58 +99,75 @@ void noteOff(){
 void noteOn(){
   noteOff();
   note = getPitch();
-  writer.noteOn(note, getVelocity());
+  writer.noteOn(note, VELOCITY);
+}
+
+void updateController(uint8_t cc, uint8_t value){
+  if(cccodes[cc] && ccvalues[cc] != value){
+    writer.controlChange(cccodes[cc], value);
+    ccvalues[cc] = value;
+  }
+}
+
+// #define BUTTON_STATE1 _BV(BUTTON1_PIN)
+// #define BUTTON_STATE2 0
+// #define BUTTON_STATE3 _BV(BUTTON2_PIN)
+
+void updateSettings(){
+  buttons = PIND & BUTTON_PINMAP;
+  if(buttons & _BV(BUTTON1_PIN))
+    cccodes = CC_CODES_SET1;
+  else if(buttons & _BV(BUTTON2_PIN))
+    cccodes = CC_CODES_SET3;
+  else
+    cccodes = CC_CODES_SET2;
+//   switch(buttons){
+//   case BUTTON_STATE1:
+//     break;
+//   case BUTTON_STATE2:
+//     cccodes = CC_CODES_SET2;
+//     break;
+//   case BUTTON_STATE3:
+//     cccodes = CC_CODES_SET2;
+//     break;
+//   }
 }
 
 void loop(){
+  if((PIND & BUTTON_PINMAP) != buttons)
+    updateSettings();
+
+  pot = SENSOR_MAX - screen.getValue(6);
+  if(pot > 1021)
+    pot = 0;
   if(screen.getZ() < TOUCH_THRESH){
-    // dx/dy valid iff there's a valid previous reading, i.e. state != STANDBY
-    dx = x - screen.getX();
-    dy = y - screen.getY();
     x = screen.getX();
-    y = screen.getY();
-    pot = screen.getValue(6);
+    y = SENSOR_MAX - screen.getY();
     switch(state){
     case STANDBY_STATE:
-      state = ACTIVATED_STATE;
-      break;
-    case ACTIVATED_STATE:
       noteOn();
-//       if(dy > STRUMMING_THRESHOLD)
-//         state = STRUMMING_STATE;
-//       else
-        state = SUSTAIN_STATE;
+      state = SUSTAIN_STATE;
       break;
-    case STRUMMING_STATE:
-      noteOff();
-      // fall through
     case SUSTAIN_STATE:
-//       if(string != getString())
       if(note != getPitch())
         noteOn();
       break;
     }
     // truncate CC values to 7 bits
-    writer.controlChange(CC_X, x >> 3);
-    writer.controlChange(CC_Y, y >> 3);
-    writer.controlChange(CC_Z, screen.getZ() >> 3);
-//     writer.controlChange(CC_POT, pot >> 3);
-//     writer.controlChange(CC_DX, dx >> 3);
-//     writer.controlChange(CC_DY, dx >> 3);
-//     writer.controlChange(1, screen.check() >> 3);
+    updateController(CC_X, x>>3);
+    updateController(CC_Y, y>>3);
+    updateController(CC_Z, screen.getZ()>>3);
   }else if(state != STANDBY_STATE){
     noteOff();
-    writer.controlChange(CC_X, 0);
-    writer.controlChange(CC_Y, 0);
-    writer.controlChange(CC_Z, 0);
+    updateController(CC_X, 0);
+    updateController(CC_Y, 0);
+    updateController(CC_Z, 0);
     state = STANDBY;
   }
+  updateController(CC_POT1, pot>>3);
+  updateController(CC_POT2, screen.getValue(7)>>3);
 
-//   if(screen.check() < TOUCH_THRESH){
-//     for(int i=0; i<6; ++i)
-//       writer.controlChange(i+1, screen.getValue(i));
-//   }
-//   delay(120);
+//   delay(10);
 }
 
 /* Serial RX interrupt */

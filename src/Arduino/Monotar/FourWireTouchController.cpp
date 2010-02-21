@@ -56,19 +56,21 @@
 #define HI_Z_CONFIGURATION                                (Pin_Hi_Z(XP), Pin_Hi_Z(XN), Pin_Hi_Z(YP), Pin_Hi_Z(YN))
 #define Z_1_AND_2_CONFIGURATION                           (Pin_Gnd(XP), Pin_Hi_Z(XN), Pin_Hi_Z(YP), Pin_Vcc(YN))
 
-uint16_t adc_values[7];
+uint16_t adc_values[8];
 uint8_t adc_mode;
 #define READ_STANDBY_STATE 1
 #define READ_X_POS_STATE   3
 #define READ_Y_POS_STATE   5
 #define READ_Z1_POS_STATE  7
 #define READ_Z2_POS_STATE  9
-#define READ_POT_STATE     11
+#define READ_POT1_STATE    11
+#define READ_POT2_STATE    13
 
 #define START_STATE        READ_STANDBY_STATE
-#define END_STATE          12 // one more than last state
+#define END_STATE          14 // one more than last state
 
 void TouchController::init(){
+  
   STANDBY_CONFIGURATION;
 //   adc_mode = START_STATE; // leave as 0
   ADMUX = (ADMUX & ~7) | STANDBY_PIN;
@@ -109,10 +111,6 @@ ISR(ADC_vect)
     X_POS_CONFIGURATION;
     adc_values[0] = ADCL;
     adc_values[0] |= ADCH << 8;
-//     if(adc_values[0] < LOW_LEVEL_THRESHOLD)
-//       adc_mode = READ_POT;
-// else
-//     X_POS_CONFIGURATION;
     break;
   }
   case READ_X_POS_STATE : {
@@ -141,16 +139,23 @@ ISR(ADC_vect)
     STANDBY_CONFIGURATION;
     adc_values[4] = ADCL;
     adc_values[4] |= ADCH << 8;
-    ADMUX = (ADMUX & ~7) | POT_PIN;
+    ADMUX = (ADMUX & ~7) | POT1_PIN;
     // Calculate Appraisal for R_Touch
-    adc_values[5] = ((float)adc_values[4]/adc_values[3]-1)*adc_values[1];
+    adc_values[5] = (uint16_t)((float)adc_values[4]/adc_values[3]-1)*adc_values[1];
 //               R_Touch = ((float)Reading_Z2/Reading_Z1-1) * Readings_X_Pos[i_array];
     break;
   }
-  case READ_POT_STATE : {
+  case READ_POT1_STATE : {
     STANDBY_CONFIGURATION;
     adc_values[6] = ADCL;
     adc_values[6] |= ADCH << 8;
+    ADMUX = (ADMUX & ~7) | POT2_PIN;
+    break;
+  }
+  case READ_POT2_STATE : {
+    STANDBY_CONFIGURATION;
+    adc_values[7] = ADCL;
+    adc_values[7] |= ADCH << 8;
     // Set ADC input channel to check for touch
     ADMUX = (ADMUX & ~7) | STANDBY_PIN;
     break;
