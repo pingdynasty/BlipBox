@@ -12,7 +12,6 @@ MidiReader reader;
 MidiWriter writer;
 // ConsoleReader reader;
 // ConsoleWriter writer;
-Sequencer seq;
 
 void setup(){
   // MIDI in sends controls to sequencer, 
@@ -31,7 +30,6 @@ void setup(){
 }
 
 void loop() {
-  seq.midiTick();
 }
 
 /* Serial RX interrupt */

@@ -66,7 +66,7 @@ void MidiCvInterface::init(){
   pinMode(GATE1_PIN, OUTPUT);
   pinMode(GATE2_PIN, OUTPUT);
   ref_note = 36;
-  factor = 0x59;
+  factor = 0x66;
   clock_divider = 24;
   staccato = true;
   dac.init();
