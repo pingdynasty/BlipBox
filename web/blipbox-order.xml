@@ -13,8 +13,8 @@
 <para>BlipBox Kit Contents:</para>
 <programlisting>
 1x BlipBox PCB
-1x 5.7" touch screen
-2x 5x8 LED matrix, Ultra-bright red
+1x 5.7" touch screen Higgstec TO576S
+2x 5x8 LED matrix, Ultra-bright red Foryard FYM-34581AUHR-11
 1x FFC connector 6 way
 1x IC TLC5940
 1x IC ATMEGA168
@@ -31,13 +31,20 @@
 
 <para>Estimated price: GBP 58.00</para> 
 
+<para>You may also purchase the PCB, LED units and touch screen separately, should you wish to source components elsewhere.</para>
+<programlisting>
+BlipBox PCB         £15.00
+5.7" touch screen   £15.00
+5x8 LED matrix       £7.50 each
+</programlisting>
 
-<para>This kit includes everything you need to build a working BlipBox <emphasis>apart from</emphasis>:</para>
+<para>The kit includes everything you will need to build a working BlipBox <emphasis>apart from</emphasis>:</para>
 <itemizedlist>
   <listitem><ulink url="#BlipBox-Connection">USB connector</ulink></listitem>
   <listitem><ulink url="#BlipBox-Enclosure">enclosure</ulink></listitem>
   <listitem><ulink url="#BlipBox-Modifications">additional pots and buttons</ulink></listitem>
 </itemizedlist>
+
 </section>
 
 <section id="USB-Board-Kit">

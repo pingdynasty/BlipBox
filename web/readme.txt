@@ -1,5 +1,5 @@
 to generate web pages using the Makefile (which uses xsltproc):
-cd blipbox/web
+cd BlipBox/web
 make clean all
 
 to upload (publish) to the live server:
