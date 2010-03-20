@@ -37,7 +37,8 @@ uint8_t note_root, note_range;
 // #define CC_CODES_SET2 { 0, 0, 1, 2, 0 }
 // #define CC_CODES_SET3 { 0, 0, 2, 1, 0 }
 
-uint8_t CC_CODES_SET1[] = { 2, 0, 0, 1, 0 };
+// uint8_t CC_CODES_SET1[] = { 1, 2, 3, 4, 5 };
+uint8_t CC_CODES_SET1[] = { 2, 0, 0, 0 ,1 };
 uint8_t CC_CODES_SET2[] = { 2, 0, 1, 0, 0 };
 uint8_t CC_CODES_SET3[] = { 1, 0, 2, 0, 0 };
 
@@ -45,6 +46,7 @@ uint8_t CC_CODES_SET3[] = { 1, 0, 2, 0, 0 };
 #define BUTTON2_PIN PD4
 #define BUTTON_DDR  DDRD
 #define BUTTON_PORT PORTD
+#define BUTTON_PINS PIND
 
 #define BUTTON_PINMAP (_BV(BUTTON1_PIN) | _BV(BUTTON2_PIN))
 
@@ -109,32 +111,20 @@ void updateController(uint8_t cc, uint8_t value){
   }
 }
 
-// #define BUTTON_STATE1 _BV(BUTTON1_PIN)
-// #define BUTTON_STATE2 0
-// #define BUTTON_STATE3 _BV(BUTTON2_PIN)
-
 void updateSettings(){
-  buttons = PIND & BUTTON_PINMAP;
+  buttons = BUTTON_PINS & BUTTON_PINMAP;
   if(buttons & _BV(BUTTON1_PIN))
     cccodes = CC_CODES_SET1;
   else if(buttons & _BV(BUTTON2_PIN))
     cccodes = CC_CODES_SET3;
   else
     cccodes = CC_CODES_SET2;
-//   switch(buttons){
-//   case BUTTON_STATE1:
-//     break;
-//   case BUTTON_STATE2:
-//     cccodes = CC_CODES_SET2;
-//     break;
-//   case BUTTON_STATE3:
-//     cccodes = CC_CODES_SET2;
-//     break;
-//   }
+
+  writer.allNotesOff();
 }
 
 void loop(){
-  if((PIND & BUTTON_PINMAP) != buttons)
+  if((BUTTON_PINS & BUTTON_PINMAP) != buttons)
     updateSettings();
 
   pot = SENSOR_MAX - screen.getValue(6);
