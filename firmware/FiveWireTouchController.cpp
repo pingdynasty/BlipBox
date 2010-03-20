@@ -11,7 +11,6 @@
 // and lower left corner are connected to ground and the upper
 // right and lower right corners are connected to V+
 #include "TouchController.h"
-#include "defs.h"
 #include "device.h"
 #include <avr/interrupt.h> 
 

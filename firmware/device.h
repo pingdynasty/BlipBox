@@ -1,6 +1,8 @@
 #ifndef _DEVICE_H_
 #define _DEVICE_H_
 
+#include "defs.h"
+
 /* Header file containing device-specific defines */
 
 #if defined BLIPBOX_P4

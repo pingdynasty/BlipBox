@@ -1,7 +1,6 @@
 #include "LedController.h"
-#include "Characters.h"
-#include <stdlib.h>
 #include "device.h"
+#include "globals.h"
 
 #ifdef TLC_VPRG_PIN
 /* send 6 bits from an 8 bit value over the TLC5940 data line */
