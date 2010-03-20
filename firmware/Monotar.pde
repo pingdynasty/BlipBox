@@ -1,11 +1,13 @@
-// make TARGET=Monotar CPP_SRC="MessageSender.cpp FourWireTouchController" clean all
+// edit defs.h, #define MONOTAR_P1
+// make TARGET=Monotar CPP_SRC="MessageSender.cpp FourWireTouchController.cpp" clean all
 
 #include "defs.h"
+#include "device.h"
 #include "MessageSender.h"
 #include "KeyController.h"
 // #include "MessageReceiver.h"
 
-#define TOUCH_THRESH 45
+#define TOUCH_THRESH 40
 // low level reading: 22-42 when pressed; around 56-60 when at rest.
 
 MessageSender sender;
