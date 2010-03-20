@@ -22,11 +22,6 @@ public class TouchscreenCanvas extends Canvas {
 
     private double xScale;
     private double yScale;
-    
-    private static final Color[] colours = new Color[]{ 
-        Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA, 
-        Color.GRAY, Color.BLACK, Color.ORANGE, Color.DARK_GRAY
-    };
 
     public TouchscreenCanvas(){
     }
@@ -134,8 +129,9 @@ public class TouchscreenCanvas extends Canvas {
 
         int xpos = getTheX(xValue);
         int ypos = getTheY(yValue);
-
         g.drawString(xValue+","+yValue+","+tValue, xpos, ypos);
+        g.setColor(Color.RED);
+        g.drawOval(xpos, ypos, 2, 2);
     }
 
     public void update(int tValue, int xValue, int yValue){
