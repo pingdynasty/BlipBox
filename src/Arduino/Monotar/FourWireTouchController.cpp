@@ -139,10 +139,10 @@ ISR(ADC_vect)
     STANDBY_CONFIGURATION;
     adc_values[4] = ADCL;
     adc_values[4] |= ADCH << 8;
-    ADMUX = (ADMUX & ~7) | POT1_PIN;
     // Calculate Appraisal for R_Touch
     adc_values[5] = (uint16_t)((float)adc_values[4]/adc_values[3]-1)*adc_values[1];
 //               R_Touch = ((float)Reading_Z2/Reading_Z1-1) * Readings_X_Pos[i_array];
+    ADMUX = (ADMUX & ~7) | POT1_PIN;
     break;
   }
   case READ_POT1_STATE : {

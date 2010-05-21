@@ -9,7 +9,7 @@ MidiWriter writer;
 
 #define SENSOR_MAX          1023
 #define TOUCH_THRESH        500
-#define VELOCITY            80
+#define FSR_THRESH          8
 
 class CommandInterface : public MidiInterface {
 public:
@@ -27,20 +27,17 @@ uint8_t state;
 uint8_t string;
 uint8_t note_root, note_range;
 
-#define CC_X    0
-#define CC_Y    1
-#define CC_Z    2
-#define CC_POT1 3
-#define CC_POT2 4
+#define OP1     1
+#define OP2     2
+#define OP3     3
+uint8_t operation;
 
-// #define CC_CODES_SET1 { 0, 0, 0, 1, 2 }
-// #define CC_CODES_SET2 { 0, 0, 1, 2, 0 }
-// #define CC_CODES_SET3 { 0, 0, 2, 1, 0 }
+#define CC_MODULATION    0
+#define CC_VOLUME        1
 
-// uint8_t CC_CODES_SET1[] = { 1, 2, 3, 4, 5 };
-uint8_t CC_CODES_SET1[] = { 2, 0, 0, 0 ,1 };
-uint8_t CC_CODES_SET2[] = { 2, 0, 1, 0, 0 };
-uint8_t CC_CODES_SET3[] = { 1, 0, 2, 0, 0 };
+uint8_t CC_CODES_SET1[] = { 1, 2 };
+uint8_t CC_CODES_SET2[] = { 1, 2 };
+uint8_t CC_CODES_SET3[] = { 1, 2 };
 
 #define BUTTON1_PIN PD2
 #define BUTTON2_PIN PD4
@@ -50,10 +47,22 @@ uint8_t CC_CODES_SET3[] = { 1, 0, 2, 0, 0 };
 
 #define BUTTON_PINMAP (_BV(BUTTON1_PIN) | _BV(BUTTON2_PIN))
 
-uint8_t ccvalues[6];
+uint8_t ccvalues[2];
 uint8_t *cccodes;
 
 uint8_t buttons;
+
+class Event {
+public:
+  boolean trigger;
+  uint8_t note;
+  uint8_t modulation;
+  uint8_t volume;
+  uint16_t pitchbend;
+};
+
+Event event;
+uint16_t pitchbend;
 
 void setup(){
   note_root = 36;
@@ -85,14 +94,18 @@ uint8_t getString(){
   return (y*6) / 1023 - 1;
 }
 
-uint8_t getPitch(){
+uint8_t getStringPitch(){
   string = getString();
 //   writer.controlChange(10, string);
   return (pot*note_range)/1023 + string*5 + note_root;
 }
 
+uint8_t getStripPitch(){
+  return (pot*note_range)/1023 + note_root;
+}
+
 void noteOff(){
-  if(note > 0){
+  if(note != -1){
     writer.noteOff(note, 0);
     note = -1;
   }
@@ -100,8 +113,8 @@ void noteOff(){
 
 void noteOn(){
   noteOff();
-  note = getPitch();
-  writer.noteOn(note, VELOCITY);
+  writer.noteOn(event.note, event.volume);
+  note = event.note;
 }
 
 void updateController(uint8_t cc, uint8_t value){
@@ -113,51 +126,97 @@ void updateController(uint8_t cc, uint8_t value){
 
 void updateSettings(){
   buttons = BUTTON_PINS & BUTTON_PINMAP;
-  if(buttons & _BV(BUTTON1_PIN))
+  if(buttons & _BV(BUTTON1_PIN)){
+    operation = OP1;
     cccodes = CC_CODES_SET1;
-  else if(buttons & _BV(BUTTON2_PIN))
+  }else if(buttons & _BV(BUTTON2_PIN)){
+    operation = OP2;
     cccodes = CC_CODES_SET3;
-  else
+  }else{
+    operation = OP3;
     cccodes = CC_CODES_SET2;
-
+  }
+  noteOff();
   writer.allNotesOff();
+}
+
+/*
+modes:
+trigger: fsr, pad z.
+modulation: fsr, pad x
+trigger on pad z, notes on strip and pad y, mod on fsr
+trigger on fsr, notes
+no trigger, pb on strip, volume (cc2) on pad y
+pitch bend on strip
+
+mode    trigger    note        modulation   volume
+OP1     pad z      strip+pad   pad x        fsr
+OP3     pad z      0           pad x        pad y
+OP2     fsr        strip       fsr          pad x
+
+*/
+
+void updateEvent(){
+  switch(operation){
+  case OP1:
+    event.trigger = screen.getZ() < TOUCH_THRESH;
+    event.modulation = screen.getX() >> 3;
+    event.volume = screen.getValue(7) >> 3;
+    event.note = getStringPitch();
+    event.pitchbend = 8192;
+    break;
+  case OP2:
+    event.trigger = screen.getValue(7) > FSR_THRESH;
+    event.modulation = screen.getValue(7) >> 3;
+    event.volume = screen.getX() >> 3;
+    event.note = getStripPitch();
+    event.pitchbend = 8192;
+    break;
+  case OP3:
+    event.trigger = screen.getZ() < TOUCH_THRESH;
+    event.modulation = screen.getX() >> 3;
+    event.volume = screen.getY() >> 3;
+    event.note = 0;
+    event.pitchbend = pot << 4;
+    break;
+  }
 }
 
 void loop(){
   if((BUTTON_PINS & BUTTON_PINMAP) != buttons)
     updateSettings();
 
-  pot = SENSOR_MAX - screen.getValue(6);
-  if(pot > 1021)
-    pot = 0;
+  if(screen.getValue(6) > 1)
+    pot = SENSOR_MAX - screen.getValue(6);
+
   if(screen.getZ() < TOUCH_THRESH){
     x = screen.getX();
-    y = SENSOR_MAX - screen.getY();
-    switch(state){
-    case STANDBY_STATE:
+//     y = SENSOR_MAX - screen.getY();
+    y = screen.getY();
+  }else{
+    x = 0;
+    y = 0;
+  }
+
+  updateEvent();
+
+  if(event.trigger){
+    if(state == STANDBY_STATE){
       noteOn();
       state = SUSTAIN_STATE;
-      break;
-    case SUSTAIN_STATE:
-      if(note != getPitch())
-        noteOn();
-      break;
+    }else if(note != event.note){
+      noteOn();
     }
-    // truncate CC values to 7 bits
-    updateController(CC_X, x>>3);
-    updateController(CC_Y, y>>3);
-    updateController(CC_Z, screen.getZ()>>3);
+    updateController(CC_VOLUME, event.volume);
+    updateController(CC_MODULATION, event.modulation);
+    if(event.pitchbend != pitchbend){
+      writer.pitchBend(event.pitchbend);
+      pitchbend = event.pitchbend;
+    }
   }else if(state != STANDBY_STATE){
     noteOff();
-    updateController(CC_X, 0);
-    updateController(CC_Y, 0);
-    updateController(CC_Z, 0);
     state = STANDBY;
   }
-  updateController(CC_POT1, pot>>3);
-  updateController(CC_POT2, screen.getValue(7)>>3);
-
-//   delay(10);
 }
 
 /* Serial RX interrupt */

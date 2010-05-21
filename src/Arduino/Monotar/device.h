@@ -3,12 +3,12 @@
 
 /* Header file containing device-specific defines */
 
-#define POT1_PIN           1
 #define PIN_TOP            2
 #define PIN_BOTTOM         3
 #define PIN_LEFT           4
 #define PIN_RIGHT          5
-#define POT2_PIN           6
+#define POT1_PIN           1
+#define POT2_PIN           0
 
 /*
  Arduino digital pin 0-7  = PORTD, PD0-7
