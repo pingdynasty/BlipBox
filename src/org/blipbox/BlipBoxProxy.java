@@ -14,5 +14,8 @@ public interface BlipBoxProxy extends BlipBoxOutput {
     public float getY();
     public float getY(float min, float max);
     public int getY(int min, int max);
+    public float getZ();
+    public float getZ(float min, float max);
+    public int getZ(int min, int max);
 //     public boolean isButtonPressed(int buttonIndex);
 }

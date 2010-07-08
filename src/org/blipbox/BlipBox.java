@@ -145,6 +145,44 @@ public class BlipBox extends BlipBoxDataSender
         return def.scale(min, max);
     }
 
+    public void shift(int direction, int steps){
+        super.shift(direction, steps);
+        // the leftmost 2 bits determine the direction: 0: left, 1: right, 2: up, 3: down
+        // the rightmost 2 bits determines the number of steps: 1-4
+        for(int i=0; i<steps; ++i){
+            switch(direction){
+            case 0x1: // shift left
+                for(int col=7; col>0; --col)
+                    for(int row=0; row<10; ++row)
+                        leds[row*16+col] = getLed(row, col-1);
+                for(int row=0; row<10; ++row)
+                    leds[row] = 0;
+                break;
+            case 0x0: // shift right
+                for(int col=0; col<7; ++col)
+                    for(int row=0; row<10; ++row)
+                        leds[row*16+col] = getLed(row, col+1);
+                for(int row=0; row<10; ++row)
+                    leds[row+7] = 0;
+                break;
+            case 0x2:
+                for(int col=0; col<8; ++col)
+                    for(int row=0; row<9; ++row)
+                        leds[row*16+col] = getLed(row+1, col);
+                for(int col=0; col<8; ++col)
+                    leds[9+col] = 0;
+                break;
+            case 0x3:
+                for(int col=0; col<8; ++col)
+                    for(int row=9; row>0; --row)
+                        leds[row*16+col] = getLed(row-1, col);
+                for(int col=0; col<8; ++col)
+                    leds[col] = 0;
+                break;
+            }
+        }
+    }
+
     public void setLed(int index, int value){
         super.setLed(index, value);
         leds[index] = value;
@@ -204,6 +242,21 @@ public class BlipBox extends BlipBoxDataSender
 
     public int getY(int min, int max){
         return getSensorValue(SensorType.Y_SENSOR, min, max);
+    }
+
+    /**
+     * Convenience method for getting Z sensor value
+     */
+    public float getZ(){
+        return getSensorValue(SensorType.Z_SENSOR);
+    }
+
+    public float getZ(float min, float max){
+        return getSensorValue(SensorType.Z_SENSOR, min, max);
+    }
+
+    public int getZ(int min, int max){
+        return getSensorValue(SensorType.Z_SENSOR, min, max);
     }
 
 //     public boolean isButtonPressed(int buttonIndex){
