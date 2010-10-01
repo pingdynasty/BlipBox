@@ -36,11 +36,14 @@
 #define TLC_SS_DDR       DDRB
 // PB2 is used for BLANK
 
-#ifdef BLIPBOX_V6
+#define TLC_SPI 1
+#define TLC_BITBANG 2
+
+// #ifdef BLIPBOX_V6
 #define DATA_TRANSFER_MODE TLC_SPI
-#else
-#define DATA_TRANSFER_MODE TLC_BITBANG
-#endif
+// #else
+// #define DATA_TRANSFER_MODE TLC_BITBANG
+// #endif
 
 #if !(DATA_TRANSFER_MODE == TLC_BITBANG \
  || DATA_TRANSFER_MODE == TLC_SPI)
@@ -213,9 +216,10 @@ void LedController::displayCurrentRow(void){
   TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);
 
   // increment
-  counter.off();
-  counter.increment();
-  counter.on();
+  counter.tick();
+//   counter.off();
+//   counter.increment();
+//   counter.on();
 
   // latch
   TLC_XLAT_PORT |= _BV(TLC_XLAT_PIN);

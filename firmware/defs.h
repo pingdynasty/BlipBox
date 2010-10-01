@@ -1,7 +1,8 @@
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
-#define BLIPBOX_V6
+/* #define BLIPBOX_V6 */
+#define BLIPBOX_V8
 /* #define BLIPBOX_P4 */
 /* #define MONOTAR_P1 */
 

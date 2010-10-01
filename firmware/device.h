@@ -130,6 +130,48 @@
 #define BUTTON1_PIN 5 // PD5 // arduino digital pin
 #define BUTTON2_PIN 5 // PD5 // arduino digital pin
 
+#elif defined BLIPBOX_V8
+
+#define TLC_SCLK_DDR   DDRB
+#define TLC_SCLK_PORT  PORTB
+#define TLC_SCLK_PIN   PB5
+
+#define TLC_XLAT_DDR   DDRB
+#define TLC_XLAT_PORT  PORTB
+#define TLC_XLAT_PIN   PB1
+
+#define TLC_BLANK_DDR  DDRB
+#define TLC_BLANK_PORT PORTB
+#define TLC_BLANK_PIN  PB2
+
+#define TLC_SIN_DDR    DDRB
+#define TLC_SIN_PORT   PORTB
+#define TLC_SIN_PIN    PB3
+
+#define TLC_GSCLK_DDR  DDRD
+#define TLC_GSCLK_PORT PORTD
+#define TLC_GSCLK_PIN  PD3
+
+#define TLC_GSCLK_OC   COM2B0
+
+#define MIC_DATA_PIN   PD2
+#define MIC_DATA_DDR   DDRD
+#define MIC_DATA_PORT  PORTD
+#define MIC_CLOCK_PIN  PD4
+#define MIC_CLOCK_DDR  DDRD
+#define MIC_CLOCK_PORT PORTD
+
+#define PIN_RT             0 // right top
+#define PIN_RL             1 // right low
+#define PIN_SG             2 // wiper    
+#define PIN_LT             3 // left top 
+#define PIN_LL             4 // left low 
+
+// external connections
+#define POT_PIN     5 // PC5 // arduino analog pin
+#define BUTTON1_PIN 5 // PD5 // arduino digital pin
+#define BUTTON2_PIN 5 // PD5 // arduino digital pin
+
 #elif defined MONOTAR_P1  /* end if BLIPBOX_xx */
 
 #define POT_PIN            1
