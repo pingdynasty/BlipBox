@@ -13,6 +13,7 @@ class DisplayManager {
   void setDiagonalCross(uint8_t row, uint8_t col, uint8_t brightness);
   void setStar(uint8_t row, uint8_t col, uint8_t brightness);
   void setSquare(uint8_t row, uint8_t col, uint8_t brightness);
+/*   void fade(int8_t amount); */
 };
 
 #endif /* _DISPLAYMANAGER_H_ */

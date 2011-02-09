@@ -4,24 +4,40 @@
 #include <avr/eeprom.h>
 #include <inttypes.h>
 
-#define CHECKSUM 158
+#define TLC_GSCLK_PERIOD 7
+
+/* #define DEFAULT_SERIAL_SPEED 9600 */
+/* #define DEFAULT_SERIAL_SPEED 19200L */
+/* #define DEFAULT_SERIAL_SPEED 31250L /\* MIDI SPEED *\/ */
+/* #define DEFAULT_SERIAL_SPEED 38400L */
+#define DEFAULT_SERIAL_SPEED 57600L
+/* #define DEFAULT_SERIAL_SPEED 115200L */
+/* #define SENSITIVITY 120 // the lower the value, the less sensitive */
+/* #define SENSITIVITY 600 // the lower the value, the less sensitive */
+#define SENSITIVITY 200 // the lower the value, the less sensitive
+#define BRIGHTNESS 0xff
 
 class Configuration {
  public:
   uint8_t checksum;
-  uint16_t serialSpeed;
   uint8_t brightness;
   uint16_t sensitivity;
+  uint8_t tlc_gsclk_period;
+  uint16_t serialSpeed;
 
   void init(){
-    if(eeprom_read_byte(0) == CHECKSUM){
+    checksum = sizeof(*this);
+    if(eeprom_read_byte(0) == checksum)
       this->read();
-    }else{
-      checksum = CHECKSUM;
-      serialSpeed = DEFAULT_SERIAL_SPEED;
-      brightness = BRIGHTNESS;
-      sensitivity = SENSITIVITY;
-    }
+    else
+      this->reset();
+  }
+
+  void reset(){
+    brightness = BRIGHTNESS;
+    sensitivity = SENSITIVITY;
+    tlc_gsclk_period = TLC_GSCLK_PERIOD;
+    serialSpeed = DEFAULT_SERIAL_SPEED;
   }
   
   void write(){

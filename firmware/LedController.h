@@ -18,7 +18,12 @@ class LedController {
 public:
 
   void init();
-
+  void start(){
+    running = true;
+  }
+  void stop(){
+    running = false;
+  }
   uint8_t update();
   void displayCurrentRow();
 
@@ -69,6 +74,7 @@ private:
   void sendBufferData(uint8_t row);
   uint8_t led_buffer[LED_STRIPS][LED_CHANNELS];
   Counter counter;
+  bool running;
 };
 
 #endif /* _LEDCONTROLLER_H_ */

@@ -78,18 +78,20 @@ void handleWriteCharacterMessage(){
 
 #define BRIGHTNESS_PARAMETER_ID       (0x01 << 2)
 #define SENSITIVITY_PARAMETER_ID      (0x02 << 2)
-
+#define TLC_GSCLK_PERIOD_PARAMETER_ID (0x04 << 2)
 #define SERIAL_SPEED_PARAMETER_ID     (0x08 << 2)
 
 void handleSetParameterMessage(){
   rx_buffer_head = 0;
-  // todo! ignored for now
   switch(rx_buffer[0] & PARAMETER_ID_MASK){
   case SENSITIVITY_PARAMETER_ID:
     config.sensitivity = getTenBitValue();
     break;
   case BRIGHTNESS_PARAMETER_ID:
     config.brightness = getTenBitValue();
+    break;
+  case TLC_GSCLK_PERIOD_PARAMETER_ID:
+    config.tlc_gsclk_period = getTenBitValue();
     break;
   case SERIAL_SPEED_PARAMETER_ID:
     config.serialSpeed = getTenBitValue();
@@ -136,6 +138,18 @@ void handleCommandMessage(){
     break;
   case 6:
     leds.brighten(1);
+    break;
+  case 7: // reset configuration to defaults
+    config.reset();
+    break;
+  case 8: // read configuration from eeprom (if possible)
+    config.init();
+    break;
+  case 9: // write configuration to eeprom
+    config.write();
+    break;
+  case 10: // stop led update
+    leds.stop();
     break;
   }
 }

@@ -15,17 +15,17 @@ public:
     return pos;
   }
 
-//   // turn current pin on
-//   void on();
-//   // turn current pin off
-//   void off();
+  // turn current pin on
+  void on();
+  // turn current pin off
+  void off();
 
-//   void increment(){
-// //     this->off();
-//     if(++pos == LED_ROW_PINS)
-//       pos = 0;
-// //     this->on();
-//   }
+  void increment(){
+//     this->off();
+    if(++pos == LED_ROW_PINS)
+      pos = 0;
+//     this->on();
+  }
 
   void tick();
 

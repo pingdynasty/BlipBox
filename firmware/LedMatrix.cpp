@@ -50,10 +50,10 @@
 #error "Invalid DATA_TRANSFER_MODE specified, see DATA_TRANSFER_MODE"
 #endif
 
-// tried 3, 5, 7, 15 (31 seems to get stuck)
-#define TLC_GSCLK_PERIOD 7
-#define TLC_PWM_PERIOD (TLC_GSCLK_PERIOD+1)*2048
-// TLC_GSCLK_PERIOD = TLC_PWM_PERIOD/2048 -1
+// // tried 3, 5, 7, 15 (31 seems to get stuck)
+// #define TLC_GSCLK_PERIOD 7
+// #define TLC_PWM_PERIOD (TLC_GSCLK_PERIOD+1)*2048
+// // TLC_GSCLK_PERIOD = TLC_PWM_PERIOD/2048 -1
 
 /** Pulses a pin - high then low. */
 #define pulse_pin(port, pin)   port |= _BV(pin); port &= ~_BV(pin)
@@ -157,7 +157,8 @@ void LedController::init(){
     // Timer 1 drives TIMER1_OVF_vect, BLANK / XLAT
     TCCR1A = 0;               // OC1A/OC1B disconnected.
     TCCR1B = _BV(WGM13);      // Phase/freq correct PWM, ICR1 top.
-    ICR1 = TLC_PWM_PERIOD;
+//     ICR1 = TLC_PWM_PERIOD;
+    ICR1 = (config.tlc_gsclk_period+1)*2048;
     TIFR1 |= _BV(TOV1);
     TIMSK1 = _BV(TOIE1);
 
@@ -169,7 +170,8 @@ void LedController::init(){
     TCCR2B = _BV(WGM22);      // Fast pwm with OCR2A top
     OCR2B = 0;                // duty factor (as short a pulse as possible)
     
-    OCR2A = TLC_GSCLK_PERIOD;
+//     OCR2A = TLC_GSCLK_PERIOD;
+    OCR2A = config.tlc_gsclk_period;
     TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
 }
@@ -207,6 +209,9 @@ void LedController::init(){
 
 void LedController::displayCurrentRow(void){
   // called by Timer 2 overflow ISR
+  if(running){
+//     running = false;
+
   // shift, blank, increment, latch, unblank
 
   // shift data out
@@ -227,6 +232,8 @@ void LedController::displayCurrentRow(void){
 
   // unblank
   TLC_BLANK_PORT &= ~_BV(TLC_BLANK_PIN);
+//   running = true;
+  }
 }
 
 void LedController::sendBufferData(uint8_t row){

@@ -172,6 +172,67 @@
 #define BUTTON1_PIN 5 // PD5 // arduino digital pin
 #define BUTTON2_PIN 5 // PD5 // arduino digital pin
 
+#elif defined BLIPBOX_V9
+
+#define TLC_SCLK_DDR   DDRB
+#define TLC_SCLK_PORT  PORTB
+#define TLC_SCLK_PIN   PB5
+
+#define TLC_XLAT_DDR   DDRB
+#define TLC_XLAT_PORT  PORTB
+#define TLC_XLAT_PIN   PB1
+
+#define TLC_BLANK_DDR  DDRB
+#define TLC_BLANK_PORT PORTB
+#define TLC_BLANK_PIN  PB2
+
+#define TLC_SIN_DDR    DDRB
+#define TLC_SIN_PORT   PORTB
+#define TLC_SIN_PIN    PB3
+
+#define TLC_GSCLK_DDR  DDRD
+#define TLC_GSCLK_PORT PORTD
+#define TLC_GSCLK_PIN  PD3
+
+#define TLC_GSCLK_OC   COM2B0
+
+#define LED_ROW_1      2
+#define LED_ROW_2      6
+#define LED_ROW_3      5
+#define LED_ROW_4      7
+#define LED_ROW_5      4
+
+#define LED_ROW_1_PIN      PD2
+#define LED_ROW_1_PORT     PORTD
+#define LED_ROW_1_DDR      DDRD
+
+#define LED_ROW_2_PIN      PD6
+#define LED_ROW_2_PORT     PORTD
+#define LED_ROW_2_DDR      DDRD
+
+#define LED_ROW_3_PIN      PD5
+#define LED_ROW_3_PORT     PORTD
+#define LED_ROW_3_DDR      DDRD
+
+#define LED_ROW_4_PIN      PD7
+#define LED_ROW_4_PORT     PORTD
+#define LED_ROW_4_DDR      DDRD
+
+#define LED_ROW_5_PIN      PD4
+#define LED_ROW_5_PORT     PORTD
+#define LED_ROW_5_DDR      DDRD
+
+#define PIN_RT             0 // right top
+#define PIN_RL             1 // right low
+#define PIN_SG             2 // wiper    
+#define PIN_LT             3 // left top 
+#define PIN_LL             4 // left low 
+
+// external connections
+#define POT_PIN     5  // PC5 // arduino analog pin
+#define BUTTON1_PIN 8  // PB0 // arduino digital pin
+#define BUTTON2_PIN 12 // PB4 // arduino digital pin
+
 #elif defined MONOTAR_P1  /* end if BLIPBOX_xx */
 
 #define POT_PIN            1

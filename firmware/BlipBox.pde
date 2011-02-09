@@ -19,7 +19,6 @@ void setup() {
   // wdt_init causes device to hang? setup gets stuck?
 
   config.init();
-
   keys.init();
   leds.init();
   sender.init();
@@ -28,6 +27,7 @@ void setup() {
 
   beginSerial(config.serialSpeed);
 
+  leds.start();
 //   animator = &dot;
 }
 

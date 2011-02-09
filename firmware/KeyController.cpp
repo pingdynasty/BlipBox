@@ -1,6 +1,6 @@
 #include "KeyController.h"
 #include "TouchController.h"
-#include "defs.h"
+#include "globals.h"
 #include <stdint.h>
 
 #define GRID_COLS 10
@@ -44,7 +44,7 @@ bool KeyController::keyscan(){
   uint8_t oldRow = row;
   uint8_t oldCol = col;
 
-  if(this->check() < SENSITIVITY){
+  if(this->check() < config.sensitivity){
     this->update(); // sets row/col
     if(!pressed){
       // toggled from released to pressed

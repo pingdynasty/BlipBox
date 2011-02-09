@@ -33,10 +33,10 @@ class SignalAnimator : public Animator {
         leds.setLed(0, 0, 0xff);
       }else if(counter % 25 == 24){
         --signals;
-/*       if(counter < 127){ */
-/*         leds.setLed(0, 0, 0xff); */
-/*       }else if(counter == 0xff){ */
-/*         --signals; */
+//       if(counter < 127){
+//         leds.setLed(0, 0, 0xff);
+//       }else if(counter == 0xff){
+//         --signals;
       }else{
         leds.setLed(0, 0, 0);
       }
@@ -59,16 +59,16 @@ class DotAnimator : public Animator {
   }
 };
 
-/* class CrossAnimator : public Animator { */
-/*  public: */
-/*   virtual void tick(uint8_t counter){ */
-/*     leds.fade(1); */
-/*     if(keys.isPressed()){ */
-/*       leds.setLed(9 - keys.getColumn(), 7 - keys.getRow()); */
-/*       // and then do cross */
-/*     } */
-/*   } */
-/* }; */
+// class CrossAnimator : public Animator {
+//  public:
+//   virtual void tick(uint8_t counter){
+//     leds.fade(1);
+//     if(keys.isPressed()){
+//       leds.setLed(9 - keys.getColumn(), 7 - keys.getRow());
+//       // and then do cross
+//     }
+//   }
+// };
 
 // class TextAnimator : public Animator {
 // public:

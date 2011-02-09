@@ -13,6 +13,12 @@ void Counter::init(){
   LED_ROW_5_DDR |= _BV(LED_ROW_5_PIN);
 }
 
+void Counter::tick(){
+  off();
+  increment();
+  on();
+}
+
 void Counter::off(){
   switch(pos){
   case 0:

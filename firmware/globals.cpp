@@ -3,7 +3,6 @@
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 
-// LedMatrix leds;
 LedController leds;
 DisplayManager display;
 KeyController keys;
