@@ -11,6 +11,7 @@
   <title>BlipBox Kit</title>
 
 <para>BlipBox Kit Contents:</para>
+<para>(note that this is likely to change before the design is finalised)</para>
 <programlisting>
 1x BlipBox PCB
 1x 5.7" touch screen Higgstec TO576S
@@ -29,14 +30,14 @@
 1x right-angle ICSP header 2x3 pin
 </programlisting>
 
-<para>Estimated price: GBP 58.00</para> 
+<!-- <para>Estimated price: GBP 58.00</para>  -->
 
 <para>You may also purchase the PCB, LED units and touch screen separately, should you wish to source components elsewhere.</para>
-<programlisting>
-BlipBox PCB         £15.00
-5.7" touch screen   £15.00
-5x8 LED matrix       £7.50 each
-</programlisting>
+<!-- <programlisting> -->
+<!-- BlipBox PCB         £15.00 -->
+<!-- 5.7" touch screen   £15.00 -->
+<!-- 5x8 LED matrix       £7.50 each -->
+<!-- </programlisting> -->
 
 <para>The kit includes everything you will need to build a working BlipBox <emphasis>apart from</emphasis>:</para>
 <itemizedlist>
