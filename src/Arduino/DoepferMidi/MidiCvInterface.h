@@ -27,21 +27,23 @@ public:
     return factor;
   }
 
-  void setCV(int cv, uint8_t value);
-  uint8_t getCV(int cv);
+  void setCV(uint8_t cv, uint16_t value);
+  uint16_t getCV(uint8_t cv);
 
 /* private: */
 
   uint16_t note_to_cv(uint8_t note);
   int16_t pitchbend_to_cv(uint16_t pb);
 
-  uint16_t cv1;
+  uint16_t cv1, cv2, cv3;
   uint8_t factor;
   uint8_t clock_divider;
   int keydowns;
   bool staccato;
 
-  MCP492xController dac;
+  MCP492xController dac1;
+  MCP492xController dac2;
+  MCP492xController dac3;
 
 };
 

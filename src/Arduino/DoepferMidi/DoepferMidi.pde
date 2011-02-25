@@ -7,19 +7,31 @@
 /*
 
 MCP4921 DAC
-cs    - digital pin 2, PD2
+CS   - digital pin 2, PD2
 SCK  - digital 13, PB5
 SDI  - digital 11, PB3
-VREF - vref
+VREF - vref?
 LDAC - gnd
 AVSS - gnd
 VCC  - +5v
+
 Arduino pin 10, PB2 - vcc
 
 cv2   - digital pin 5, PD5 (vactrol)
 cv3   - digital pin 6, PD6 (lp filter)
 gate1 - digital pin 7, PD7 (gate out)
 gate2 - digital pin 8, PB0 (internal)
+
+MCP4922 DAC
+CS   - digital pin 3, PD3
+SCK  - digital 13, PB5
+SDI  - digital 11, PB3
+VREFA - vref?
+VREFB - vref?
+LDAC - gnd
+AVSS - gnd
+VCC  - +5v
+SHDN - +5v
 
  */
 

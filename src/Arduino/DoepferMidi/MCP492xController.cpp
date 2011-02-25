@@ -1,28 +1,31 @@
 #include "MCP492xController.h"
 
 #include "spi.h"
+#include "device.h"
 #include <avr/io.h>
 
-#define DAC_A_B_BIT  7
-#define DAC_BUF_BIT  6   // 0 = unbuffered, 1 = buffered
-#define DAC_GA_BIT   5   // 0 = 2x gain,    1 = 1x gain
-#define DAC_SHDN_BIT 4
-
-#define TRANSFER_BITS _BV(DAC_SHDN_BIT) // 2x gain
+// #define TRANSFER_BITS _BV(DAC_SHDN_BIT) // 2x gain
 // #define TRANSFER_BITS (_BV(DAC_SHDN_BIT) | _BV(DAC_GA_BIT)) // 1x gain
 
-void MCP492xController::init(){
+void MCP492xController::init(uint8_t _cs, uint8_t _transfer_bits) {
+  cs = _cs;
+  transfer_bits = _transfer_bits;
+  CS_DDR |= _BV(cs);
+  // hold slave select 1 pin high, so that chip is not selected to begin with
+  CS_PORT |= _BV(cs); // HIGH
   spi_init();
 }
 
 void MCP492xController::send(uint8_t data){
-  spi_out(TRANSFER_BITS, data & 0xff);
+  send(0, data);
 }
 
 void MCP492xController::send(uint8_t high, uint8_t low){
-  spi_out(TRANSFER_BITS | (high & 0xf), low & 0xff);
+  CS_PORT &= ~_BV(cs); // LOW - chip select
+  spi_out(transfer_bits | (high & 0xf), low & 0xff);
+  CS_PORT |= _BV(cs); // HIGH
 }
 
 void MCP492xController::send(uint16_t data){
-  spi_out(TRANSFER_BITS | (data >> 8 & 0xf), data & 0xff);
+  send(data >> 8 & 0xf, data & 0xff);
 }
