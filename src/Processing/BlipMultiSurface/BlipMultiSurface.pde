@@ -20,8 +20,7 @@ void setup() {
   controlP5 = new ControlP5(this);
   input = RWMidi.getInputDevices()[0].createInput(this);
   output = RWMidi.getOutputDevices()[0].createOutput();
-  blipbox = new ProcessingBlipBox(this, 
-  "/dev/tty.usbserial-A60081h8");
+  blipbox = new ProcessingBlipBox(this, 0);
 //  blipbox = new ProcessingBlipBox(this, "/dev/tty.usbserial-A60081hj");
   pages[0] = new Surface(33, 34);
   pages[1] = new Surface(35, 36);

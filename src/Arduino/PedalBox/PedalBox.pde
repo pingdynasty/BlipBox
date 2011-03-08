@@ -30,6 +30,8 @@ todo: CC 50-55 sets analog0-5 min value, CC 70-75 sets analog0-5 max value.
 
 /* interval at which to write sensor output (milliseconds) */
 #define SERIAL_WRITE_INTERVAL 20L
+// #define SERIAL_SPEED 31250
+#define SERIAL_SPEED 38400
 unsigned long previousMillis = 0;        // will store last time write was done
 
 #include "MidiReader.h"
@@ -133,33 +135,6 @@ public:
 //   }     
 };
 
-// class ContinuousValue {
-// private:
-//   uint16_t value;
-//   int8_t previous;
-//   uint8_t samples;
-//   uint16_t minv;
-//   uint16_t maxv;
-//   uint8_t cc;
-//   uint16_t scale(uint16_t nval){
-//     return minv + (nval - ADC_MIN) * (maxv - minv) / (ADC_MAX - ADC_MIN);
-//   }
-// public:
-//   void init(uint8_t ncc){
-//     value = 0;
-// //     minv = 0;
-// //     maxv = 127;
-//     cc = ncc;
-//     previous = -1;
-//   }
-//   void update(uint16_t nval){
-//     if(nval != value){
-//       value = nval;
-//       midiout.controlChange(cc, value);
-//     }
-//   }
-// };
-
 class ContinuousValue : public MessageSender {
 private:
   uint8_t pin;
@@ -181,12 +156,13 @@ public:
     mode = nmode;
     switch(mode){
     case INPUT_MODE:
-      DDRC &= ~_BV(pin);
-      PORTC &= ~_BV(pin);
+      DDRC &= ~_BV(pin); // input mode
+      PORTC |= _BV(pin); // hi-z
+//       PORTC &= ~_BV(pin); // low-z
       break;
     case ON_MODE:
       DDRC |= _BV(pin);
-      PORTC |= (_BV(pin));
+      PORTC |= _BV(pin);
       break;
     case OFF_MODE:
       PORTC &= ~_BV(pin);
@@ -229,40 +205,6 @@ public:
 //     return false;
 //   }
 };
-
-// class ExpressionPedal {
-//   uint8_t tip, ring;
-// };
-
-// #define TIP_TO_RING_MODE 1
-// #define RING_TO_TIP_MODE 2
-// #define RING_TO_TIP_MODE 3
-
-// class StereoJack {
-// private:
-//   uint8_t tip, ring;
-//   uint8_t input;
-// //   uint8_t mode;
-// public:
-//   void init(uint8_t ntip, uint8_t nring){
-//     tip = ntip;
-//     ring = nring;
-//     input = ring;
-//  }
-//   void configure(uint8_t nmode){
-//     mode = nmode;
-//     switch(mode){
-//     case TIP_TO_RING:
-//       input = ring;
-//       pinMode(, INPUT);
-//       digitalWrite(SWITCH0_PIN, HIGH);
-//       break;
-//     }
-//   }
-//   uint16_t read(){
-//     getAnalogValue(input);
-//   }
-// };
 
 // #define CONTINUOUS_COUNT 2
 #define SWITCH_COUNT 2
@@ -342,8 +284,7 @@ void setup() {
 
 //   attachInterrupt(0, blink, CHANGE);
 
-  beginSerial(38400);
-//     beginSerial(31250);
+  beginSerial(SERIAL_SPEED);
   // say hello
   midiout.noteOn(1, 0);
   midiout.noteOff(1, 0);

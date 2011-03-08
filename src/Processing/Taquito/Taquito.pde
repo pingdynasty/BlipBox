@@ -12,6 +12,11 @@ void setup() {
   controlP5.addSlider("range", 0, 127, range, 120, 50, 10, 100).setId(2);
   output = RWMidi.getOutputDevices()[0].createOutput();
   taquito = new ProcessingTaquito(this, 0);
+//  taquito = new ProcessingTaquito(this);
+//  try{  taquito.openSerialPort(0, 38400);
+//  }catch(Exception exc){
+//    exc.printStackTrace();
+//  }
 }
 
 // y / breath: 270 - 842
@@ -35,6 +40,7 @@ void root(int root){
 }
 
 public void release(Position pos){
+  println("release");
   if(note != -1)
     output.sendNoteOff(channel, note, 0);
   note = -1;
@@ -42,7 +48,7 @@ public void release(Position pos){
 }
 
 public void position(Position pos){
-//  println(pos.toString());
+  println(pos.toString());
   int velocity = pos.getY(1, 128);
   int newnote = pos.getX(root, root+range);
   if(note != newnote){
@@ -57,18 +63,16 @@ public void position(Position pos){
 void draw() {
   background(0xeee);
   stroke(255);
+  strokeWeight(1);
   if(taquito.isScreenPressed()){
     int x = taquito.getX(0, width);
     int y = height - taquito.getY(0, height);
     line(x, 0, x, height);
     line(0, y, width, y);
   }
+  stroke(127);
+  strokeWeight(3);
+//  int pressure = taquito.getZ(0, height);
+  int pressure = taquito.getSensorValue(org.blipbox.SensorType.POT_SENSOR, 0, height);
+  line(pressure, 0, pressure, height);
 }
-
-
-
-
-
-
-
-

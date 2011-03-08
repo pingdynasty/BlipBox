@@ -16,6 +16,7 @@ void setup(){
   }catch(Exception exc){
     println(exc);
   }
+  println("ready");
 }
 
 void release(Position pos){
@@ -39,16 +40,22 @@ void position(Position pos){
 }
 
 void keyTyped() {
-  if(key == 'f')
+  if(key == 'f'){
     blipbox.fill(0xff);
-  else if(key == 'c')
+    println("fill");
+  }else if(key == 'c'){
     blipbox.fill(0);
-  else if(key == 43)
+    println("clear");
+  }else if(key == 43){
     blipbox.brighten();
-  else if(key == 45)
+    println("brighten");
+  }else if(key == 45){
     blipbox.fade();
-  else if(key > 47 && key < 58)
+    println("fade");
+  }else if(key > 47 && key < 58){
     brightness = (key - 48)*28+1; // keys 0-9 scaled to 1-253
+    println("brightness "+brightness);
+  }
 }
 
 void draw(){
