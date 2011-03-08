@@ -27,6 +27,14 @@ void setup() {
 
   beginSerial(config.serialSpeed);
 
+  TLC_DCPRG_DDR |= _BV(TLC_DCPRG_PIN);
+//   TLC_DCPRG_PORT |= _BV(TLC_DCPRG_PIN); // DCPRG high
+  TLC_DCPRG_PORT &= ~_BV(TLC_DCPRG_PIN); // DCPRG low
+
+  TLC_VPRG_DDR |= _BV(TLC_VPRG_PIN);
+  TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);  // grayscale mode (VPRG low)
+
+
   leds.start();
 //   animator = &dot;
 }

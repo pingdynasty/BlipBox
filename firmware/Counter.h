@@ -1,5 +1,5 @@
-#ifndef _DIRECTCOUNTER_H_
-#define _DIRECTCOUNTER_H_
+#ifndef _COUNTER_H_
+#define _COUNTER_H_
 
 #include <stdint.h>
 #include "defs.h"
@@ -42,4 +42,4 @@ public:
   
 };
 
-#endif /* _DIRECTCOUNTER_H_ */
+#endif /* _COUNTER_H_ */
