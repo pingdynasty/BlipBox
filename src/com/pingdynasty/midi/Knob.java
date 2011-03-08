@@ -1,4 +1,4 @@
-package com.pingdynasty.blipbox;
+package com.pingdynasty.midi;
 /*  
  * based on DKnob.java (c) 2000 by Joakim Eriksson
  * http://www.dreamfabric.com/java/knob/knob.html

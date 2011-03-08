@@ -1,4 +1,4 @@
-package com.pingdynasty.midi;
+package com.pingdynasty.blipbox;
 
 /**
  * Converts to and from string representations of notes and their 

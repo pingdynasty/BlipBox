@@ -1,4 +1,4 @@
-package com.pingdynasty.midi;
+package com.pingdynasty.blipbox;
 
 import java.util.List;
 import java.util.ArrayList;

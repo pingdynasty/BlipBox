@@ -1,4 +1,4 @@
-package com.pingdynasty.midi;
+package com.pingdynasty.blipbox;
 
 import javax.swing.*;
 import javax.swing.SpringLayout;
