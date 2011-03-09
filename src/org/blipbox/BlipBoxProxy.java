@@ -1,8 +1,8 @@
 package org.blipbox;
 
 public interface BlipBoxProxy extends BlipBoxOutput {
-    public int getParameterValue(int pid);
-    public void setParameterValue(int pid, int value);
+    public int getParameterValue(Parameter param);
+    public void setParameterValue(Parameter param, int value);
     /* Get the value of the specified sensor as a float in the range [0-1) */
     public float getSensorValue(SensorType type);
     public float getSensorValue(SensorType type, float min, float max); // get scaled value

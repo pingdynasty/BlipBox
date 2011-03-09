@@ -18,7 +18,7 @@ public class BlipBox extends BlipBoxDataSender
     private int[] leds = new int[16*16];
 
 //     private Map<int, int> sensorValues = new HashMap<int, int>();
-    private Map<Integer, Integer> parameterValues = new HashMap<Integer, Integer>();
+    private Map<Parameter, Integer> parameterValues = new HashMap<Parameter, Integer>();
 
     public BlipBox() {
         this(new BlipBoxSensorConfiguration());
@@ -96,13 +96,13 @@ public class BlipBox extends BlipBoxDataSender
     }
 
     public void fade(){
-        sendDisplayEffect(5);
+        sendCommand(Command.FADE);
         for(int i=0; i<leds.length; ++i)
             leds[i] >>= 1;
     }
 
     public void brighten(){
-        sendDisplayEffect(6);
+        sendCommand(Command.BRIGHTEN);
         for(int i=0; i<leds.length; ++i)
             leds[i] = (leds[i] << 1) | 1;
     }
@@ -120,13 +120,23 @@ public class BlipBox extends BlipBoxDataSender
 //         sensorValues.put(def.getSensorType(), def.getValue())
     }
 
-    public void setParameterValue(int pid, int value){
-        parameterValues.put(pid, value);
-        setParameter(pid, value);
+    // called by device
+    public void parameterValue(Parameter param, int value){
+        parameterValues.put(param, value);
+        log.info("parameter "+param+": "+value);
     }
 
-    public int getParameterValue(int pid){
-        return parameterValues.get(pid);
+    // sends parameter update to device
+    public void setParameterValue(Parameter param, int value){
+        super.setParameterValue(param, value);
+        parameterValues.put(param, value);
+    }
+
+    // get current value from proxy
+    public int getParameterValue(Parameter param){
+        if(parameterValues.containsKey(param))
+            return parameterValues.get(param);
+        return 0;
     }
 
     /* Get the value of the specified sensor as a float in the range [0-1) */

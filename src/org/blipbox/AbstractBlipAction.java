@@ -51,7 +51,7 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
         this.taptime = (long)taptime;
     }
 
-    public void parameterValue(int pid, int value){}
+    public void parameterValue(Parameter param, int value){}
     public void tap(Position pos){}
     public void taptap(Position pos){}
     public void release(Position pos){}

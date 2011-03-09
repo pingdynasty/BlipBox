@@ -12,11 +12,11 @@ public class DynamicBlipAction extends AbstractBlipAction {
 
     public DynamicBlipAction(Object obj){
         this.obj = obj;
-        tap = getMethod("tap", new Class[]{Position.class});
+        tap = getMethod("touchPressed", new Class[]{Position.class});
         taptap = getMethod("taptap", new Class[]{Position.class});
-        release = getMethod("release", new Class[]{Position.class});
-        drag = getMethod("drag", new Class[]{Position.class, Position.class});
-        position = getMethod("position", new Class[]{Position.class});
+        release = getMethod("touchReleased", new Class[]{Position.class});
+        drag = getMethod("touchDragged", new Class[]{Position.class, Position.class});
+        position = getMethod("touchDragged", new Class[]{Position.class});
     }
 
     private Method getMethod(String name, Class[] sig){

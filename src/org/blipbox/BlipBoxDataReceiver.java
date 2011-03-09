@@ -43,6 +43,11 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
             handler.sensorChange(sensor);
     }
 
+    public void parameterValue(Parameter param, int value){
+        for(BlipBoxInput handler: inputhandlers)
+            handler.parameterValue(param, value);
+    }
+
     public void setSensorConfiguration(SensorConfiguration sensors){
         this.sensors = sensors;
     }
@@ -69,10 +74,28 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
         case SensorConfiguration.XY_MSG_ID:
             readXYMessage();
             break;
+        case SensorConfiguration.PARAMETER_MSG_ID:
+            readParameterMessage();
+            break;
         default:
             readSensorMessage();
             break;
         }
+    }
+
+    static final int PARAMETER_ID_MASK = 0x3c; // 00111100
+    static final int PARAMETER_VALUE_MASK = 0x3ff; // 00000011 11111111
+    public void readParameterMessage()
+        throws IOException {
+        // wait for the rest of the data
+        while(inStream.available() < 1);
+        data[1] = readSerial();
+        int pid = data[0] & PARAMETER_ID_MASK;
+        Parameter param = Parameter.getParameterForId(pid);
+        if(param == null)
+            log.error("Unrecognized parameter id: 0x"+Integer.toHexString(pid));
+        else
+            parameterValue(param, (data[0]<<8|data[1])&PARAMETER_VALUE_MASK);
     }
 
     public void readReleaseMessage(){

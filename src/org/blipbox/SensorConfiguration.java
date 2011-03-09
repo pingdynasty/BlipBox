@@ -17,7 +17,7 @@ public class SensorConfiguration {
     public static final int BUTTON1_SENSOR_MSG_ID = 0x80 | (0x5 << 2);
     public static final int BUTTON2_SENSOR_MSG_ID = 0x80 | (0x6 << 2);
     public static final int BUTTON3_SENSOR_MSG_ID = 0x80 | (0x7 << 2);
-    public static final int PING_SENSOR_MSG_ID =    0x80 | (0x8 << 2);
+    public static final int PARAMETER_MSG_ID      = 0xc0; // 0x3 << 6 B11000000
 
     public void setBlipSensor(BlipSensor sensor){
         sensorsByName.put(sensor.getSensorName(), sensor);

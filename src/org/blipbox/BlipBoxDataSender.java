@@ -23,18 +23,19 @@ public class BlipBoxDataSender implements BlipBoxOutput {
 
     private static final int WRITE_CHARACTER_MESSAGE       = 0x50;
     private static final int SHIFT_LEDS_MESSAGE            = 0x60;
-    private static final int DISPLAY_EFFECT_MESSAGE        = 0x70;
+    private static final int COMMAND_MESSAGE               = 0x70;
 
     private static final int SET_PARAMETER_MESSAGE         = 0xc0;
 
-    private static final int BRIGHTNESS_PARAMETER_ID      = (0x01 << 2);
-    private static final int SENSITIVITY_PARAMETER_ID     = (0x02 << 2);
-    private static final int FOLLOW_MODE_PARAMETER_ID     = (0x03 << 2);
-    private static final int X_MIN_PARAMETER_ID           = (0x04 << 2);
-    private static final int X_RANGE_PARAMETER_ID         = (0x05 << 2);
-    private static final int Y_MIN_PARAMETER_ID           = (0x06 << 2);
-    private static final int Y_RANGE_PARAMETER_ID         = (0x07 << 2);
-    private static final int SERIAL_SPEED_PARAMETER_ID    = (0x08 << 2);
+//     private static final int BRIGHTNESS_PARAMETER_ID      = (0x01 << 2);
+//     private static final int SENSITIVITY_PARAMETER_ID     = (0x02 << 2);
+// //     private static final int FOLLOW_MODE_PARAMETER_ID     = (0x03 << 2);
+//     private static final int TLC_GSCLK_PERIOD_PARAMETER_ID= (0x03 << 2);
+//     private static final int SERIAL_SPEED_PARAMETER_ID    = (0x04 << 2);
+// //     private static final int X_MIN_PARAMETER_ID           = (0x05 << 2);
+// //     private static final int X_RANGE_PARAMETER_ID         = (0x06 << 2);
+// //     private static final int Y_MIN_PARAMETER_ID           = (0x07 << 2);
+// //     private static final int Y_RANGE_PARAMETER_ID         = (0x08 << 2);
 
     protected void sleep(long delay){
         try{
@@ -166,25 +167,22 @@ public class BlipBoxDataSender implements BlipBoxOutput {
         shift(1, steps);
     }
 
-    public void sendDisplayEffect(int effect){
-        serialWrite(new int[]{DISPLAY_EFFECT_MESSAGE | (effect & 0x0f)});
+    public void sendCommand(Command cmd){
+        serialWrite(new int[]{COMMAND_MESSAGE | cmd.cid});
     }
 
-    public void setParameter(int pid, int value){
+    public void setParameterValue(Parameter param, int value){
+        log.debug("Set parameter id "+param+" to value "+value);
+        setParameter(param.pid, value);
+    }
+
+    private void setParameter(int pid, int value){
 //         log.debug("Set parameter id "+pid+" to value "+value);
         // set parameter message: 11ppppvv vvvvvvvv
         // 0x3c is 00111100, same as 0xf<<2
         if((pid & 0xc3) != 0)
             throw new IllegalArgumentException("Illegal parameter id: "+pid);
         serialWrite(new int[]{SET_PARAMETER_MESSAGE | pid | (value >> 8 & 0x3), value & 0xff});
-    }
-
-    public void requestParameter(int pid){
-        if((pid & 0xc3) != 0)
-            throw new IllegalArgumentException("Illegal parameter id: "+pid);
-
-        throw new IllegalArgumentException("todo!");
-        //todo!
     }
 
 }

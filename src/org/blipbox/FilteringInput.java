@@ -19,5 +19,5 @@ public class FilteringInput implements BlipBoxInput {
             wrapped.sensorChange(sensor);
     }
 
-    public void parameterValue(int pid, int value){}
+    public void parameterValue(Parameter param, int value){}
 }
