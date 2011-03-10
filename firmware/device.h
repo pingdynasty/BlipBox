@@ -71,6 +71,10 @@
 
 #elif defined BLIPBOX_V6
 
+#define TLC_DCPRG_ENABLED 0
+#define TLC_VPRG_ENABLED  0
+#define TLC_XERR_ENABLED  0
+
 #define TLC_SCLK_DDR   DDRB
 #define TLC_SCLK_PORT  PORTB
 #define TLC_SCLK_PIN   PB5
@@ -132,6 +136,10 @@
 
 #elif defined BLIPBOX_V8
 
+#define TLC_DCPRG_ENABLED 0
+#define TLC_VPRG_ENABLED  0
+#define TLC_XERR_ENABLED  0
+
 #define TLC_SCLK_DDR   DDRB
 #define TLC_SCLK_PORT  PORTB
 #define TLC_SCLK_PIN   PB5
@@ -174,6 +182,10 @@
 
 #elif defined BLIPBOX_V9
 
+#define TLC_DCPRG_ENABLED 1
+#define TLC_VPRG_ENABLED  1
+#define TLC_XERR_ENABLED  0
+
 #define TLC_DCPRG_DDR  DDRB
 #define TLC_DCPRG_PORT PORTB
 #define TLC_DCPRG_PIN  PB4
@@ -210,7 +222,7 @@
 #define LED_ROW_4      6
 #define LED_ROW_5      5
 
-#define LED_ROW_1_PIN      PD6
+#define LED_ROW_1_PIN      PD2
 #define LED_ROW_1_PORT     PORTD
 #define LED_ROW_1_DDR      DDRD
 
@@ -218,15 +230,15 @@
 #define LED_ROW_2_PORT     PORTD
 #define LED_ROW_2_DDR      DDRD
 
-#define LED_ROW_3_PIN      PD2
+#define LED_ROW_3_PIN      PD6
 #define LED_ROW_3_PORT     PORTD
 #define LED_ROW_3_DDR      DDRD
 
-#define LED_ROW_4_PIN      PD4
+#define LED_ROW_4_PIN      PD5
 #define LED_ROW_4_PORT     PORTD
 #define LED_ROW_4_DDR      DDRD
 
-#define LED_ROW_5_PIN      PD5
+#define LED_ROW_5_PIN      PD4
 #define LED_ROW_5_PORT     PORTD
 #define LED_ROW_5_DDR      DDRD
 

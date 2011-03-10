@@ -26,13 +26,6 @@ void setup() {
 
   beginSerial(config.serialSpeed);
 
-  TLC_DCPRG_DDR |= _BV(TLC_DCPRG_PIN);
-//   TLC_DCPRG_PORT |= _BV(TLC_DCPRG_PIN); // DCPRG high
-  TLC_DCPRG_PORT &= ~_BV(TLC_DCPRG_PIN); // DCPRG low
-
-  TLC_VPRG_DDR |= _BV(TLC_VPRG_PIN);
-  TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);  // grayscale mode (VPRG low)
-
   animator = NULL;
 //   animator = &dot;
 
@@ -40,11 +33,9 @@ void setup() {
 }
 
 void loop() {
-  keys.keyscan();
-
-  if(keys.getZ() < config.sensitivity){
-    // inverse X value
-    sender.updateXY(SENSOR_MAX - keys.getX(), keys.getY(), keys.getZ());
+//   if(keys.getZ() < config.sensitivity){
+  if(keys.keyscan()){
+    sender.updateXY(keys.getX(), keys.getY(), keys.getZ());
   }else{
     sender.updateRelease();
   }

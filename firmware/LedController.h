@@ -35,8 +35,6 @@ public:
       led_buffer[row][col] = brightness;
     else
       led_buffer[row - LED_STRIPS][col + 8] = brightness;
-/*     led_buffer[0][row * 10 + col] = brightness; */
-/*     led_buffer[0][(row % LED_STRIPS) * LED_CHANNELS + col + (row / LED_STRIPS) * 8] = brightness; */
   }
 
   inline uint8_t getLed(uint8_t row, uint8_t col){
@@ -45,7 +43,6 @@ public:
     if(row < LED_STRIPS)
       return led_buffer[row][col];
     return led_buffer[row - LED_STRIPS][col + 8];
-//     return led_buffer[0][row * LED_CHANNELS + col];
   }
 
   void clear(){

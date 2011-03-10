@@ -55,7 +55,7 @@ class DotAnimator : public Animator {
     if(counter % 0xf == 0)
       leds.fade(1);
     if(keys.isPressed())
-      leds.setLed(keys.getColumn(), 7 - keys.getRow(), 0xff);
+      leds.setLed(keys.getColumn(), keys.getRow(), 0xff);
   }
 };
 

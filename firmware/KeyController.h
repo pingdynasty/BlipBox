@@ -8,11 +8,8 @@ class KeyController : public TouchController {
 
 public:
 //   void init();
-  uint8_t readRow();
-  uint8_t readColumn();
   bool keyscan();
-  void update();
-  void keychange(uint8_t row, uint8_t col, bool ison);
+/*   void keychange(uint8_t row, uint8_t col, bool ison); */
 
   inline uint8_t getColumn(){
     return col;
@@ -27,6 +24,10 @@ public:
   }
 
 private:
+  void update();
+  uint8_t readRow();
+  uint8_t readColumn();
+
 //   TouchController touch;
   uint8_t col;
   uint8_t row;

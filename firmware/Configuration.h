@@ -25,6 +25,10 @@ class Configuration {
   uint8_t tlc_gsclk_period;
   uint16_t serialSpeed;
   uint8_t followMode;
+  uint16_t touchscreen_x_min;
+  uint16_t touchscreen_x_range;
+  uint16_t touchscreen_y_min;
+  uint16_t touchscreen_y_range;
 
   void init(){
     checksum = sizeof(*this);
@@ -39,6 +43,10 @@ class Configuration {
     sensitivity = SENSITIVITY;
     tlc_gsclk_period = TLC_GSCLK_PERIOD;
     serialSpeed = DEFAULT_SERIAL_SPEED;
+    touchscreen_x_min   = 250;
+    touchscreen_x_range = 810 - touchscreen_x_min;
+    touchscreen_y_min   = 210;
+    touchscreen_y_range = 784 - touchscreen_y_min;
   }
   
   void write(){

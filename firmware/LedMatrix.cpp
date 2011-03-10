@@ -36,18 +36,9 @@
 #define TLC_SS_DDR       DDRB
 // PB2 is used for BLANK
 
-#define TLC_SPI 1
-#define TLC_BITBANG 2
-
-// #ifdef BLIPBOX_V6
-#define DATA_TRANSFER_MODE TLC_SPI
-// #else
-// #define DATA_TRANSFER_MODE TLC_BITBANG
-// #endif
-
-#if !(DATA_TRANSFER_MODE == TLC_BITBANG \
- || DATA_TRANSFER_MODE == TLC_SPI)
-#error "Invalid DATA_TRANSFER_MODE specified, see DATA_TRANSFER_MODE"
+#if !(TLC_DATA_TRANSFER_MODE == TLC_BITBANG \
+ || TLC_DATA_TRANSFER_MODE == TLC_SPI)
+#error "Invalid TLC_DATA_TRANSFER_MODE specified, see TLC_DATA_TRANSFER_MODE"
 #endif
 
 // // tried 3, 5, 7, 15 (31 seems to get stuck)
@@ -106,15 +97,25 @@ void LedController::init(){
     TLC_XLAT_DDR |= _BV(TLC_XLAT_PIN);
     TLC_BLANK_DDR |= _BV(TLC_BLANK_PIN);
     TLC_GSCLK_DDR |= _BV(TLC_GSCLK_PIN);
+
 #if TLC_VPRG_ENABLED
     TLC_VPRG_DDR |= _BV(TLC_VPRG_PIN);
     TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);  // grayscale mode (VPRG low)
 #endif
+
 #if TLC_XERR_ENABLED
     TLC_XERR_DDR &= ~_BV(TLC_XERR_PIN);   // XERR as input
     TLC_XERR_PORT |= _BV(TLC_XERR_PIN);   // enable pull-up resistor
 #endif
     TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN); // leave blank high (until the timers start)
+
+#if TLC_DCPRG_ENABLED
+  TLC_DCPRG_DDR |= _BV(TLC_DCPRG_PIN);
+//   TLC_DCPRG_PORT |= _BV(TLC_DCPRG_PIN); // DCPRG high
+  TLC_DCPRG_PORT &= ~_BV(TLC_DCPRG_PIN); // DCPRG low
+#endif
+
+
 
     tlc_shift8_init();
 
@@ -251,7 +252,7 @@ void LedController::sendBufferData(uint8_t row){
   }
 }
 
-#if DATA_TRANSFER_MODE == TLC_BITBANG
+#if TLC_DATA_TRANSFER_MODE == TLC_BITBANG
 
 /** Sets all the bit-bang pins to output */
 void tlc_shift8_init(void)
@@ -274,7 +275,7 @@ void tlc_shift8(uint8_t byte)
     }
 }
 
-#elif DATA_TRANSFER_MODE == TLC_SPI
+#elif TLC_DATA_TRANSFER_MODE == TLC_SPI
 
 /** Initializes the SPI module to double speed (f_osc / 2) */
 void tlc_shift8_init(void)
@@ -298,4 +299,4 @@ void tlc_shift8(uint8_t byte)
         ; // wait for transmission complete
 }
 
-#endif // DATA_TRANSFER_MODE
+#endif // TLC_DATA_TRANSFER_MODE
