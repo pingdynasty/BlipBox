@@ -24,6 +24,7 @@ class Configuration {
   uint16_t sensitivity;
   uint8_t tlc_gsclk_period;
   uint16_t serialSpeed;
+  uint8_t followMode;
 
   void init(){
     checksum = sizeof(*this);

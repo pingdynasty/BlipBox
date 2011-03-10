@@ -5,7 +5,6 @@
 #include "SerialProtocolReader.h"
 
 unsigned long previousMillis = 0;        // will store last time write was done
-MessageSender sender;
 Animator* animator;
 uint8_t counter;
 
@@ -34,9 +33,10 @@ void setup() {
   TLC_VPRG_DDR |= _BV(TLC_VPRG_PIN);
   TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);  // grayscale mode (VPRG low)
 
+  animator = NULL;
+//   animator = &dot;
 
   leds.start();
-//   animator = &dot;
 }
 
 void loop() {
@@ -59,6 +59,12 @@ void loop() {
     signal.tick(counter++);
     if(animator)
       animator->tick(counter);
+
+    switch(config.followMode){
+    case 1:
+      dot.tick(counter);
+      break;
+    }
   }
 }
 

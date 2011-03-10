@@ -46,6 +46,8 @@ public:
 
   void sendNextMessage();
 
+  void sendConfigurationParameters();
+
 private:
 
   void sendReleaseMessage();

@@ -4,7 +4,9 @@
 #include <wiring.h>
 #endif
 
+#include "globals.h"
 #include "defs.h"
+#include "Parameters.h"
 
 #define XY_MSG             0x50 // 0x5 << 4
 #define RELEASE_MSG        0x70 // 0x7 << 4
@@ -15,7 +17,7 @@
 #define BUTTON1_SENSOR_MSG 0x94 // 0x80 | (0x5 << 2)
 #define BUTTON2_SENSOR_MSG 0x98 // 0x80 | (0x6 << 2)
 #define BUTTON3_SENSOR_MSG 0x9c // 0x80 | (0x7 << 2)
-#define PING_SENSOR_MSG    0xa0 // 0x80 | (0x8 << 2)
+#define PARAMETER_MSG      0xc0 // 0x3 << 6 B11000000
 
 #define X_SENSOR           0 // shares the sensordata slot with XY_SENSOR
 #define Y_SENSOR           1 // shares the sensordata slot with XY_SENSOR
@@ -34,6 +36,14 @@ uint8_t sensorids[SENSOR_COUNT] = {
 };
 
 void MessageSender::init(){
+}
+
+void MessageSender::sendConfigurationParameters(){
+  error(1);
+  serialWrite(PARAMETER_MSG | getParameter(SENSITIVITY_PARAMETER_ID));
+  serialWrite(PARAMETER_MSG | getParameter(BRIGHTNESS_PARAMETER_ID));
+  serialWrite(PARAMETER_MSG | getParameter(TLC_GSCLK_PERIOD_PARAMETER_ID));
+  serialWrite(PARAMETER_MSG | getParameter(SERIAL_SPEED_PARAMETER_ID));
 }
 
 void MessageSender::updateXY(uint16_t x, uint16_t y, uint16_t z){

@@ -3,18 +3,24 @@
 #include "globals.h"
 #include "Greeting.h"
 #include "Characters.h"
+#include "Parameters.h"
 
 #define RX_BUFFER_SIZE 3
 
 #define CLEAR_MESSAGE             0x10
 
 #define SET_LED_MESSAGE           0x20 // sets 1 led - 3 byte message
+// set led: 4 bits marker type, 8 bits led index, 8 bits brightness
+// 1000mmmm llllllll bbbbbbbb
 #define SET_LED_ROW_MESSAGE       0x30 // sets 8 leds - two byte message
+// led row: 0011cccc bbbbbbbb : 4 bit row index i, bit mask b
 #define SET_LED_COL_MESSAGE       0x40 // sets 8 leds - two byte message
+// led column: 0100iiii bbbbbbbb : 4 bit column index i, bit mask b
 
 #define WRITE_CHARACTER_MESSAGE   0x50
 #define SHIFT_LEDS_MESSAGE        0x60
 #define COMMAND_MESSAGE           0x70
+// command: 0111cccc : 4 bit command index
 
 #define SET_PARAMETER_MESSAGE     0xc0
 // set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
@@ -76,48 +82,45 @@ void handleWriteCharacterMessage(){
   display.printCharacter(data, getFourBitValue(), 0, config.brightness);
 }
 
-#define BRIGHTNESS_PARAMETER_ID       (0x01 << 2)
-#define SENSITIVITY_PARAMETER_ID      (0x02 << 2)
-#define TLC_GSCLK_PERIOD_PARAMETER_ID (0x04 << 2)
-#define SERIAL_SPEED_PARAMETER_ID     (0x08 << 2)
 
 void handleSetParameterMessage(){
   rx_buffer_head = 0;
-  switch(rx_buffer[0] & PARAMETER_ID_MASK){
-  case SENSITIVITY_PARAMETER_ID:
-    config.sensitivity = getTenBitValue();
-    break;
-  case BRIGHTNESS_PARAMETER_ID:
-    config.brightness = getTenBitValue();
-    break;
-  case TLC_GSCLK_PERIOD_PARAMETER_ID:
-    config.tlc_gsclk_period = getTenBitValue();
-    break;
-  case SERIAL_SPEED_PARAMETER_ID:
-    config.serialSpeed = getTenBitValue();
-    break;
-    //       case FOLLOW_MODE_PARAMETER_ID:
-    //         follow = receiver.getTenBitValue();
-    //         break;
-    //       case X_MIN_PARAMETER_ID:
-    //         touchscreen_x_min = receiver.getTenBitValue();
-    //         break;
-    //       case Y_MIN_PARAMETER_ID:
-    //         touchscreen_y_min = receiver.getTenBitValue();
-    //         break;
-    //       case X_RANGE_PARAMETER_ID:
-    //         touchscreen_x_range = receiver.getTenBitValue();
-    //         break;
-    //       case Y_RANGE_PARAMETER_ID:
-    //         touchscreen_y_range = receiver.getTenBitValue();
-    //         break;
-    //       }
-    // //     }else{
-    // //       error(MESSAGE_READ_ERROR);
-    // //       serialFlush();
-    //     }
-    //   }
-  }
+  setParameter((rx_buffer[0] << 8) | rx_buffer[1]);
+//   switch(rx_buffer[0] & PARAMETER_ID_MASK){
+//   case SENSITIVITY_PARAMETER_ID:
+//     config.sensitivity = getTenBitValue();
+//     break;
+//   case BRIGHTNESS_PARAMETER_ID:
+//     config.brightness = getTenBitValue();
+//     break;
+//   case TLC_GSCLK_PERIOD_PARAMETER_ID:
+//     config.tlc_gsclk_period = getTenBitValue();
+//     break;
+//   case SERIAL_SPEED_PARAMETER_ID:
+//     config.serialSpeed = getTenBitValue();
+//     break;
+//     //       case FOLLOW_MODE_PARAMETER_ID:
+//     //         follow = receiver.getTenBitValue();
+//     //         break;
+//     //       case X_MIN_PARAMETER_ID:
+//     //         touchscreen_x_min = receiver.getTenBitValue();
+//     //         break;
+//     //       case Y_MIN_PARAMETER_ID:
+//     //         touchscreen_y_min = receiver.getTenBitValue();
+//     //         break;
+//     //       case X_RANGE_PARAMETER_ID:
+//     //         touchscreen_x_range = receiver.getTenBitValue();
+//     //         break;
+//     //       case Y_RANGE_PARAMETER_ID:
+//     //         touchscreen_y_range = receiver.getTenBitValue();
+//     //         break;
+//     //       }
+//     // //     }else{
+//     // //       error(MESSAGE_READ_ERROR);
+//     // //       serialFlush();
+//     //     }
+//     //   }
+//   }
 }
 
 void handleClearMessage(){
@@ -133,11 +136,14 @@ void handleShiftLedsMessage(){
 void handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
-  case 5:
+  case 4:
     leds.fade(1);
     break;
-  case 6:
+  case 5:
     leds.brighten(1);
+    break;
+  case 6: // 
+    sender.sendConfigurationParameters();
     break;
   case 7: // reset configuration to defaults
     config.reset();
@@ -150,6 +156,9 @@ void handleCommandMessage(){
     break;
   case 10: // stop led update
     leds.stop();
+    break;
+  case 11: // start led update
+    leds.start();
     break;
   }
 }

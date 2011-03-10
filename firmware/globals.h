@@ -7,12 +7,14 @@
 #include "KeyController.h"
 #include "Animator.h"
 #include "Configuration.h"
+#include "MessageSender.h"
 
 extern LedController leds;
 extern DisplayManager display;
 extern KeyController keys;
 extern SignalAnimator signal;
 extern Configuration config;
+extern MessageSender sender;
 
 // some global parameters that really should be dealt more intelligently
 extern uint16_t touchscreen_x_min;
@@ -26,7 +28,7 @@ extern uint16_t touchscreen_y_range;
 #define MODE_ERROR 3
 
 // blocking call to serialRead
-uint8_t readByte();
+/* uint8_t readByte(); */
 void error(uint8_t code);
 
 void setmode(uint8_t mode); // sets the mode to be used on next system reset

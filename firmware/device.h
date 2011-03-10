@@ -204,10 +204,10 @@
 
 #define TLC_GSCLK_OC   COM2B0
 
-#define LED_ROW_1      6
-#define LED_ROW_2      7
-#define LED_ROW_3      2
-#define LED_ROW_4      4
+#define LED_ROW_1      4
+#define LED_ROW_2      2
+#define LED_ROW_3      7
+#define LED_ROW_4      6
 #define LED_ROW_5      5
 
 #define LED_ROW_1_PIN      PD6

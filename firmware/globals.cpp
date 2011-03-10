@@ -8,6 +8,11 @@ DisplayManager display;
 KeyController keys;
 SignalAnimator signal;
 Configuration config;
+MessageSender sender;
+
+void error(uint8_t code){
+  signal.setSignal(code);
+}
 
 // macro to perfom a soft reset using the watchdog timer
 // #define soft_reset()        \
@@ -70,10 +75,6 @@ Configuration config;
 //   while(!serialAvailable());
 //   return serialRead();
 // }
-
-void error(uint8_t code){
-  signal.setSignal(code);
-}
 
 // void setmode(uint8_t mode){
 //   eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
