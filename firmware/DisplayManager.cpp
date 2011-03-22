@@ -13,30 +13,30 @@ void DisplayManager::shift(uint8_t direction){
   case 0x0: // shift left
     for(uint8_t col=7; col>0; --col)
       for(uint8_t row=0; row<10; ++row)
-        leds.setLed(row, col, leds.getLed(row, col-1));
+        blipbox.leds.setLed(row, col, blipbox.leds.getLed(row, col-1));
     for(uint8_t row=0; row<10; ++row)
-      leds.setLed(row, 0, 0);
+      blipbox.leds.setLed(row, 0, 0);
     break;
   case 0x4: // shift right
     for(uint8_t col=0; col<7; ++col)
       for(uint8_t row=0; row<10; ++row)
-        leds.setLed(row, col, leds.getLed(row, col+1));
+        blipbox.leds.setLed(row, col, blipbox.leds.getLed(row, col+1));
     for(uint8_t row=0; row<10; ++row)
-      leds.setLed(row, 7, 0);
+      blipbox.leds.setLed(row, 7, 0);
     break;
   case 0x8:
     for(uint8_t col=0; col<8; ++col)
       for(uint8_t row=0; row<9; ++row)
-        leds.setLed(row, col, leds.getLed(row+1, col));
+        blipbox.leds.setLed(row, col, blipbox.leds.getLed(row+1, col));
     for(uint8_t col=0; col<8; ++col)
-      leds.setLed(9, col, 0);
+      blipbox.leds.setLed(9, col, 0);
     break;
   case 0xc:
     for(uint8_t col=0; col<8; ++col)
       for(uint8_t row=9; row>0; --row)
-        leds.setLed(row, col, leds.getLed(row-1, col));
+        blipbox.leds.setLed(row, col, blipbox.leds.getLed(row-1, col));
     for(uint8_t col=0; col<8; ++col)
-      leds.setLed(0, col, 0);
+      blipbox.leds.setLed(0, col, 0);
     break;
   }
 }
@@ -53,60 +53,60 @@ void DisplayManager::printCharacter(uint8_t* character, uint8_t row, uint8_t col
     for(int j=0; j<getCharacterWidth(); ++j){
       // only shift out the relevant bits
       if(character[i] & _BV(j+offset))
-        leds.setLed(j+row, i+col, brightness);
+        blipbox.leds.setLed(j+row, i+col, brightness);
       else
-        leds.setLed(j+row, i+col, 0x00);
+        blipbox.leds.setLed(j+row, i+col, 0x00);
     }
   }
 }
 
-void DisplayManager::setDiagonalCross(uint8_t row, uint8_t col, uint8_t value){
-  //   row goes to 10, ie row is x coordinate on screen
+void DisplayManager::setDiagonalCross(uint8_t x, uint8_t y, uint8_t value){
+  //   x: 0-9, y: 0-7
 //   uint8_t d1 = row - col;
 //   uint8_t d2 = 7 - row - col;
 //   for(uint8_t i=0; i<8; ++i){
 //     if(i+d1 >= 0 && i+d1 < 10)
-// //       leds.setLed(i+d1, i, value);
-//       leds.setLed(i+d1, i, value * abs(i-col) / 7);
+// //       blipbox.leds.setLed(i+d1, i, value);
+//       blipbox.leds.setLed(i+d1, i, value * abs(i-col) / 7);
 //     if(i-d2 >= 0 && i-d2 < 10)
-// //       leds.setLed(i-d2, 7-i, value);
-//       leds.setLed(i-d2, 7-i, value * abs(7-i-col) / 7);
+// //       blipbox.leds.setLed(i-d2, 7-i, value);
+//       blipbox.leds.setLed(i-d2, 7-i, value * abs(7-i-col) / 7);
 //   }
   for(int8_t i=-8; i<8; ++i){
-    leds.setLed(row+i, col+i, value / (2*abs(i) + 1));
-    leds.setLed(row-i, col+i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(x+i, y+i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(x-i, y+i, value / (2*abs(i) + 1));
   }
 }
 
 // todo: set blob with 10 or 8 bit precision location
 void DisplayManager::setBlob(uint8_t row, uint8_t col, uint8_t value){
   for(int8_t i=-3; i<4; i+=2){
-    leds.setLed(row+i, col+i, value / (2*abs(i) + 1));
-    leds.setLed(row+i, col-i, value / (2*abs(i) + 1));
-    leds.setLed(row-i, col+i, value / (2*abs(i) + 1));
-    leds.setLed(row-i, col-i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(row+i, col+i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(row+i, col-i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(row-i, col+i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(row-i, col-i, value / (2*abs(i) + 1));
   }
 }
 
-void DisplayManager::setCross(uint8_t row, uint8_t col, uint8_t value){
+void DisplayManager::setCross(uint8_t x, uint8_t y, uint8_t value){
   for(uint8_t i=0; i<10; ++i)
-    leds.setLed(i, col, value / (4*abs(row-i) + 1));
+    blipbox.leds.setLed(i, x, value / (4*abs(y-i) + 1));
   for(uint8_t i=0; i<8; ++i)
-    leds.setLed(row, i, value / (4*abs(col-i) + 1));
+    blipbox.leds.setLed(y, i, value / (4*abs(x-i) + 1));
 }
 
 void DisplayManager::setStar(uint8_t row, uint8_t col, uint8_t value){
-  leds.setLed(row+1, col, value);
-  leds.setLed(row, col+1, value);
-  leds.setLed(row-1, col, value);
-  leds.setLed(row, col-1, value);
+  blipbox.leds.setLed(row+1, col, value);
+  blipbox.leds.setLed(row, col+1, value);
+  blipbox.leds.setLed(row-1, col, value);
+  blipbox.leds.setLed(row, col-1, value);
 }
 
 void DisplayManager::setSquare(uint8_t row, uint8_t col, uint8_t value){
   setStar(row, col, value);
   value >>= 1;
-  leds.setLed(row+1, col+1, value);
-  leds.setLed(row-1, col+1, value);
-  leds.setLed(row+1, col-1, value);
-  leds.setLed(row-1, col-1, value);
+  blipbox.leds.setLed(row+1, col+1, value);
+  blipbox.leds.setLed(row-1, col+1, value);
+  blipbox.leds.setLed(row+1, col-1, value);
+  blipbox.leds.setLed(row-1, col-1, value);
 }

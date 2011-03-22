@@ -3,16 +3,14 @@
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 
-LedController leds;
-DisplayManager display;
-KeyController keys;
-SignalAnimator signal;
-Configuration config;
-MessageSender sender;
+BlipBox blipbox;
 
-void error(uint8_t code){
-  signal.setSignal(code);
-}
+// LedController leds;
+// DisplayManager display;
+// KeyController keys;
+// SignalAnimator signal;
+// Configuration config;
+// MessageSender sender;
 
 // macro to perfom a soft reset using the watchdog timer
 // #define soft_reset()        \

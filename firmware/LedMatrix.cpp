@@ -159,7 +159,7 @@ void LedController::init(){
     TCCR1A = 0;               // OC1A/OC1B disconnected.
     TCCR1B = _BV(WGM13);      // Phase/freq correct PWM, ICR1 top.
 //     ICR1 = TLC_PWM_PERIOD;
-    ICR1 = (config.tlc_gsclk_period+1)*2048;
+    ICR1 = (blipbox.config.tlc_gsclk_period+1)*2048;
     TIFR1 |= _BV(TOV1);
     TIMSK1 = _BV(TOIE1);
 
@@ -172,7 +172,7 @@ void LedController::init(){
     OCR2B = 0;                // duty factor (as short a pulse as possible)
     
 //     OCR2A = TLC_GSCLK_PERIOD;
-    OCR2A = config.tlc_gsclk_period;
+    OCR2A = blipbox.config.tlc_gsclk_period;
     TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
 }

@@ -6,7 +6,7 @@
 #include "device.h"
 
 #define LED_STRIPS 5
-#define LED_CHANNELS 16 // 16 for serial connection
+#define LED_CHANNELS 16
 
 #define LED_BUFFER_LENGTH LED_STRIPS * LED_CHANNELS
 
@@ -27,30 +27,48 @@ public:
   uint8_t update();
   void displayCurrentRow();
 
-  // row goes from 0-9, col from 0-7
-  inline void setLed(uint8_t row, uint8_t col, uint8_t brightness){
-    if(row > 9 || col > 7)
+  // x goes from 0-9, y from 0-7
+  inline void setLed(uint8_t x, uint8_t y, uint8_t brightness){
+    if(x > 9 || y > 7)
       return;
-    if(row < LED_STRIPS)
-      led_buffer[row][col] = brightness;
+    if(x < LED_STRIPS)
+      led_buffer[x][y] = brightness;
     else
-      led_buffer[row - LED_STRIPS][col + 8] = brightness;
+      led_buffer[x - LED_STRIPS][y + 8] = brightness;
   }
 
-  inline uint8_t getLed(uint8_t row, uint8_t col){
-    if(row > 9 || col > 7)
+  inline uint8_t getLed(uint8_t x, uint8_t y){
+    if(x > 9 || y > 7)
       return 0;
-    if(row < LED_STRIPS)
-      return led_buffer[row][col];
-    return led_buffer[row - LED_STRIPS][col + 8];
+    if(x < LED_STRIPS)
+      return led_buffer[x][y];
+    return led_buffer[x - LED_STRIPS][y + 8];
   }
 
-  void clear(){
-    memset(led_buffer, 0, LED_BUFFER_LENGTH);
+  // xor a single led
+  void toggle(uint8_t x, uint8_t y){
+    setLed(x, y, getLed(x, y) ^ 0xff);
   }
 
   void fill(uint8_t brightness){
     memset(led_buffer, brightness, LED_BUFFER_LENGTH);
+  }
+
+  // add value to all leds
+  void add(uint8_t value){
+    for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
+      if(led_buffer[0][i] + value >= led_buffer[0][i])
+	led_buffer[0][i] += value;
+      else
+	led_buffer[0][i] = 0xff;
+  }
+
+  void sub(uint8_t value){
+    for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
+      if(led_buffer[0][i] - value < led_buffer[0][i])
+	led_buffer[0][i] -= value;
+      else
+	led_buffer[0][i] = 0;
   }
 
   void brighten(uint8_t factor){
@@ -61,6 +79,12 @@ public:
   void fade(uint8_t factor){
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
         led_buffer[0][i] >>= factor;
+  }
+
+  // xor all leds
+  void toggle(){
+    for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
+      led_buffer[0][i] ^= 0xff;
   }
 
 #ifdef TLC_VPRG_PIN

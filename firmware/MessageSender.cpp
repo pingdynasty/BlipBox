@@ -2,11 +2,10 @@
 
 #ifndef MESSAGE_SENDER_TEST
 #include <wiring.h>
-#endif
-
 #include "globals.h"
 #include "defs.h"
 #include "Parameters.h"
+#endif
 
 #define XY_MSG             0x50 // 0x5 << 4
 #define RELEASE_MSG        0x70 // 0x7 << 4
@@ -23,6 +22,9 @@
 #define Y_SENSOR           1 // shares the sensordata slot with XY_SENSOR
 #define Z_SENSOR           2 // shares the sensordata slot with RELEASE_SENSOR
 
+#define PARAMETER_ID_MASK         0x003c  // 00000000 00111100
+#define PARAMETER_VALUE_MASK      0x03ff  // 00000011 11111111
+
 // sensorid indices must mach sensorvalue indices
 uint8_t sensorids[SENSOR_COUNT] = {
   XY_MSG, // XY_SENSOR
@@ -38,12 +40,13 @@ uint8_t sensorids[SENSOR_COUNT] = {
 void MessageSender::init(){
 }
 
-void MessageSender::sendConfigurationParameters(){
-  error(1);
-  serialWrite(PARAMETER_MSG | getParameter(SENSITIVITY_PARAMETER_ID));
-  serialWrite(PARAMETER_MSG | getParameter(BRIGHTNESS_PARAMETER_ID));
-  serialWrite(PARAMETER_MSG | getParameter(TLC_GSCLK_PERIOD_PARAMETER_ID));
-  serialWrite(PARAMETER_MSG | getParameter(SERIAL_SPEED_PARAMETER_ID));
+void MessageSender::sendParameter(uint8_t pid, uint16_t value){
+  serialWrite(PARAMETER_MSG | pid | (value >> 8));
+  serialWrite((uint8_t)value);
+}
+
+void MessageSender::sendParameter(uint8_t pid){
+  sendParameter(pid, PARAMETER_VALUE_MASK & getParameter(pid));
 }
 
 void MessageSender::updateXY(uint16_t x, uint16_t y, uint16_t z){
@@ -61,12 +64,12 @@ void MessageSender::updateRelease(){
 
 bool MessageSender::updateSensor(uint8_t index, uint16_t value){
   if(sensordata[index] != value){
-    if(sensorstatus & _BV(index))
-      // if last value has not been sent yet,
-      // average current with previous value: x = x0/2+x1/2
-      sensordata[index] = value/2+sensordata[index]/2;
-    else
-      // otherwise reset to current value
+//     if(sensorstatus & _BV(index))
+//       // if last value has not been sent yet,
+//       // average current with previous value: x = x0/2+x1/2
+//       sensordata[index] = value/2+sensordata[index]/2;
+//     else
+//       // otherwise reset to current value
       sensordata[index] = value;
     // indicate that new data is available to be sent
     sensorstatus |= _BV(index);
@@ -76,31 +79,31 @@ bool MessageSender::updateSensor(uint8_t index, uint16_t value){
 }
 
 void MessageSender::sendReleaseMessage(){
+  sensorstatus &= ~_BV(Z_SENSOR);
   // fixed length 1 byte
   // release msg: 01110000
   serialWrite(RELEASE_MSG);
-  sensorstatus &= ~_BV(Z_SENSOR);
 }
 
 void MessageSender::sendXYMessage(){
+  sensorstatus &= ~_BV(X_SENSOR); // cancel pending y message
+  sensorstatus &= ~_BV(Y_SENSOR); // cancel pending y message
   // fixed length 3 bytes
   // xy msg: 0101xxxx xxxxxxyy yyyyyyyy
   serialWrite(XY_MSG | (sensordata[X_SENSOR] >> 6 & 0xf));
   serialWrite((sensordata[X_SENSOR] << 2 & 0xfc) | (sensordata[Y_SENSOR] >> 8 & 0x3));
   serialWrite(sensordata[Y_SENSOR] & 0xff);
-  sensorstatus &= ~_BV(X_SENSOR); // cancel pending y message
-  sensorstatus &= ~_BV(Y_SENSOR); // cancel pending y message
 }
 
 void MessageSender::sendSensorMessage(){
+  // indicate that data has been sent
+  sensorstatus &= ~_BV(writepos);
   // fixed length 2 bytes
   // sensor msg: 10ssssvv vvvvvvvv
   // writes the sensor message at the current writepos position
   // 2 bits msg id, 4 bits sensor ID, 10 bits value
   serialWrite(sensorids[writepos] | ((sensordata[writepos] >> 8) & 0x3));
   serialWrite(sensordata[writepos] & 0xff); //  & 0xff not needed?
-  // indicate that data has been sent
-  sensorstatus &= ~_BV(writepos);
 }
 
 void MessageSender::sendNextMessage(){

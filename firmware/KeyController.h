@@ -4,11 +4,15 @@
 #include <stdint.h>
 #include "TouchController.h"
 
+enum KeyState {
+  PRESSED, DRAGGED, RELEASED, UNCHANGED, DISENGAGED
+};
+
 class KeyController : public TouchController {
 
 public:
 //   void init();
-  bool keyscan();
+  KeyState keyscan();
 /*   void keychange(uint8_t row, uint8_t col, bool ison); */
 
   inline uint8_t getColumn(){

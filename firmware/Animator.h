@@ -2,9 +2,6 @@
 #define _ANIMATOR_H_
 
 #include <inttypes.h>
-#include "globals.h"
-extern LedController leds;
-extern KeyController keys;
 
 class Animator {
 public:
@@ -16,10 +13,7 @@ public:
   FadeAnimator(uint8_t _prescaler)
     : prescaler(_prescaler) {
   }
-  virtual void tick(uint8_t counter){
-    if(counter % prescaler == 0)
-      leds.fade(1);
-  }
+  virtual void tick(uint8_t counter);
 private:
   uint8_t prescaler;
 };
@@ -27,21 +21,7 @@ private:
 class SignalAnimator : public Animator {
   /* Animator used to signal errors by turning an LED on/off */
  public:
-  virtual void tick(uint8_t counter){
-    if(signals){
-      if(counter % 25 < 12){
-        leds.setLed(0, 0, 0xff);
-      }else if(counter % 25 == 24){
-        --signals;
-//       if(counter < 127){
-//         leds.setLed(0, 0, 0xff);
-//       }else if(counter == 0xff){
-//         --signals;
-      }else{
-        leds.setLed(0, 0, 0);
-      }
-    }
-  }
+  void tick(uint8_t counter);
   void setSignal(int code){
     signals = code;
   }
@@ -51,24 +31,23 @@ class SignalAnimator : public Animator {
 
 class DotAnimator : public Animator {
  public:
-  virtual void tick(uint8_t counter){
-    if(counter % 0xf == 0)
-      leds.fade(1);
-    if(keys.isPressed())
-      leds.setLed(keys.getColumn(), keys.getRow(), 0xff);
-  }
+  void tick(uint8_t counter);
 };
 
-// class CrossAnimator : public Animator {
-//  public:
-//   virtual void tick(uint8_t counter){
-//     leds.fade(1);
-//     if(keys.isPressed()){
-//       leds.setLed(9 - keys.getColumn(), 7 - keys.getRow());
-//       // and then do cross
-//     }
-//   }
-// };
+class CrossAnimator : public Animator {
+ public:
+  void tick(uint8_t counter);
+};
+
+class CrissAnimator : public Animator {
+ public:
+  void tick(uint8_t counter);
+};
+
+class ToggleAnimator : public Animator {
+ public:
+  void tick(uint8_t counter);
+};
 
 // class TextAnimator : public Animator {
 // public:

@@ -22,17 +22,6 @@ MessageSender sender;
 
 unsigned long previousMillis = 0;        // will store last time write was done
 
-// #define NO_FOLLOW_MODE 0x00
-// #define DOT_MODE       0x01
-// #define CROSS_MODE     0x02
-// #define CRISS_MODE     0x03
-// #define STAR_MODE      0x04
-// #define BLOB_MODE      0x05
-// #define SQUARE_MODE    0x06
-
-// uint8_t follow; // default to 0: NO_FOLLOW_MODE
-// uint8_t holding;
-// uint8_t holdCol, holdRow;
 uint16_t sensitivity = SENSITIVITY; // todo: read/write to eeprom
 Animator* animator;
 // FadeAnimator fader(10);

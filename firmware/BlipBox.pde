@@ -1,62 +1,105 @@
 #include "defs.h"
 #include "device.h"
 #include "globals.h"
-#include "MessageSender.h"
+
+#include "MessageDispatcher.h"
 #include "SerialProtocolReader.h"
+#include "BlipBox.h"
+#include "Parameters.h"
 
 unsigned long previousMillis = 0;        // will store last time write was done
-Animator* animator;
 uint8_t counter;
 
+Animator* animator;
 DotAnimator dot;
+CrossAnimator cross;
+CrissAnimator criss;
+ToggleAnimator toggle;
 
-void setup() {
+void BlipBox::tick(){
+  switch(keys.keyscan()){
+  case RELEASED:
+    sender.release.update();
+    sender.position.reset();
+    break;
+  case DISENGAGED:
+    break;
+  default:
+    sender.position.update(keys.getX(), keys.getY());
+  }
+}
 
+void BlipBox::error(uint8_t code){
+  signal.setSignal(code);
+}
+
+void BlipBox::init() {
   cli(); // disable interrupts
-
-//   disable_watchdog(); // disable watchdog timer
-  // wdt_init causes device to hang? setup gets stuck?
-
-  config.init();
   keys.init();
   leds.init();
   sender.init();
-
-  sei(); // enable interrupts
-
   beginSerial(config.serialSpeed);
-
-  animator = NULL;
-//   animator = &dot;
-
+  setFollowMode(config.followMode);
   leds.start();
+  sei(); // enable interrupts
+}
+
+void BlipBox::setFollowMode(uint8_t mode) {
+  config.followMode = mode;
+  switch(config.followMode){
+  case 1:
+    animator = &dot;
+    break;
+  case 2:
+    animator = &cross;
+    break;
+  case 3:
+    animator = &criss;
+    break;
+  case 4:
+    animator = &toggle;
+    break;
+  default:
+    animator = NULL;
+  }
+}
+
+void setup() {
+//   disable_watchdog(); // disable watchdog timer
+  // wdt_init causes device to hang? setup gets stuck?
+  blipbox.config.init();
+  blipbox.init();
+  blipbox.setFollowMode(2);
 }
 
 void loop() {
-//   if(keys.getZ() < config.sensitivity){
-  if(keys.keyscan()){
-    sender.updateXY(keys.getX(), keys.getY(), keys.getZ());
-  }else{
-    sender.updateRelease();
-  }
+  blipbox.tick();
 
 //   readSensors();
 
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
-    sender.sendNextMessage();
+    blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
 
     // counter overflows automatically from 255 back to 0
-    signal.tick(counter++);
-    if(animator)
+    blipbox.signal.tick(counter++);
+    if(animator != NULL)
       animator->tick(counter);
-
-    switch(config.followMode){
-    case 1:
-      dot.tick(counter);
-      break;
-    }
   }
+}
+
+void sendParameter(uint8_t pid){
+  blipbox.sender.parameter.update(pid, getParameter(pid));
+  blipbox.sender.parameter.send();
+}
+
+void BlipBox::sendConfigurationParameters(){
+  error(MESSAGE_WRITE_ERROR);
+  sendParameter(SENSITIVITY_PARAMETER_ID);
+  sendParameter(BRIGHTNESS_PARAMETER_ID);
+  sendParameter(TLC_GSCLK_PERIOD_PARAMETER_ID);
+  sendParameter(SERIAL_SPEED_PARAMETER_ID);
+  sendParameter(FOLLOW_MODE_PARAMETER_ID);
 }
 
 // Interrupt routines 
@@ -77,7 +120,7 @@ SIGNAL(SIG_UART_RECV)
 
 ISR(TIMER1_OVF_vect)
 {
-  leds.displayCurrentRow();
+  blipbox.leds.displayCurrentRow();
 }
 
 // ISR(TIMER1_OVF_vect){

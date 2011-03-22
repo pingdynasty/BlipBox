@@ -105,11 +105,6 @@ uint16_t TouchController::getZ(){
   return adc_values[0];
 }
 
-uint16_t TouchController::check(){
-  // same as getZ()
-  return adc_values[0];
-}
-
 uint16_t TouchController::getValue(uint8_t index){
   return adc_values[index];
 }

@@ -46,3 +46,13 @@ void CrissAnimator::tick(uint8_t counter){
   if(blipbox.keys.isPressed())
     blipbox.display.setDiagonalCross(blipbox.keys.getColumn(), blipbox.keys.getRow(), blipbox.config.brightness);
 }
+
+void ToggleAnimator::tick(uint8_t counter){
+  if(counter % 4 == 0)
+    blipbox.leds.sub(1);
+  if(blipbox.keys.isPressed()){
+    for(int x=blipbox.keys.getColumn()-1; x<blipbox.keys.getColumn()+2; ++x)
+      for(int y=blipbox.keys.getRow()-1; y<blipbox.keys.getRow()+2; ++y)
+	blipbox.leds.toggle(x, y);
+  }
+}

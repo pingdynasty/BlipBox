@@ -1,5 +1,5 @@
 // comment out #include "wiring.h" in MessageSender.cpp then make and run with
-// g++ MessageSenderTest.cpp -o test && ./test | hexdump
+// g++ MessageSenderTest.cpp -o tester && ./tester | hexdump
 
 #include <unistd.h>
 #include <stdio.h>
@@ -7,12 +7,18 @@
 
 void beginSerial(long baud){}
 
+uint16_t getParameter(uint8_t pid){
+  return 0xf0;
+}
+
 void serialWrite(unsigned char c){
 //    printf("value: 0x%x / %d / %c\n", c, c, c);
   putchar(c);
 }
 
 #define _BV(bit) (1 << (bit))
+
+#define SENSOR_MAX 1023
 
 #define MESSAGE_SENDER_TEST
 #include "MessageSender.cpp"
@@ -26,26 +32,44 @@ void interval(){
 //   sleep(1);
 }
 
-int main(void)
-{
+int main(int argc, char* argv[]) {
+
   sender.init();
 
-  sender.updateRelease();
-    sender.sendNextMessage();
-  sender.updateSensor(BUTTON1_SENSOR, SENSOR_MAX);
-    sender.sendNextMessage();
-  interval();
+  for(int i=1; i<argc; ++i){
+    printf("sending %c", argv[i][0]);
+    switch(argv[i][0]){
+    case '1':
+      sender.updateRelease();
+      break;
+    case '2':
+      sender.updateXY(argv[i][1], argv[i][2], SENSOR_MAX);
+      break;
+    case '3':
+      sender.updateSensor(BUTTON1_SENSOR, argv[i][1]);
+      break;
+    case 's':
+      sender.sendNextMessage();
+      break;
+    }
+  }
 
-  sender.updateSensor(BUTTON1_SENSOR, 0);
-    sender.sendNextMessage();
-  interval();
+//   sender.updateRelease();
+//   sender.sendNextMessage();
+//   sender.updateSensor(BUTTON1_SENSOR, SENSOR_MAX);
+//   sender.sendNextMessage();
+//   interval();
 
-  sender.updateSensor(BUTTON1_SENSOR, SENSOR_MAX);
-    sender.sendNextMessage();
-  interval();
+//   sender.updateSensor(BUTTON1_SENSOR, 0);
+//   sender.sendNextMessage();
+//   interval();
 
-  sender.updateSensor(BUTTON1_SENSOR, 0);
-    sender.sendNextMessage();
+//   sender.updateSensor(BUTTON1_SENSOR, SENSOR_MAX);
+//     sender.sendNextMessage();
+//   interval();
+
+//   sender.updateSensor(BUTTON1_SENSOR, 0);
+//     sender.sendNextMessage();
 
 //   sender.updateSensor(POT_SENSOR, 123);
 //   interval();

@@ -37,23 +37,17 @@ private:
 public:
 
   void init();
-
   void updateXY(uint16_t x, uint16_t y, uint16_t z);
-
   void updateRelease();
-
   bool updateSensor(uint8_t index, uint16_t value);
-
   void sendNextMessage();
-
-  void sendConfigurationParameters();
+  void sendParameter(uint8_t pid, uint16_t value);
+  void sendParameter(uint8_t pid);
 
 private:
 
   void sendReleaseMessage();
-
   void sendXYMessage();
-
   void sendSensorMessage();
 
 };

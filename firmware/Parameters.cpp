@@ -2,46 +2,48 @@
 #include <inttypes.h>
 #include "Parameters.h"
 
-void setParameter(uint16_t data){
-  switch((uint8_t)(data >> 8) & PARAMETER_ID_MASK){
+void setParameter(uint8_t pid, uint16_t value){
+  switch(pid){
   case SENSITIVITY_PARAMETER_ID:
-    config.sensitivity = data & PARAMETER_VALUE_MASK;
+    blipbox.config.sensitivity = value;
     break;
   case BRIGHTNESS_PARAMETER_ID:
-    config.brightness = data & PARAMETER_VALUE_MASK;
+    blipbox.config.brightness = value;
     break;
   case TLC_GSCLK_PERIOD_PARAMETER_ID:
-    config.tlc_gsclk_period = data & PARAMETER_VALUE_MASK;
+    blipbox.config.tlc_gsclk_period = value;
     break;
   case SERIAL_SPEED_PARAMETER_ID:
-    config.serialSpeed = data & PARAMETER_VALUE_MASK;
+    blipbox.config.serialSpeed = value;
     break;
   case FOLLOW_MODE_PARAMETER_ID:
-    config.followMode = (int)(data & PARAMETER_VALUE_MASK);
-    //     }else{
-    //       error(MESSAGE_READ_ERROR);
-    //       serialFlush();
+    blipbox.setFollowMode((uint8_t)value);
+    break;
+  default:
+    blipbox.error(MESSAGE_READ_ERROR);
   }
 }
 
 uint16_t getParameter(uint8_t pid){
-  uint16_t data = pid << 8;
+  uint16_t data;
   switch(pid){
   case SENSITIVITY_PARAMETER_ID:
-    data |= config.sensitivity;
+    data = blipbox.config.sensitivity;
     break;
   case BRIGHTNESS_PARAMETER_ID:
-    data |= config.brightness;
+    data = blipbox.config.brightness;
     break;
   case TLC_GSCLK_PERIOD_PARAMETER_ID:
-    data |= config.tlc_gsclk_period;
+    data = blipbox.config.tlc_gsclk_period;
     break;
   case SERIAL_SPEED_PARAMETER_ID:
-    data |= config.serialSpeed;
+    data = blipbox.config.serialSpeed;
     break;
   case FOLLOW_MODE_PARAMETER_ID:
-    data |= config.followMode;
+    data = blipbox.config.followMode;
     break;
+  default:
+    blipbox.error(MESSAGE_WRITE_ERROR);
   }
   return data;
 }

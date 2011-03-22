@@ -39,12 +39,12 @@ uint8_t getMessageType(){
   return rx_buffer[0] & MESSAGE_ID_MASK;
 }
 
-/* extract 12 bits of data from the first two message bytes as a 16 bit value */
+/* extract 12 bits of data from the first two message bytes */
 uint16_t getTwelveBitValue(){
   return ((rx_buffer[0] & MESSAGE_VALUE_MASK) << 8) | rx_buffer[1];
 }
 
-/* extract 10 bits of data from the first two message bytes as a 16 bit value */
+/* extract 10 bits of data from the first two message bytes */
 uint16_t getTenBitValue(){
   return ((rx_buffer[0] & PARAMETER_VALUE_MASK) << 8) | rx_buffer[1];
 }
@@ -58,114 +58,84 @@ void handleSetLedMessage(){
     rx_buffer_head = 0;
   // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
   // 1000mmmm llllllll bbbbbbbb
-  leds.setLed(9 - rx_buffer[1] / 16, rx_buffer[1] % 16, rx_buffer[2]);
+    blipbox.leds.setLed(9 - rx_buffer[1] / 16, rx_buffer[1] % 16, rx_buffer[2]);
 }
 
 void handleSetLedRowMessage(){  
   rx_buffer_head = 0;
   for(uint8_t i=0; i<8; ++i)
-    leds.setLed(i, getFourBitValue(),
-                (rx_buffer[1] & _BV(i)) ? config.brightness : 0 );
+    blipbox.leds.setLed(i, getFourBitValue(),
+			(rx_buffer[1] & _BV(i)) ? blipbox.config.brightness : 0 );
 }
 
 void handleSetLedColumnMessage(){
   rx_buffer_head = 0;
   for(uint8_t i=0; i<8; ++i)
-    leds.setLed(getFourBitValue(), i, 
-                (rx_buffer[1] & _BV(i)) ? config.brightness : 0 );
+    blipbox.leds.setLed(getFourBitValue(), i, 
+			(rx_buffer[1] & _BV(i)) ? blipbox.config.brightness : 0 );
 }
 
 void handleWriteCharacterMessage(){
   rx_buffer_head = 0;
   uint8_t data[getCharacterHeight()];
   getCharacterData(rx_buffer[1], data);
-  display.printCharacter(data, getFourBitValue(), 0, config.brightness);
+  blipbox.display.printCharacter(data, getFourBitValue(), 0, blipbox.config.brightness);
 }
 
 
 void handleSetParameterMessage(){
   rx_buffer_head = 0;
-  setParameter((rx_buffer[0] << 8) | rx_buffer[1]);
-//   switch(rx_buffer[0] & PARAMETER_ID_MASK){
-//   case SENSITIVITY_PARAMETER_ID:
-//     config.sensitivity = getTenBitValue();
-//     break;
-//   case BRIGHTNESS_PARAMETER_ID:
-//     config.brightness = getTenBitValue();
-//     break;
-//   case TLC_GSCLK_PERIOD_PARAMETER_ID:
-//     config.tlc_gsclk_period = getTenBitValue();
-//     break;
-//   case SERIAL_SPEED_PARAMETER_ID:
-//     config.serialSpeed = getTenBitValue();
-//     break;
-//     //       case FOLLOW_MODE_PARAMETER_ID:
-//     //         follow = receiver.getTenBitValue();
-//     //         break;
-//     //       case X_MIN_PARAMETER_ID:
-//     //         touchscreen_x_min = receiver.getTenBitValue();
-//     //         break;
-//     //       case Y_MIN_PARAMETER_ID:
-//     //         touchscreen_y_min = receiver.getTenBitValue();
-//     //         break;
-//     //       case X_RANGE_PARAMETER_ID:
-//     //         touchscreen_x_range = receiver.getTenBitValue();
-//     //         break;
-//     //       case Y_RANGE_PARAMETER_ID:
-//     //         touchscreen_y_range = receiver.getTenBitValue();
-//     //         break;
-//     //       }
-//     // //     }else{
-//     // //       error(MESSAGE_READ_ERROR);
-//     // //       serialFlush();
-//     //     }
-//     //   }
-//   }
+  setParameter(rx_buffer[0] & PARAMETER_ID_MASK, getTenBitValue());
 }
 
 void handleClearMessage(){
   rx_buffer_head = 0;
-  leds.fill(getFourBitValue() * 0x11);
+  blipbox.leds.fill(getFourBitValue() * 0x11);
 }
 
 void handleShiftLedsMessage(){
   rx_buffer_head = 0;
-  display.shift(getFourBitValue());
+  blipbox.display.shift(getFourBitValue());
 }
 
 void handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
   case 4:
-    leds.fade(1);
+    blipbox.leds.fade(1);
     break;
   case 5:
-    leds.brighten(1);
+    blipbox.leds.brighten(1);
     break;
   case 6: // 
-    sender.sendConfigurationParameters();
+    blipbox.sendConfigurationParameters();
     break;
   case 7: // reset configuration to defaults
-    config.reset();
+    blipbox.config.reset();
     break;
   case 8: // read configuration from eeprom (if possible)
-    config.init();
+    blipbox.config.init();
     break;
   case 9: // write configuration to eeprom
-    config.write();
+    blipbox.config.write();
     break;
   case 10: // stop led update
-    leds.stop();
+    blipbox.leds.stop();
     break;
   case 11: // start led update
-    leds.start();
+    blipbox.leds.start();
+    break;
+  case 15: // re-initialise
+    blipbox.init();
+    break;
+  default:
+    blipbox.error(MESSAGE_READ_ERROR);
     break;
   }
 }
 
 void serialInput(unsigned char c) {
   rx_buffer[rx_buffer_head++] = c;
-
   switch(getMessageType()){
     // 3 byte messages
   case SET_LED_MESSAGE:
@@ -201,6 +171,6 @@ void serialInput(unsigned char c) {
     break;
   default:
     rx_buffer_head = 0;
-    error(MESSAGE_READ_ERROR);
+    blipbox.error(MESSAGE_READ_ERROR);
   }
 }

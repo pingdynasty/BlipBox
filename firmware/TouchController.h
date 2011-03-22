@@ -9,7 +9,6 @@ private:
 
 public:
   void init();
-  uint16_t check();
   uint16_t getX();
   uint16_t getY();
   uint16_t getZ();

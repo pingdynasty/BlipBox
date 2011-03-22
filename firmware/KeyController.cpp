@@ -22,29 +22,33 @@
 //   TouchController::init();
 // }
 
-bool KeyController::keyscan(){
+// bool KeyController::isPressed(){
+//   return this->getZ() < blipbox.config.sensitivity;
+// }
+
+KeyState KeyController::keyscan(){
   uint8_t oldRow = row;
   uint8_t oldCol = col;
-
-  if(this->check() < config.sensitivity){
+  if(this->getZ() < blipbox.config.sensitivity){
     this->update(); // sets row/col
     if(!pressed){
       // toggled from released to pressed
       pressed = true;
-      return true;
+      return PRESSED;
     }else if(oldRow != row || oldCol != col){
       // different key pressed
-      return true;
+      return DRAGGED;
     }else{
       // same key, still pressed
-      return false;
+      return UNCHANGED;
     }
   }else if(pressed){
     // toggled from pressed to released
     pressed = false;
-    return true;
+    return RELEASED;
+  }else{
+    return DISENGAGED;
   }
-  return false;
 }
 
 void KeyController::update(){
@@ -57,9 +61,10 @@ void KeyController::update(){
 }
 
 uint8_t KeyController::readColumn(){
-  return (this->getX() - config.touchscreen_x_min) * GRID_COLS / config.touchscreen_x_range;
+  // inverted range.
+  return (SENSOR_MAX - this->getX() - blipbox.config.touchscreen_x_min) * GRID_COLS / blipbox.config.touchscreen_x_range;
 }
 
 uint8_t KeyController::readRow(){
-  return (this->getY() - config.touchscreen_y_min) * GRID_ROWS / config.touchscreen_y_range;
+  return (this->getY() - blipbox.config.touchscreen_y_min) * GRID_ROWS / blipbox.config.touchscreen_y_range;
 }

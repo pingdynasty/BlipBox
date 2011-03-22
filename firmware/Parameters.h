@@ -20,11 +20,8 @@
 /* #define Y_RANGE_PARAMETER_ID          (0x07 << 2) */
 /* #define SERIAL_SPEED_PARAMETER_ID     (0x08 << 2) */
 
-#define PARAMETER_ID_MASK         0x3c  // 00111100
-#define PARAMETER_VALUE_MASK      0x3ff // 00000011 11111111
-/* #define PARAMETER_VALUE_MASK      0x03 // 00000011 */
-
-void setParameter(uint16_t data);
+void setParameter(uint8_t pid, uint16_t value);
+/* void setParameter(uint16_t data); */
 uint16_t getParameter(uint8_t pid);
 
 /* // there's 512 bytes of EEPROM on the AtMega168, enough for 256 2-byte parameters */
