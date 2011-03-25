@@ -9,6 +9,7 @@ public class DynamicBlipAction extends AbstractBlipAction {
     private Method release;
     private Method drag;
     private Method position;
+    private Method parameter;
 
     public DynamicBlipAction(Object obj){
         this.obj = obj;
@@ -17,6 +18,7 @@ public class DynamicBlipAction extends AbstractBlipAction {
         release = getMethod("touchReleased", new Class[]{Position.class});
         drag = getMethod("touchDragged", new Class[]{Position.class, Position.class});
         position = getMethod("touchDragged", new Class[]{Position.class});
+        parameter = getMethod("parameter", new Class[]{Parameter.class, Integer.TYPE});
     }
 
     private Method getMethod(String name, Class[] sig){
@@ -73,6 +75,16 @@ public class DynamicBlipAction extends AbstractBlipAction {
             }catch(Exception exc){
                 throw new RuntimeException(exc);
             }
+    }
+
+    public void parameterValue(Parameter param, int value){
+	if(parameter != null){
+            try{
+                parameter.invoke(obj, new Object[]{param, value});
+            }catch(Exception exc){
+                throw new RuntimeException(exc);
+            }
+	}
     }
 
 }

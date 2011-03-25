@@ -14,7 +14,7 @@ public class BlipBox extends BlipBoxDataSender
 
     private BlipBoxDataReceiver receiver;
     private String serialport;
-    private int serialspeed;
+    private int serialspeed = DEFAULT_SERIAL_SPEED;
     private int[] leds = new int[16*16];
 
 //     private Map<int, int> sensorValues = new HashMap<int, int>();
@@ -40,7 +40,7 @@ public class BlipBox extends BlipBoxDataSender
 
     public void openSerialPort(int portindex)
         throws IOException {
-        openSerialPort(getSerialPorts().get(portindex), DEFAULT_SERIAL_SPEED);
+        openSerialPort(getSerialPorts().get(portindex), serialspeed);
     }
 
     public void openSerialPort(int portindex, int serialspeed)
@@ -50,7 +50,8 @@ public class BlipBox extends BlipBoxDataSender
 
     public void openSerialPort(String serialport)
         throws IOException {
-        openSerialPort(serialport, DEFAULT_SERIAL_SPEED);
+        setSerialPort(serialport);
+        openSerialPort();
     }
 
     public void openSerialPort(String serialport, int serialspeed)
@@ -62,6 +63,7 @@ public class BlipBox extends BlipBoxDataSender
 
     public void openSerialPort()
         throws IOException {
+// 	log.info("Opening serial port "+serialport+" at "+serialspeed+" baud");
         receiver.openSerialPort(serialport, serialspeed);
         setOutputStream(receiver.getOutputStream());
     }
@@ -95,14 +97,27 @@ public class BlipBox extends BlipBoxDataSender
         receiver.removeInputHandler(inputhandler);
     }
 
+    public void sendCommand(Command cmd){
+        switch(cmd){
+        case FADE:
+            fade();
+            break;
+        case BRIGHTEN:
+            brighten();
+            break;
+        default:
+            super.sendCommand(cmd);
+        }
+    }
+
     public void fade(){
-        sendCommand(Command.FADE);
+        super.sendCommand(Command.FADE);
         for(int i=0; i<leds.length; ++i)
             leds[i] >>= 1;
     }
 
     public void brighten(){
-        sendCommand(Command.BRIGHTEN);
+        super.sendCommand(Command.BRIGHTEN);
         for(int i=0; i<leds.length; ++i)
             leds[i] = (leds[i] << 1) | 1;
     }

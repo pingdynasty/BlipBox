@@ -29,7 +29,7 @@ public class CommandLine {
             }else if(args[i].equals("-p") && ++i < args.length){
                 serialport = args[i];
             }else if(args[i].equals("-b") && ++i < args.length){
-                application.setSerialSpeed(Integer.parseInt(args[i]));
+                serialspeed = Integer.parseInt(args[i]);
             }
         }
 

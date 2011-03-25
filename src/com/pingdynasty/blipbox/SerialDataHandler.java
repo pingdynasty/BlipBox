@@ -197,9 +197,10 @@ public class SerialDataHandler implements SerialPortEventListener {
                     break;
                 }
             }catch(UnsupportedCommOperationException exc){
-                throw new IOException("Unsupported serial operation - possible unsupported baud rate "+speed);
+		log.error("Failed to open serial port "+port+" at "+speed+" baud", exc);
+                throw new IOException("Unsupported serial operation - possible unsupported baud rate "+speed, exc);
             }
-		
+
             //establish streams for reading and writing to the port
             inStream = serialport.getInputStream();
             outStream = serialport.getOutputStream();
@@ -209,7 +210,7 @@ public class SerialDataHandler implements SerialPortEventListener {
                 serialport.addEventListener(this);
                 serialport.notifyOnDataAvailable(true);
             }catch(TooManyListenersException exc){
-                throw new IOException("couldn't add listener");
+                throw new IOException("Couldn't add listener");
             }		
         }catch(NoSuchPortException exc){
             log.error("Opening port: "+port, exc);

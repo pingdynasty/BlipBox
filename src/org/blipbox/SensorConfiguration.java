@@ -8,7 +8,7 @@ public class SensorConfiguration {
     private Map<String, BlipSensor> sensorsByName = new HashMap<String, BlipSensor>();
     private Map<Integer, BlipSensor> sensorsById = new HashMap<Integer, BlipSensor>();
 
-    public static final int XY_MSG_ID             = 0x5 << 4;
+    public static final int POSITION_MSG_ID       = 0x5 << 4;
     public static final int RELEASE_MSG_ID        = 0x7 << 4;
     public static final int Z_SENSOR_MSG_ID       = 0x80 | (0x1 << 2);
     public static final int X_SENSOR_MSG_ID       = 0x80 | (0x2 << 2);

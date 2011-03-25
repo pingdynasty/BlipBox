@@ -50,6 +50,9 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     }
 
     public void serialWrite(int[] data){
+	for(int i=0; i<data.length; ++i)
+	    System.out.print("\t 0x"+Integer.toHexString(data[i]));
+	System.out.println();
         long now = System.currentTimeMillis();
         while(timestamp + frequency > now){
 //             log.debug("Stalling "+(timestamp + frequency - now)+"ms");

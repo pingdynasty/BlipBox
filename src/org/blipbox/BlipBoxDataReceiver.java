@@ -66,20 +66,17 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     public void readEvent()
         throws IOException {
         data[0] = readSerial();
-        BlipSensor sensor;
-        switch(data[0] & MESSAGE_ID_MASK){
-        case SensorConfiguration.RELEASE_MSG_ID:
+	System.out.println("rx 0x"+Integer.toHexString(data[0]));
+	if((data[0] & MESSAGE_ID_MASK) == SensorConfiguration.POSITION_MSG_ID){
+            readPositionMessage();
+	}else if((data[0] & MESSAGE_ID_MASK) == SensorConfiguration.RELEASE_MSG_ID){
             readReleaseMessage();
-            break;
-        case SensorConfiguration.XY_MSG_ID:
-            readXYMessage();
-            break;
-        case SensorConfiguration.PARAMETER_MSG_ID:
-            readParameterMessage();
-            break;
-        default:
+	}else if((data[0] & 0xc0) == 0x80){
             readSensorMessage();
-            break;
+	}else if((data[0] & 0xc0) == 0xc0){
+           readParameterMessage();
+	}else{
+	    log.error("Unrecognized message byte 0x"+Integer.toHexString(data[0]));
         }
     }
 
@@ -104,7 +101,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
         sensorChange(sensor);
     }
 
-    public void readXYMessage()
+    public void readPositionMessage()
         throws IOException {
         // wait for the rest of the data
         while(inStream.available() < 2);
