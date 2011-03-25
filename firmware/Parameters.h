@@ -21,7 +21,6 @@
 /* #define SERIAL_SPEED_PARAMETER_ID     (0x08 << 2) */
 
 void setParameter(uint8_t pid, uint16_t value);
-/* void setParameter(uint16_t data); */
 uint16_t getParameter(uint8_t pid);
 
 /* // there's 512 bytes of EEPROM on the AtMega168, enough for 256 2-byte parameters */

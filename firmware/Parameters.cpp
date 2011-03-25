@@ -14,7 +14,8 @@ void setParameter(uint8_t pid, uint16_t value){
     blipbox.config.tlc_gsclk_period = value;
     break;
   case SERIAL_SPEED_PARAMETER_ID:
-    blipbox.config.serialSpeed = value;
+    blipbox.config.serialSpeed = value == 0 ?
+      31250L : value * 9600;
     break;
   case FOLLOW_MODE_PARAMETER_ID:
     blipbox.setFollowMode((uint8_t)value);
@@ -37,7 +38,8 @@ uint16_t getParameter(uint8_t pid){
     data = blipbox.config.tlc_gsclk_period;
     break;
   case SERIAL_SPEED_PARAMETER_ID:
-    data = blipbox.config.serialSpeed;
+    data = blipbox.config.serialSpeed == 0 ?
+      31250L : blipbox.config.serialSpeed / 9600;
     break;
   case FOLLOW_MODE_PARAMETER_ID:
     data = blipbox.config.followMode;

@@ -22,12 +22,11 @@
 #define COMMAND_MESSAGE           0x70
 // command: 0111cccc : 4 bit command index
 
-#define SET_PARAMETER_MESSAGE     0xc0
-// set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
-
 #define MESSAGE_ID_MASK           0xf0
 #define MESSAGE_VALUE_MASK        0x0f
 
+#define SET_PARAMETER_MESSAGE     0xc0
+// set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
 #define PARAMETER_ID_MASK         0x3c
 #define PARAMETER_VALUE_MASK      0x03
 
@@ -82,7 +81,6 @@ void handleWriteCharacterMessage(){
   blipbox.display.printCharacter(data, getFourBitValue(), 0, blipbox.config.brightness);
 }
 
-
 void handleSetParameterMessage(){
   rx_buffer_head = 0;
   setParameter(rx_buffer[0] & PARAMETER_ID_MASK, getTenBitValue());
@@ -102,10 +100,10 @@ void handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
   case 4:
-    blipbox.leds.fade(1);
+    blipbox.leds.sub(4);
     break;
   case 5:
-    blipbox.leds.brighten(1);
+    blipbox.leds.add(4);
     break;
   case 6: // 
     blipbox.sendConfigurationParameters();
@@ -155,10 +153,6 @@ void serialInput(unsigned char c) {
     if(rx_buffer_head == 2)
       handleWriteCharacterMessage();
     break;
-  case SET_PARAMETER_MESSAGE:
-    if(rx_buffer_head == 2)
-      handleSetParameterMessage();
-    break;
     // 1 byte messages
   case CLEAR_MESSAGE:
     handleClearMessage();
@@ -170,7 +164,14 @@ void serialInput(unsigned char c) {
     handleCommandMessage();
     break;
   default:
-    rx_buffer_head = 0;
-    blipbox.error(MESSAGE_READ_ERROR);
+    // set parameter has a two-bit signature
+    if((rx_buffer[0] & 0xc0) == SET_PARAMETER_MESSAGE){
+      //   case SET_PARAMETER_MESSAGE:
+      if(rx_buffer_head == 2)
+	handleSetParameterMessage();
+    }else{
+      rx_buffer_head = 0;
+      blipbox.error(MESSAGE_READ_ERROR);
+    }
   }
 }

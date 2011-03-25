@@ -79,34 +79,34 @@ void DisplayManager::setDiagonalCross(uint8_t x, uint8_t y, uint8_t value){
 }
 
 // todo: set blob with 10 or 8 bit precision location
-void DisplayManager::setBlob(uint8_t row, uint8_t col, uint8_t value){
+void DisplayManager::setBlob(uint8_t x, uint8_t y, uint8_t value){
   for(int8_t i=-3; i<4; i+=2){
-    blipbox.leds.setLed(row+i, col+i, value / (2*abs(i) + 1));
-    blipbox.leds.setLed(row+i, col-i, value / (2*abs(i) + 1));
-    blipbox.leds.setLed(row-i, col+i, value / (2*abs(i) + 1));
-    blipbox.leds.setLed(row-i, col-i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(x+i, y+i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(x+i, y-i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(x-i, y+i, value / (2*abs(i) + 1));
+    blipbox.leds.setLed(x-i, y-i, value / (2*abs(i) + 1));
   }
 }
 
 void DisplayManager::setCross(uint8_t x, uint8_t y, uint8_t value){
   for(uint8_t i=0; i<10; ++i)
-    blipbox.leds.setLed(i, x, value / (4*abs(y-i) + 1));
+    blipbox.leds.setLed(i, y, value / (4*abs(y-i) + 1));
   for(uint8_t i=0; i<8; ++i)
-    blipbox.leds.setLed(y, i, value / (4*abs(x-i) + 1));
+    blipbox.leds.setLed(x, i, value / (4*abs(x-i) + 1));
 }
 
-void DisplayManager::setStar(uint8_t row, uint8_t col, uint8_t value){
-  blipbox.leds.setLed(row+1, col, value);
-  blipbox.leds.setLed(row, col+1, value);
-  blipbox.leds.setLed(row-1, col, value);
-  blipbox.leds.setLed(row, col-1, value);
+void DisplayManager::setStar(uint8_t x, uint8_t y, uint8_t value){
+  blipbox.leds.setLed(x+1, y, value);
+  blipbox.leds.setLed(x, y+1, value);
+  blipbox.leds.setLed(x-1, y, value);
+  blipbox.leds.setLed(x, y-1, value);
 }
 
-void DisplayManager::setSquare(uint8_t row, uint8_t col, uint8_t value){
-  setStar(row, col, value);
+void DisplayManager::setSquare(uint8_t x, uint8_t y, uint8_t value){
+  setStar(x, y, value);
   value >>= 1;
-  blipbox.leds.setLed(row+1, col+1, value);
-  blipbox.leds.setLed(row-1, col+1, value);
-  blipbox.leds.setLed(row+1, col-1, value);
-  blipbox.leds.setLed(row-1, col-1, value);
+  blipbox.leds.setLed(x+1, y+1, value);
+  blipbox.leds.setLed(x-1, y+1, value);
+  blipbox.leds.setLed(x+1, y-1, value);
+  blipbox.leds.setLed(x-1, y-1, value);
 }

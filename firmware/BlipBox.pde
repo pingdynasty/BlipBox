@@ -16,6 +16,28 @@ CrossAnimator cross;
 CrissAnimator criss;
 ToggleAnimator toggle;
 
+void setup() {
+//   disable_watchdog(); // disable watchdog timer
+  // wdt_init causes device to hang? setup gets stuck?
+  blipbox.config.init();
+  blipbox.init();
+  blipbox.setFollowMode(2);
+  blipbox.leds.start();
+}
+
+void loop() {
+  blipbox.tick();
+//   readSensors();
+  if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
+    blipbox.sender.send();
+    previousMillis = millis();   // remember the last time we did this
+    // counter overflows automatically from 255 back to 0
+    blipbox.signal.tick(counter++);
+    if(animator != NULL)
+      animator->tick(counter);
+  }
+}
+
 void BlipBox::tick(){
   switch(keys.keyscan()){
   case RELEASED:
@@ -40,7 +62,6 @@ void BlipBox::init() {
   sender.init();
   beginSerial(config.serialSpeed);
   setFollowMode(config.followMode);
-  leds.start();
   sei(); // enable interrupts
 }
 
@@ -61,30 +82,6 @@ void BlipBox::setFollowMode(uint8_t mode) {
     break;
   default:
     animator = NULL;
-  }
-}
-
-void setup() {
-//   disable_watchdog(); // disable watchdog timer
-  // wdt_init causes device to hang? setup gets stuck?
-  blipbox.config.init();
-  blipbox.init();
-  blipbox.setFollowMode(2);
-}
-
-void loop() {
-  blipbox.tick();
-
-//   readSensors();
-
-  if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
-    blipbox.sender.send();
-    previousMillis = millis();   // remember the last time we did this
-
-    // counter overflows automatically from 255 back to 0
-    blipbox.signal.tick(counter++);
-    if(animator != NULL)
-      animator->tick(counter);
   }
 }
 

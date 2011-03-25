@@ -43,7 +43,7 @@ public:
       // fixed length 2 bytes
       // parameter msg: 11ppppvv vvvvvvvv
       // 2 bits msg id, 4 bits parameter ID, 10 bits value
-      serialWrite(PARAMETER_MSG | m_pid | (m_value >> 8));
+      serialWrite(PARAMETER_MSG | m_pid | ((m_value >> 8) & 0x03));
       serialWrite((uint8_t)m_value);
       m_value = NO_MESSAGE;
       return true;

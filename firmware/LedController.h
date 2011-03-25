@@ -65,7 +65,7 @@ public:
 
   void sub(uint8_t value){
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-      if(led_buffer[0][i] - value < led_buffer[0][i])
+      if(led_buffer[0][i] - value > 0)
 	led_buffer[0][i] -= value;
       else
 	led_buffer[0][i] = 0;
