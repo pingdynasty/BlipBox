@@ -1,10 +1,14 @@
 #include "MidiInterface.h"
 #include "MidiReader.h"
 #include "MidiWriter.h"
+#include "Button.h"
 #include "adc_freerunner.h"
 
 MidiReader reader;
 MidiWriter writer;
+
+#define SERIAL_SPEED 9600
+#define SERIAL_SPEED 31250
 
 #define SENSOR_MAX          1023
 
@@ -13,12 +17,34 @@ MidiWriter writer;
 #define POT_PIN 3
 #define FSR_PIN 2
 
-#define MPX_THRESH 40
+#define MPX_THRESH 46 // at 40 caused the odd stray note
+#define FSR_THRESH 15 // at 7 caused stray notes
+#define POT_THRESH 8
+
 // MPX5010DP pressure sensor, 5v single supply.
+
+// 6/4 2011 fixed problems with second prototype (v2 + fsr):
+// - bad solder joint on resonator pin
+// - softpot pins 2/3 swapped: tap should be centre!
+
+// MIDI CC values
+// 1 Modulation (LSB 33)
+// 2 Breath Controller (LSB 34)
+// 7 Channel Volume
+// 8 Balance
+// 10 Pan
+#define MIDI_MODULATION_CC  1
+#define MIDI_BREATH_CC      2
+#define MIDI_VOLUME_CC      7
+#define MIDI_BALANCE_CC     8
+#define MIDI_PAN_CC        10
 
 #define SERIAL_WRITE_INTERVAL 20L
 
 unsigned long previousMillis = 0;        // will store last time write was done
+
+OnOffOnButton button;
+#define LAMP_PIN 10
 
 class CommandInterface : public MidiInterface {
 public:
@@ -34,17 +60,13 @@ uint8_t state;
 uint8_t string;
 uint8_t note_root, note_range;
 
-uint16_t pot;
+int16_t pot;
+int16_t lastpot;
 
-#define OP1     1
-#define OP2     2
-#define OP3     3
-uint8_t operation;
+#define CNTRL_MODULATION    0
+#define CNTRL_VOLUME        1
 
-#define CC_MODULATION    0
-#define CC_VOLUME        1
-
-uint8_t CC_CODES_SET[] = { 1, 2 };
+uint8_t CNTRL_CODES_SET[] = { MIDI_MODULATION_CC, MIDI_BREATH_CC};
 
 uint8_t ccvalues[2];
 uint8_t *cccodes;
@@ -68,7 +90,7 @@ void setup(){
   note_range = 24;
   note = -1;
   event.pitchbend = 8192;
-  cccodes = CC_CODES_SET;
+  cccodes = CNTRL_CODES_SET;
 
   cli(); // disable interrupts
 
@@ -77,12 +99,14 @@ void setup(){
   writer.init(1); // write output to MIDI channel 1
   reader.init(&command);
 
+  button.init();
+  pinMode(LAMP_PIN, OUTPUT);
+
   sei(); // enable interrupts
 
-//   Serial.begin(9600);
-  beginSerial(38400);
-//     beginSerial(31250);
+  beginSerial(SERIAL_SPEED);
 
+  writer.allNotesOff();
 }
 
 uint8_t getStripPitch(){
@@ -100,6 +124,7 @@ void noteOn(){
   noteOff();
   writer.noteOn(event.note, event.volume);
   note = event.note;
+  lastpot = pot;
 }
 
 void updateController(uint8_t cc, uint8_t value){
@@ -121,35 +146,58 @@ void updateSettings(){
 //   event.note = getStripPitch();
 // }
 
+boolean amptrig = true;
+
 void loop(){
-
+  if(button.check()){
+    if(button.state == UP)
+      amptrig = true;
+    else if(button.state == DOWN)
+      amptrig = false;
+  }
   pot = getAnalogValue(POT_PIN);
-  event.trigger = getAnalogValue(MPX_PIN) > MPX_THRESH;
-  event.volume = (getAnalogValue(AMP_PIN) >> 3);
-  event.note = getStripPitch();
-  event.modulation = (getAnalogValue(FSR_PIN) >> 3);
-
+  if(button.state == MIDDLE){
+    if(pot > POT_THRESH)
+      event.pitchbend = 8192+(pot<<3); // range: none to full positive bend
+    // leave event.note at previous value
+  }else{
+    event.pitchbend = 0;
+    if(pot > POT_THRESH)
+      event.note = getStripPitch();
+  }
+  if(amptrig){
+    event.trigger = getAnalogValue(MPX_PIN) > MPX_THRESH;
+    event.volume = (getAnalogValue(AMP_PIN) >> 3);
+    event.modulation = (getAnalogValue(FSR_PIN) >> 3);
+  }else{
+    event.trigger = getAnalogValue(FSR_PIN) > FSR_THRESH;
+    event.volume = (getAnalogValue(FSR_PIN) >> 3);
+    event.modulation = (getAnalogValue(AMP_PIN) >> 3);
+  }
+  analogWrite(LAMP_PIN, event.volume<<1);
   if(event.trigger){
     if(state == STANDBY_STATE){
       noteOn();
       state = SUSTAIN_STATE;
-    }else if(note != event.note){
-      noteOn();
+//     }else if(note != event.note){
+//       noteOn();
+    }else if(button.state != MIDDLE){
+      event.pitchbend = 8192+((pot-lastpot)<<3);
     }
-    updateController(CC_VOLUME, event.volume);
-//     if(event.pitchbend != pitchbend){
-//       writer.pitchBend(event.pitchbend);
-//       pitchbend = event.pitchbend;
-//     }
+    if(event.pitchbend != pitchbend){
+      writer.pitchBend(event.pitchbend);
+      pitchbend = event.pitchbend;
+    }
+    updateController(CNTRL_VOLUME, event.volume);
   }else if(state != STANDBY_STATE){
     noteOff();
     state = STANDBY;
   }
-  updateController(CC_MODULATION, event.modulation);
-
+  updateController(CNTRL_MODULATION, event.modulation);
   // brutal debounce / message output rate limiter.
   while(millis() - previousMillis < SERIAL_WRITE_INTERVAL);
   previousMillis = millis();
+  event.pitchbend = 0;
 }
 
 /* Serial RX interrupt */
