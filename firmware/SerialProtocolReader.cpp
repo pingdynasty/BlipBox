@@ -99,10 +99,10 @@ void handleShiftLedsMessage(){
 void handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
-  case 4:
+  case 4: // fade
     blipbox.leds.sub(4);
     break;
-  case 5:
+  case 5: // brighten
     blipbox.leds.add(4);
     break;
   case 6: // 

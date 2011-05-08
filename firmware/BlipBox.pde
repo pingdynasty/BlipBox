@@ -7,7 +7,7 @@
 #include "BlipBox.h"
 #include "Parameters.h"
 
-unsigned long previousMillis = 0;        // will store last time write was done
+unsigned long previousMillis;        // will store last time write was done
 uint8_t counter;
 
 Animator* animator;
@@ -18,11 +18,11 @@ ToggleAnimator toggle;
 
 void setup() {
 //   disable_watchdog(); // disable watchdog timer
-  // wdt_init causes device to hang? setup gets stuck?
+// wdt_init causes device to hang? setup gets stuck?
   blipbox.config.init();
   blipbox.init();
-  blipbox.setFollowMode(2);
   blipbox.leds.start();
+  blipbox.error(MESSAGE_WRITE_ERROR);
 }
 
 void loop() {
@@ -31,7 +31,7 @@ void loop() {
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
     blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
-    // counter overflows automatically from 255 back to 0
+    // counter overflows at 255
     blipbox.signal.tick(counter++);
     if(animator != NULL)
       animator->tick(counter);
