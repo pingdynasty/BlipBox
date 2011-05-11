@@ -57,18 +57,15 @@ public:
   // add value to all leds
   void add(uint8_t value){
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-      if(led_buffer[0][i] + value >= led_buffer[0][i])
+      if(led_buffer[0][i] <= 0xff - value) // check for overflow
 	led_buffer[0][i] += value;
-      else
-	led_buffer[0][i] = 0xff;
   }
 
+  // subtract value from all leds
   void sub(uint8_t value){
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-      if(led_buffer[0][i] - value > 0)
+      if(led_buffer[0][i] >= value) // check for underflow
 	led_buffer[0][i] -= value;
-      else
-	led_buffer[0][i] = 0;
   }
 
   void brighten(uint8_t factor){

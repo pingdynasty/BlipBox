@@ -114,10 +114,10 @@ public:
     }
   }
   void reset(){
+    m_status = false;
     m_x = m_y = 0;
   }
   bool send(){
-//     if(m_x != NO_MESSAGE){
     if(m_status){
       // fixed length 3 bytes
       // xy msg: 0101xxxx xxxxxxyy yyyyyyyy

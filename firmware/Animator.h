@@ -5,7 +5,7 @@
 
 class Animator {
 public:
-  virtual void tick(uint8_t counter);
+  virtual void tick(uint16_t counter);
 };
 
 class FadeAnimator : public Animator {
@@ -13,7 +13,7 @@ public:
   FadeAnimator(uint8_t _prescaler)
     : prescaler(_prescaler) {
   }
-  virtual void tick(uint8_t counter);
+  virtual void tick(uint16_t counter);
 private:
   uint8_t prescaler;
 };
@@ -21,7 +21,7 @@ private:
 class SignalAnimator : public Animator {
   /* Animator used to signal errors by turning an LED on/off */
  public:
-  void tick(uint8_t counter);
+  void tick(uint16_t counter);
   void setSignal(int code){
     signals = code;
   }
@@ -31,27 +31,32 @@ class SignalAnimator : public Animator {
 
 class DotAnimator : public Animator {
  public:
-  void tick(uint8_t counter);
+  void tick(uint16_t counter);
 };
 
 class CrossAnimator : public Animator {
  public:
-  void tick(uint8_t counter);
+  void tick(uint16_t counter);
 };
 
 class CrissAnimator : public Animator {
  public:
-  void tick(uint8_t counter);
+  void tick(uint16_t counter);
+};
+
+class StarAnimator : public Animator {
+ public:
+  void tick(uint16_t counter);
 };
 
 class ToggleAnimator : public Animator {
  public:
-  void tick(uint8_t counter);
+  void tick(uint16_t counter);
 };
 
 // class TextAnimator : public Animator {
 // public:
-//   virtual void tick(uint8_t counter){
+//   virtual void tick(uint16_t counter){
 //   }
 // private:
 //   char* text;

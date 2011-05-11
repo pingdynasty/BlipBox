@@ -57,7 +57,7 @@ void handleSetLedMessage(){
     rx_buffer_head = 0;
   // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
   // 1000mmmm llllllll bbbbbbbb
-    blipbox.leds.setLed(9 - rx_buffer[1] / 16, rx_buffer[1] % 16, rx_buffer[2]);
+    blipbox.leds.setLed(rx_buffer[1] / 16, rx_buffer[1] % 16, rx_buffer[2]);
 }
 
 void handleSetLedRowMessage(){  
@@ -99,6 +99,9 @@ void handleShiftLedsMessage(){
 void handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
+  case 3: // toggle / xor
+    blipbox.leds.toggle();
+    break;
   case 4: // fade
     blipbox.leds.sub(4);
     break;

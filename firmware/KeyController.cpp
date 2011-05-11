@@ -65,6 +65,5 @@ uint8_t KeyController::readColumn(){
 }
 
 uint8_t KeyController::readRow(){
-  // inverted range.
-  return (SENSOR_MAX - this->getY() - blipbox.config.touchscreen_y_min) * GRID_ROWS / blipbox.config.touchscreen_y_range;
+  return (this->getY() - blipbox.config.touchscreen_y_min) * GRID_ROWS / blipbox.config.touchscreen_y_range;
 }

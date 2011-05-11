@@ -87,7 +87,6 @@ void TouchController::init(){
   ADCSRA |= (1 << ADSC); // Start A2D Conversions
   ADCSRA |= (1 << ADIE); // enable ADC interrupt
 
-
   STANDBY_CONFIGURATION;
 //   adc_mode = READ_STANDBY; // leave as zero  
   ADMUX = (ADMUX & ~7) | PIN_SG; // set ADC to read SG pin
@@ -98,7 +97,8 @@ uint16_t TouchController::getX(){
 }
 
 uint16_t TouchController::getY(){
-  return adc_values[2];
+  // inverted range.
+  return SENSOR_MAX - adc_values[2];
 }
 
 uint16_t TouchController::getZ(){

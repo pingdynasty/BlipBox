@@ -43,7 +43,7 @@ class Configuration {
     sensitivity = SENSITIVITY;
     tlc_gsclk_period = TLC_GSCLK_PERIOD;
     serialSpeed = DEFAULT_SERIAL_SPEED;
-    touchscreen_x_min   = 250;
+    touchscreen_x_min   = 260;
     touchscreen_x_range = 810 - touchscreen_x_min;
     touchscreen_y_min   = 210;
     touchscreen_y_range = 784 - touchscreen_y_min;

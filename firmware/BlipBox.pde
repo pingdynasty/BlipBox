@@ -8,13 +8,18 @@
 #include "Parameters.h"
 
 unsigned long previousMillis;        // will store last time write was done
-uint8_t counter;
+uint16_t counter;
 
 Animator* animator;
+// #define NOF_ANIMATORS 5
+// Animator animators[NOF_ANIMATORS] = {
+//   DotAnimator(), CrossAnimator(), 
+//   CrissAnimator(), ToggleAnimator(), StarAnimator() };
 DotAnimator dot;
 CrossAnimator cross;
 CrissAnimator criss;
 ToggleAnimator toggle;
+StarAnimator star;
 
 void setup() {
 //   disable_watchdog(); // disable watchdog timer
@@ -31,11 +36,11 @@ void loop() {
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
     blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
-    // counter overflows at 255
-    blipbox.signal.tick(counter++);
-    if(animator != NULL)
-      animator->tick(counter);
+    // counter overflows at 65536
   }
+  blipbox.signal.tick(counter++);
+  if(animator != NULL)
+    animator->tick(counter);
 }
 
 void BlipBox::tick(){
@@ -79,6 +84,9 @@ void BlipBox::setFollowMode(uint8_t mode) {
     break;
   case 4:
     animator = &toggle;
+    break;
+  case 5:
+    animator = &star;
     break;
   default:
     animator = NULL;

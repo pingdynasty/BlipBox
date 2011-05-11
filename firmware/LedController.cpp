@@ -28,11 +28,8 @@ static void shift12bits(uint8_t value) {
     TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
     TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
   }
-  // shift out four more zeros or ones for the 4 least significant bits
-  if(value)
-    TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
-  else
-    TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
+  // shift out four more zeros
+  TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
   for(uint8_t i=0; i<4; ++i){
     TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
     TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
