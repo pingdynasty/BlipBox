@@ -2,6 +2,7 @@ package org.blipbox;
 
 public enum Command {
 
+    TOGGLE              (3, "XOR all LED values"),
     FADE                (4, "Decrease LED brightness"),
     BRIGHTEN            (5, "Increase LED brightness"),
     CFG_REQUEST         (6, "Request configuration parameters"),

@@ -11,6 +11,7 @@ public class BlipBox extends BlipBoxDataSender
 
     private static final Logger log = Logger.getLogger(BlipBox.class);
     private static final int DEFAULT_SERIAL_SPEED = 57600;
+    private static final int BRIGHTNESS_STEP = 4;
 
     private BlipBoxDataReceiver receiver;
     private String serialport;
@@ -28,6 +29,14 @@ public class BlipBox extends BlipBoxDataSender
         receiver = new BlipBoxDataReceiver();
         receiver.setSensorConfiguration(config);
         addInputHandler(this);
+    }
+
+    public int getWidth(){
+	return 10;
+    }
+
+    public int getHeight(){
+	return 8;
     }
 
     public void setSerialSpeed(int serialspeed){
@@ -113,13 +122,15 @@ public class BlipBox extends BlipBoxDataSender
     public void fade(){
         super.sendCommand(Command.FADE);
         for(int i=0; i<leds.length; ++i)
-            leds[i] >>= 1;
+            leds[i] = Math.max(leds[i]-BRIGHTNESS_STEP, 0);
+//             leds[i] >>= 1;
     }
 
     public void brighten(){
         super.sendCommand(Command.BRIGHTEN);
         for(int i=0; i<leds.length; ++i)
-            leds[i] = (leds[i] << 1) | 1;
+            leds[i] = Math.min(leds[i]+BRIGHTNESS_STEP, 0xff);
+//             leds[i] = (leds[i] << 1) | 1;
     }
 
     public BlipSensor getBlipSensor(SensorType type){
@@ -254,6 +265,10 @@ public class BlipBox extends BlipBoxDataSender
         return getSensorValue(SensorType.X_SENSOR, min, max);
     }
 
+    public int getColumn(){
+        return getSensorValue(SensorType.X_SENSOR, 0, getWidth());
+    }
+
     /**
      * Convenience method for getting Y sensor value
      */
@@ -267,6 +282,10 @@ public class BlipBox extends BlipBoxDataSender
 
     public int getY(int min, int max){
         return getSensorValue(SensorType.Y_SENSOR, min, max);
+    }
+
+    public int getRow(){
+        return getSensorValue(SensorType.X_SENSOR, 0, getHeight());
     }
 
     /**

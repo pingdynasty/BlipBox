@@ -66,7 +66,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     public void readEvent()
         throws IOException {
         data[0] = readSerial();
-	System.out.println("rx 0x"+Integer.toHexString(data[0]));
+// 	System.out.println("rx 0x"+Integer.toHexString(data[0]));
 	if((data[0] & MESSAGE_ID_MASK) == SensorConfiguration.POSITION_MSG_ID){
             readPositionMessage();
 	}else if((data[0] & MESSAGE_ID_MASK) == SensorConfiguration.RELEASE_MSG_ID){
