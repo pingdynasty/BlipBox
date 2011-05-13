@@ -11,14 +11,16 @@ MidiWriter writer;
 #define SERIAL_SPEED 31250
 
 #define SENSOR_MAX          1023
+#define CENTER_PITCHBEND 8192
 
 #define AMP_PIN 5
 #define MPX_PIN 4
 #define POT_PIN 3
 #define FSR_PIN 2
+#define LAMP_PIN 10
 
 #define MPX_THRESH 46 // at 40 caused the odd stray note
-#define FSR_THRESH 15 // at 7 caused stray notes
+#define FSR_THRESH 10 // at 7 caused stray notes
 #define POT_THRESH 8
 
 // MPX5010DP pressure sensor, 5v single supply.
@@ -38,13 +40,19 @@ MidiWriter writer;
 #define MIDI_VOLUME_CC      7
 #define MIDI_BALANCE_CC     8
 #define MIDI_PAN_CC        10
+#define MIDI_OSCMAINVOL_CC 36 // Access Virus B parameter
+#define MIDI_NOTE_C2       36
+#define MIDI_NOTE_C3       48
+#define MIDI_NOTE_C4       60
+#define MIDI_NOTE_A440     69
+#define MIDI_NOTE_C5       72
+#define MIDI_NOTE_C6       84
 
-#define SERIAL_WRITE_INTERVAL 20L
+#define SERIAL_WRITE_INTERVAL 10L
 
 unsigned long previousMillis = 0;        // will store last time write was done
 
 OnOffOnButton button;
-#define LAMP_PIN 10
 
 class CommandInterface : public MidiInterface {
 public:
@@ -66,7 +74,7 @@ int16_t lastpot;
 #define CNTRL_MODULATION    0
 #define CNTRL_VOLUME        1
 
-uint8_t CNTRL_CODES_SET[] = { MIDI_MODULATION_CC, MIDI_BREATH_CC};
+uint8_t CNTRL_CODES_SET[] = { MIDI_MODULATION_CC, MIDI_OSCMAINVOL_CC };
 
 uint8_t ccvalues[2];
 uint8_t *cccodes;
@@ -86,26 +94,19 @@ Event event;
 uint16_t pitchbend;
 
 void setup(){
-  note_root = 36;
+  note_root = MIDI_NOTE_C4;
   note_range = 24;
   note = -1;
-  event.pitchbend = 8192;
+  event.pitchbend = CENTER_PITCHBEND;
   cccodes = CNTRL_CODES_SET;
-
   cli(); // disable interrupts
-
   setup_adc();
-
   writer.init(1); // write output to MIDI channel 1
   reader.init(&command);
-
   button.init();
   pinMode(LAMP_PIN, OUTPUT);
-
   sei(); // enable interrupts
-
   beginSerial(SERIAL_SPEED);
-
   writer.allNotesOff();
 }
 
@@ -158,7 +159,7 @@ void loop(){
   pot = getAnalogValue(POT_PIN);
   if(button.state == MIDDLE){
     if(pot > POT_THRESH)
-      event.pitchbend = 8192+(pot<<3); // range: none to full positive bend
+      event.pitchbend = CENTER_PITCHBEND+(pot<<3); // range: none to full positive bend
     // leave event.note at previous value
   }else{
     event.pitchbend = 0;
@@ -179,10 +180,10 @@ void loop(){
     if(state == STANDBY_STATE){
       noteOn();
       state = SUSTAIN_STATE;
-//     }else if(note != event.note){
-//       noteOn();
+    }else if(note != event.note){
+      noteOn();
     }else if(button.state != MIDDLE){
-      event.pitchbend = 8192+((pot-lastpot)<<3);
+      event.pitchbend = CENTER_PITCHBEND+((pot-lastpot)<<3);
     }
     if(event.pitchbend != pitchbend){
       writer.pitchBend(event.pitchbend);
@@ -197,7 +198,7 @@ void loop(){
   // brutal debounce / message output rate limiter.
   while(millis() - previousMillis < SERIAL_WRITE_INTERVAL);
   previousMillis = millis();
-  event.pitchbend = 0;
+  event.pitchbend = CENTER_PITCHBEND;
 }
 
 /* Serial RX interrupt */
