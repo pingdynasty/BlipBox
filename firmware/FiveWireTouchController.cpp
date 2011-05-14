@@ -13,6 +13,7 @@
 #include "TouchController.h"
 #include "device.h"
 #include <avr/interrupt.h> 
+#include <string.h> // for memset
 
 // seems to currently work with these connections:
 // PC0 - RL / pin 2
@@ -63,14 +64,17 @@
 #define Y_POS_CONFIGURATION                               (Pin_Gnd(UL), Pin_Gnd(UR), Pin_Vcc(LL), Pin_Vcc(LR), Pin_Hi_Z(STANDBY_PIN))
 #define HI_Z_CONFIGURATION                                (Pin_Hi_Z(UL), Pin_Hi_Z(UR), Pin_Hi_Z(LL), Pin_Hi_Z(LR), Pin_Hi_Z(STANDBY_PIN))
 
-uint16_t adc_values[4];
+#define VALUE_COUNT 3
+uint16_t adc_acc[VALUE_COUNT];
+uint16_t adc_values[VALUE_COUNT];
 uint8_t adc_mode;
 #define READ_STANDBY_STATE 1
 #define READ_X_POS_STATE   3
 #define READ_Y_POS_STATE   5
-
+#define STATE_COUNT        6
+#define SAMPLE_COUNT       6 // oversampling
 #define START_STATE        READ_STANDBY_STATE
-#define END_STATE          6 // one more than last state
+#define END_STATE          SAMPLE_COUNT*STATE_COUNT // accumulate readings
 
 void TouchController::init(){
 //   pinMode(PIN_RL, OUTPUT);
@@ -78,9 +82,13 @@ void TouchController::init(){
 // //   pinMode(PIN_RL, INPUT); // enables pull-up resistor
 // //   pinMode(PIN_LT, INPUT); // enables pull-up resistor
 //   pinMode(PIN_RT, OUTPUT);
+//   bzero(adc_acc, sizeof(adc_acc));
+//   bzero(adc_values, sizeof(adc_values)); // where is bzero?
+  memset(adc_acc, 0, sizeof(adc_acc));
+  memset(adc_values, 0, sizeof(adc_values));
 
   ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 128: 125KHz @ 16MHz (divided by 31: 4KHz)
-  //  ADCSRA |= (1 << ADPS2) | (1 << ADPS1); // prescalar: 64
+//   ADCSRA |= (1 << ADPS2) | (1 << ADPS1); // prescalar: 64
   ADMUX |= (1 << REFS0); // Set ADC reference to AVCC
   ADCSRA |= (1 << ADATE); // Set ADC to Free-Running Mode
   ADCSRA |= (1 << ADEN); // Enable ADC
@@ -88,7 +96,6 @@ void TouchController::init(){
   ADCSRA |= (1 << ADIE); // enable ADC interrupt
 
   STANDBY_CONFIGURATION;
-//   adc_mode = READ_STANDBY; // leave as zero  
   ADMUX = (ADMUX & ~7) | PIN_SG; // set ADC to read SG pin
 }
 
@@ -109,31 +116,27 @@ uint16_t TouchController::getValue(uint8_t index){
   return adc_values[index];
 }
 
-ISR(ADC_vect)
-{
-  switch(adc_mode){
+ISR(ADC_vect){
+  switch(adc_mode % STATE_COUNT){
   case READ_STANDBY_STATE:{
     X_POS_CONFIGURATION;
-    adc_values[0] = ADCL;
-    adc_values[0] |= ADCH << 8;
+    adc_acc[0] += ADCL | ADCH << 8;
+//     adc_values[0] = ADCL | ADCH << 8;
 //     ADMUX = (ADMUX & ~7) | POT_PIN;
-//     adc_mode = X_POS_CONFIGURATION;
     break;
   }
   case READ_X_POS_STATE:{
     Y_POS_CONFIGURATION;
-    adc_values[1] = ADCL;
-    adc_values[1] |= ADCH << 8;
+    adc_acc[1] += ADCL | ADCH << 8;
+//     adc_values[1] = ADCL | ADCH << 8;
 //     ADMUX = (ADMUX & ~7) | POT_PIN;
-//     adc_mode = Y_POS_CONFIGURATION;
     break;
   }
   case READ_Y_POS_STATE:{
     STANDBY_CONFIGURATION;
-    adc_values[2] = ADCL;
-    adc_values[2] |= ADCH << 8;
+    adc_acc[2] += ADCL | ADCH << 8;
+//     adc_values[2] = ADCL | ADCH << 8;
 //     ADMUX = (ADMUX & ~7) | POT_PIN;
-//     adc_mode = STANDBY_CONFIGURATION;
     break;
   }
 //   default:{
@@ -144,19 +147,15 @@ ISR(ADC_vect)
 //     break;
 //   }
   }
-  if(++adc_mode == END_STATE)
+  if(++adc_mode == END_STATE){
     adc_mode = 0;
-//   uint8_t curchan = ADMUX & 7;
-
-//   adc_values[oldchan] = ADCL;
-//   adc_values[oldchan] |= ADCH << 8;
-// #ifdef FILTER_BITS
-//   adc_values[oldchan] &= FILTER_BITS;
-// #endif
-//   oldchan = curchan;
-
-//   if(++curchan == ADC_CHANNELS)
-//     curchan = 0;
-
-//   ADMUX = (ADMUX & ~7) | curchan;
+//     memcpy(adc_values, adc_acc, sizeof(adc_values));
+//     bzero(adc_acc, sizeof(adc_acc));
+//     memset(adc_acc, 0, sizeof(adc_acc));
+//     memset(adc_acc, 0, sizeof(adc_acc));
+    for(int i=0; i<VALUE_COUNT; ++i){
+      adc_values[i] = adc_acc[i] / SAMPLE_COUNT;
+      adc_acc[i] = 0;
+    }
+  }
 }
