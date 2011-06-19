@@ -7,7 +7,7 @@ class DisplayManager {
  public:
   /** shifts the led data in the given direction */
   void shift(uint8_t direction);
-  void printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness);
+  void printCharacter(char c, int8_t row, int8_t col, uint8_t brightness);
   void setCross(uint8_t row, uint8_t col, uint8_t brightness);
   void setBlob(uint8_t row, uint8_t col, uint8_t brightness);
   void setDiagonalCross(uint8_t row, uint8_t col, uint8_t brightness);

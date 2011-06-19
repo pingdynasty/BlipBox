@@ -21,7 +21,7 @@ void setParameter(uint8_t pid, uint16_t value){
     blipbox.setFollowMode((uint8_t)value);
     break;
   default:
-    blipbox.error(MESSAGE_READ_ERROR);
+    blipbox.message(MESSAGE_READ_ERROR);
   }
 }
 
@@ -45,7 +45,7 @@ uint16_t getParameter(uint8_t pid){
     data = blipbox.config.followMode;
     break;
   default:
-    blipbox.error(MESSAGE_WRITE_ERROR);
+    blipbox.message(MESSAGE_WRITE_ERROR);
   }
   return data;
 }

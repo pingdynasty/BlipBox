@@ -61,9 +61,9 @@ void KeyController::update(){
 }
 
 uint8_t KeyController::readColumn(){
-  return (this->getX() - blipbox.config.touchscreen_x_min) * GRID_COLS / blipbox.config.touchscreen_x_range;
+  return getPosition().x * GRID_COLS / SENSOR_MAX;
 }
 
 uint8_t KeyController::readRow(){
-  return (this->getY() - blipbox.config.touchscreen_y_min) * GRID_ROWS / blipbox.config.touchscreen_y_range;
+  return getPosition().y * GRID_ROWS / SENSOR_MAX;
 }

@@ -76,9 +76,10 @@ void handleSetLedColumnMessage(){
 
 void handleWriteCharacterMessage(){
   rx_buffer_head = 0;
-  uint8_t data[getCharacterHeight()];
-  getCharacterData(rx_buffer[1], data);
-  blipbox.display.printCharacter(data, getFourBitValue(), 0, blipbox.config.brightness);
+  blipbox.display.printCharacter(rx_buffer[1], getFourBitValue(), 0, blipbox.config.brightness);
+//   uint8_t data[getCharacterHeight()];
+//   getCharacterData(rx_buffer[1], data);
+//   blipbox.display.printCharacter(data, getFourBitValue(), 0, blipbox.config.brightness);
 }
 
 void handleSetParameterMessage(){
@@ -130,7 +131,7 @@ void handleCommandMessage(){
     blipbox.init();
     break;
   default:
-    blipbox.error(MESSAGE_READ_ERROR);
+    blipbox.message(MESSAGE_READ_ERROR);
     break;
   }
 }
@@ -174,7 +175,7 @@ void serialInput(unsigned char c) {
 	handleSetParameterMessage();
     }else{
       rx_buffer_head = 0;
-      blipbox.error(MESSAGE_READ_ERROR);
+      blipbox.message(MESSAGE_READ_ERROR);
     }
   }
 }

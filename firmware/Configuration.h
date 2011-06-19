@@ -4,18 +4,15 @@
 #include <avr/eeprom.h>
 #include <inttypes.h>
 
-#define TLC_GSCLK_PERIOD 7
-
-/* #define DEFAULT_SERIAL_SPEED 9600 */
-/* #define DEFAULT_SERIAL_SPEED 19200L */
-/* #define DEFAULT_SERIAL_SPEED 31250L /\* MIDI SPEED *\/ */
-/* #define DEFAULT_SERIAL_SPEED 38400L */
+#define TLC_GSCLK_PERIOD     7
 #define DEFAULT_SERIAL_SPEED 57600L
-/* #define DEFAULT_SERIAL_SPEED 115200L */
-/* #define SENSITIVITY 120 // the lower the value, the less sensitive */
-/* #define SENSITIVITY 600 // the lower the value, the less sensitive */
-#define SENSITIVITY 200 // the lower the value, the less sensitive
-#define BRIGHTNESS 0xff
+#define DEFAULT_SENSITIVITY  80   // the higher the value, the more sensitive
+#define DEFAULT_BRIGHTNESS   0xff
+
+#define DEFAULT_X_MIN        220
+#define DEFAULT_X_RANGE      760 - DEFAULT_X_MIN
+#define DEFAULT_Y_MIN        215
+#define DEFAULT_Y_RANGE      830 - DEFAULT_Y_MIN
 
 class Configuration {
  public:
@@ -39,14 +36,14 @@ class Configuration {
   }
 
   void reset(){
-    brightness = BRIGHTNESS;
-    sensitivity = SENSITIVITY;
+    brightness = DEFAULT_BRIGHTNESS;
+    sensitivity = DEFAULT_SENSITIVITY;
     tlc_gsclk_period = TLC_GSCLK_PERIOD;
     serialSpeed = DEFAULT_SERIAL_SPEED;
-    touchscreen_x_min   = 260;
-    touchscreen_x_range = 810 - touchscreen_x_min;
-    touchscreen_y_min   = 210;
-    touchscreen_y_range = 784 - touchscreen_y_min;
+    touchscreen_x_min   = DEFAULT_X_MIN;
+    touchscreen_x_range = DEFAULT_X_RANGE;
+    touchscreen_y_min   = DEFAULT_Y_MIN;
+    touchscreen_y_range = DEFAULT_Y_RANGE;
   }
   
   void write(){

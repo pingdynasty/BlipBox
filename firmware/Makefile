@@ -42,7 +42,7 @@ MCU = atmega168
 F_CPU = 16000000
 
 
-CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp
+CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp
 # CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageSender.cpp Characters.cpp globals.cpp MIC5891Counter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp
 ############################################################################
 # Below here nothing should be changed...

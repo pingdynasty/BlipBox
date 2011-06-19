@@ -19,6 +19,8 @@ void DotAnimator::tick(uint16_t counter){
     blipbox.leds.sub(1);
   if(blipbox.keys.isPressed())
     blipbox.leds.setLed(blipbox.keys.getColumn(), blipbox.keys.getRow(), blipbox.config.brightness);
+//   else
+//     blipbox.leds.setLed(blipbox.keys.getColumn(), blipbox.keys.getRow(), blipbox.config.brightness/4);
 }
 
 void CrossAnimator::tick(uint16_t counter){
@@ -36,8 +38,11 @@ void CrissAnimator::tick(uint16_t counter){
 void StarAnimator::tick(uint16_t counter){
   if(counter % 16 == 0)
     blipbox.leds.sub(1);
-  if(blipbox.keys.isPressed())
+  if(blipbox.keys.isPressed()){
     blipbox.display.setStar(blipbox.keys.getColumn(), blipbox.keys.getRow(), blipbox.config.brightness);
+  }else{
+    blipbox.leds.setLed(blipbox.keys.getColumn(), blipbox.keys.getRow(), blipbox.config.brightness/8);
+  }
 }
 
 void ToggleAnimator::tick(uint16_t counter){

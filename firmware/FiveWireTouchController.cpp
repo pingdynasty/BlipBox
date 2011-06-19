@@ -11,7 +11,7 @@
 // and lower left corner are connected to ground and the upper
 // right and lower right corners are connected to V+
 #include "TouchController.h"
-#include "device.h"
+#include "globals.h"
 #include <avr/interrupt.h> 
 #include <string.h> // for memset
 
@@ -68,6 +68,7 @@
 uint16_t adc_acc[VALUE_COUNT];
 uint16_t adc_values[VALUE_COUNT];
 uint8_t adc_mode;
+Position pos;
 #define READ_STANDBY_STATE 1
 #define READ_X_POS_STATE   3
 #define READ_Y_POS_STATE   5
@@ -99,22 +100,31 @@ void TouchController::init(){
   ADMUX = (ADMUX & ~7) | PIN_SG; // set ADC to read SG pin
 }
 
-uint16_t TouchController::getX(){
-  return adc_values[1];
-}
-
-uint16_t TouchController::getY(){
-  // inverted range.
-  return SENSOR_MAX - adc_values[2];
-}
-
-uint16_t TouchController::getZ(){
-  return adc_values[0];
+Position& TouchController::getPosition(){
+    return pos;
 }
 
 uint16_t TouchController::getValue(uint8_t index){
   return adc_values[index];
 }
+
+uint16_t TouchController::getZ(){
+  return getValue(0);
+}
+
+/*
+uint16_t TouchController::getX(){
+//   float x = (getValue(1) - blipbox.config.touchscreen_x_min) / (float)blipbox.config.touchscreen_x_range;
+//   return (uint16_t)(x * SENSOR_MAX);
+  return pos.x;
+}
+uint16_t TouchController::getY(){
+//   // inverted range.
+//   float y = (SENSOR_MAX - getValue(2) - blipbox.config.touchscreen_y_min) / (float)blipbox.config.touchscreen_y_range;
+//   return (uint16_t)(y * SENSOR_MAX);
+  return pos.y;
+}
+*/
 
 ISR(ADC_vect){
   switch(adc_mode % STATE_COUNT){
@@ -150,12 +160,14 @@ ISR(ADC_vect){
   if(++adc_mode == END_STATE){
     adc_mode = 0;
 //     memcpy(adc_values, adc_acc, sizeof(adc_values));
+//     memset(adc_acc, 0, sizeof(adc_acc));
 //     bzero(adc_acc, sizeof(adc_acc));
-//     memset(adc_acc, 0, sizeof(adc_acc));
-//     memset(adc_acc, 0, sizeof(adc_acc));
     for(int i=0; i<VALUE_COUNT; ++i){
       adc_values[i] = adc_acc[i] / SAMPLE_COUNT;
       adc_acc[i] = 0;
     }
+    pos.x = (uint16_t)(((adc_values[1] - blipbox.config.touchscreen_x_min) / (float)blipbox.config.touchscreen_x_range)*SENSOR_MAX);
+    // inverted range for y
+    pos.y = (uint16_t)(((SENSOR_MAX - adc_values[2] - blipbox.config.touchscreen_y_min) / (float)blipbox.config.touchscreen_y_range)*SENSOR_MAX);
   }
 }

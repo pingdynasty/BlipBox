@@ -1,27 +1,17 @@
 #ifndef _MESSAGEDISPATCHER_H_
 #define _MESSAGEDISPATCHER_H_
 
-#ifndef MESSAGE_SENDER_TEST
-#include <wiring.h>
-#endif
-
-#define POSITION_MSG       0x50 // 0x5 << 4
-#define RELEASE_MSG        0x70 // 0x7 << 4
-#define POT1_SENSOR_MSG    0x84 // 0x80 | (0x1 << 2)
-#define X_SENSOR_MSG       0x88 // 0x80 | (0x2 << 2)
-#define Y_SENSOR_MSG       0x8c // 0x80 | (0x3 << 2)
-#define POT2_SENSOR_MSG    0x90 // 0x80 | (0x4 << 2)
-#define BUTTON1_SENSOR_MSG 0x94 // 0x80 | (0x5 << 2)
-#define BUTTON2_SENSOR_MSG 0x98 // 0x80 | (0x6 << 2)
-#define BUTTON3_SENSOR_MSG 0x9c // 0x80 | (0x7 << 2)
-#define PARAMETER_MSG      0xc0 // 0x3 << 6 B11000000
+#include "Protocol.h"
+#include "MidiZoneProtocol.h"
 
 #define NO_MESSAGE         -1
+
+extern Protocol* protocol;
 
 class AbstractMessage {
 public:
 //   virtual bool send() = 0;
-  virtual bool send() {}; // the empty function def adds 8 bytes to data!
+  virtual bool send() { return false; }; // the default function def adds a few bytes of data
 };
 
 class ParameterMessage : public AbstractMessage {
@@ -34,17 +24,13 @@ public:
 //   void update(uint16_t value){
 //     m_value = value;
 //   }
-  bool update(uint8_t pid, uint16_t value){
+  void update(uint8_t pid, uint16_t value){
     m_pid = pid;
     m_value = value;
   }
   bool send(){
     if(m_value != NO_MESSAGE){
-      // fixed length 2 bytes
-      // parameter msg: 11ppppvv vvvvvvvv
-      // 2 bits msg id, 4 bits parameter ID, 10 bits value
-      serialWrite(PARAMETER_MSG | m_pid | ((m_value >> 8) & 0x03));
-      serialWrite((uint8_t)m_value);
+      protocol->sendParameterMessage(m_pid, m_value);
       m_value = NO_MESSAGE;
       return true;
     }
@@ -67,11 +53,7 @@ public:
   }
   bool send(){
     if(m_status){
-      // fixed length 2 bytes
-      // sensor msg: 10ssssvv vvvvvvvv
-      // 2 bits msg id, 4 bits sensor ID, 10 bits value
-      serialWrite(m_sid | ((m_value >> 8) & 0x3));
-      serialWrite(m_value & 0xff); //  & 0xff not needed?
+      protocol->sendSensorMessage(m_sid, m_value);
       m_status = false;
       return true;
     }
@@ -89,23 +71,23 @@ public:
   }
   bool send(){
     if(m_value != NO_MESSAGE){
-      // fixed length 1 byte
-      // release msg: 01110000
-      serialWrite(RELEASE_MSG);
+      protocol->sendReleaseMessage();
       m_value = NO_MESSAGE;
       return true;
     }
     return false;
+  }
+  void reset(){
+    m_value = NO_MESSAGE;
   }
 };
 
 class PositionMessage : public AbstractMessage {
 private:
   bool m_status;
-  int16_t m_x;
-  int16_t m_y;
+  uint16_t m_x;
+  uint16_t m_y;
 public:
-//   PositionMessage() : m_x(NO_MESSAGE) {}
   void update(uint16_t x, uint16_t y){
     if(m_x != x || m_y != y){
       m_x = x;
@@ -119,11 +101,7 @@ public:
   }
   bool send(){
     if(m_status){
-      // fixed length 3 bytes
-      // xy msg: 0101xxxx xxxxxxyy yyyyyyyy
-      serialWrite(POSITION_MSG | (m_x >> 6 & 0xf));
-      serialWrite((m_x << 2 & 0xfc) | (m_y >> 8 & 0x3));
-      serialWrite(m_y & 0xff);
+      protocol->sendPositionMessage(m_x, m_y);
       m_status = false;
       return true;
     }
@@ -137,6 +115,10 @@ class MessageDispatcher {
 private:
   AbstractMessage* msgs[MESSAGE_TYPE_COUNT];
   uint8_t index;
+/*   MidiProtocol midiprotocol; */
+public:
+  MidiZoneProtocol midiprotocol;
+  SerialProtocol serialprotocol;
 public:
   PositionMessage position;
   ReleaseMessage release;
@@ -152,7 +134,16 @@ public:
     msgs[2] = &button1;
     msgs[3] = &button2;
   }
-  void init(){}
+  void init(){
+    protocol = &serialprotocol;
+    midiprotocol.loadPreset(0);
+  }
+  void setSerialProtocol(){
+    protocol = &serialprotocol;
+  }
+  void setMidiProtocol(){
+    protocol = &midiprotocol;
+  }
   bool send(){
     uint8_t cnt = MESSAGE_TYPE_COUNT;
     while(cnt--){

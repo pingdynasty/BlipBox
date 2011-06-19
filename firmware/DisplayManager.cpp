@@ -41,24 +41,38 @@ void DisplayManager::shift(uint8_t direction){
   }
 }
 
-void DisplayManager::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
-  // writing to row (horizontal offset) 0 puts character furthest right
-  // row 5 is furthest left (while fitting 5 pixels)
-
-  // row goes from 0-9, col from 0-7
-  // font height/width = 8/5 for 6x9 font
-  for(int i=0; i<getCharacterHeight(); ++i){
-    // font data is 8 bits left adjusted
-    uint8_t offset = 8 - getCharacterWidth();
-    for(int j=0; j<getCharacterWidth(); ++j){
-      // only shift out the relevant bits
-      if(character[i] & _BV(j+offset))
-        blipbox.leds.setLed(j+row, i+col, brightness);
+void DisplayManager::printCharacter(char c, int8_t dx, int8_t dy, uint8_t brightness){
+  uint8_t data[getCharacterHeight()];
+  getCharacterData(c, data);
+  for(int y=0; y<getCharacterHeight(); ++y){
+    for(int x=0; x<getCharacterWidth(); ++x){
+      // font data is 8 bits left adjusted
+      if(data[y] & _BV(7-x))
+        blipbox.leds.setLed(x+dx, 7-y+dy, brightness);
       else
-        blipbox.leds.setLed(j+row, i+col, 0x00);
+        blipbox.leds.setLed(x+dx, 7-y+dy, 0x00);
     }
   }
 }
+
+// void DisplayManager::printCharacter(uint8_t* character, uint8_t row, uint8_t col, uint8_t brightness){
+  // writing to row (horizontal offset) 0 puts character furthest right
+  // row 5 is furthest left (while fitting 5 pixels)
+
+//   // row goes from 0-9, col from 0-7
+//   // font height/width = 8/5 for 6x9 font
+//   for(int i=0; i<getCharacterHeight(); ++i){
+//     // font data is 8 bits left adjusted
+//     uint8_t offset = 8 - getCharacterWidth();
+//     for(int j=0; j<getCharacterWidth(); ++j){
+//       // only shift out the relevant bits
+//       if(data[i] & _BV(j+offset))
+//         blipbox.leds.setLed(j+row, i+col, brightness);
+//       else
+//         blipbox.leds.setLed(j+row, i+col, 0x00);
+//     }
+//   }
+// }
 
 void DisplayManager::setDiagonalCross(uint8_t x, uint8_t y, uint8_t value){
   //   x: 0-9, y: 0-7

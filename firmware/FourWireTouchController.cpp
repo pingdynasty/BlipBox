@@ -58,6 +58,7 @@
 
 uint16_t adc_values[7];
 uint8_t adc_mode;
+
 #define READ_STANDBY_STATE 1
 #define READ_X_POS_STATE   3
 #define READ_Y_POS_STATE   5
@@ -87,7 +88,7 @@ uint16_t TouchController::check(){
 }
 
 uint16_t TouchController::getX(){
-  return adc_values[1];
+  return x;
 }
 
 uint16_t TouchController::getY(){
@@ -107,40 +108,31 @@ ISR(ADC_vect)
   switch(adc_mode){
   case READ_STANDBY_STATE : {
     X_POS_CONFIGURATION;
-    adc_values[0] = ADCL;
-    adc_values[0] |= ADCH << 8;
-//     if(adc_values[0] < LOW_LEVEL_THRESHOLD)
-//       adc_mode = READ_POT;
-// else
-//     X_POS_CONFIGURATION;
+    adc_values[0] = ADCL | ADCH << 8;
     break;
   }
   case READ_X_POS_STATE : {
     Y_POS_CONFIGURATION;
-    adc_values[1] = ADCL;
-    adc_values[1] |= ADCH << 8;
+    adc_values[1] = ADCL | ADCH << 8;
     // Set ADC Input Channel for Y-Coordinate Measurement
     ADMUX = (ADMUX & ~7) | ADC1;
     break;
   }
   case READ_Y_POS_STATE : {
     Z_1_AND_2_CONFIGURATION;
-    adc_values[2] = ADCL;
-    adc_values[2] |= ADCH << 8;
+    adc_values[2] = ADCL | ADCH << 8;
     break;
   }
   case READ_Z1_POS_STATE : {
     Z_1_AND_2_CONFIGURATION;
-    adc_values[3] = ADCL;
-    adc_values[3] |= ADCH << 8;
+    adc_values[3] = ADCL | ADCH << 8;
     // Set ADC Input Channel for Z2 Measurement
     ADMUX = (ADMUX & ~7) | ADC2;
     break;
   }
   case READ_Z2_POS_STATE : {
     STANDBY_CONFIGURATION;
-    adc_values[4] = ADCL;
-    adc_values[4] |= ADCH << 8;
+    adc_values[4] = ADCL | ADCH << 8;
     ADMUX = (ADMUX & ~7) | POT_PIN;
     // Calculate Appraisal for R_Touch
     adc_values[5] = ((float)adc_values[4]/adc_values[3]-1)*adc_values[1];
@@ -149,8 +141,7 @@ ISR(ADC_vect)
   }
   case READ_POT_STATE : {
     STANDBY_CONFIGURATION;
-    adc_values[6] = ADCL;
-    adc_values[6] |= ADCH << 8;
+    adc_values[6] = ADCL | ADCH << 8;
     // Set ADC input channel to check for touch
     ADMUX = (ADMUX & ~7) | STANDBY_PIN;
     break;

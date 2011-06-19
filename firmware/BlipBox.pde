@@ -13,8 +13,8 @@ uint16_t counter;
 Animator* animator;
 // #define NOF_ANIMATORS 5
 // Animator animators[NOF_ANIMATORS] = {
-//   DotAnimator(), CrossAnimator(), 
-//   CrissAnimator(), ToggleAnimator(), StarAnimator() };
+// DotAnimator(), CrossAnimator(), 
+// CrissAnimator(), ToggleAnimator(), StarAnimator() };
 DotAnimator dot;
 CrossAnimator cross;
 CrissAnimator criss;
@@ -22,12 +22,12 @@ ToggleAnimator toggle;
 StarAnimator star;
 
 void setup() {
-//   disable_watchdog(); // disable watchdog timer
-// wdt_init causes device to hang? setup gets stuck?
   blipbox.config.init();
   blipbox.init();
   blipbox.leds.start();
-  blipbox.error(MESSAGE_WRITE_ERROR);
+  blipbox.setMidiMode(false);
+  blipbox.setEditMode(false);
+  blipbox.message(ALERT);
 }
 
 void loop() {
@@ -38,25 +38,70 @@ void loop() {
     previousMillis = millis();   // remember the last time we did this
     // counter overflows at 65536
   }
-  blipbox.signal.tick(counter++);
+  blipbox.signal.tick(++counter);
   if(animator != NULL)
     animator->tick(counter);
 }
 
-void BlipBox::tick(){
-  switch(keys.keyscan()){
-  case RELEASED:
-    sender.release.update();
-    sender.position.reset();
-    break;
-  case DISENGAGED:
-    break;
-  default:
-    sender.position.update(keys.getX(), keys.getY());
+#define TAP_THRESHOLD 300 // ms between press and release to be considered tap
+#define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
+
+unsigned long lastpressed = 0xffff;
+unsigned long lasttapped  = 0xffff;
+
+// void BlipBox::setEventHandler(EventHandler* handler){
+//   free(eventhandler);
+//   eventhandler = handler;
+// }
+
+void BlipBox::setMidiMode(bool midi){
+  if(midi){
+    blipbox.sender.setMidiProtocol();
+    beginSerial(31250L);
+    blipbox.setFollowMode(5);
+  }else{
+    blipbox.sender.setSerialProtocol();
+    beginSerial(blipbox.config.serialSpeed);
+    blipbox.setFollowMode(0);
   }
 }
 
-void BlipBox::error(uint8_t code){
+void BlipBox::setEditMode(bool edit){
+  blipbox.leds.fill(0x00);
+  if(edit){
+    eventhandler = &presetshandler;
+    presetshandler.init();
+    animator = &presetshandler;
+  }else{
+    eventhandler = &defaulthandler;
+    blipbox.setFollowMode(0);
+  }
+}
+
+void BlipBox::tick(){
+  switch(keys.keyscan()){
+  case DISENGAGED:
+    break;
+  case RELEASED:
+    eventhandler->release(keys.getPosition());
+    if(millis() - lasttapped < TAPTAP_THRESHOLD){
+      eventhandler->taptap(keys.getPosition());
+    }else if(millis() - lastpressed < TAP_THRESHOLD){
+      eventhandler->tap(keys.getPosition());
+      lasttapped = millis();
+    }
+    break;
+  case PRESSED:
+    eventhandler->press(keys.getPosition());
+    lastpressed = millis();
+    break;
+  case DRAGGED:
+  case UNCHANGED: // same column/row, possibly different x/y
+    eventhandler->drag(keys.getPosition());
+  }
+}
+
+void BlipBox::message(MessageType code){
   signal.setSignal(code);
 }
 
@@ -65,7 +110,6 @@ void BlipBox::init() {
   keys.init();
   leds.init();
   sender.init();
-  beginSerial(config.serialSpeed);
   setFollowMode(config.followMode);
   sei(); // enable interrupts
 }
@@ -99,7 +143,7 @@ void sendParameter(uint8_t pid){
 }
 
 void BlipBox::sendConfigurationParameters(){
-  error(MESSAGE_WRITE_ERROR);
+  message(ALERT);
   sendParameter(SENSITIVITY_PARAMETER_ID);
   sendParameter(BRIGHTNESS_PARAMETER_ID);
   sendParameter(TLC_GSCLK_PERIOD_PARAMETER_ID);
