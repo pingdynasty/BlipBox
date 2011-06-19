@@ -10,8 +10,8 @@ if (/^FONT\s+(.*)$/) {
     $FONTNAME = $1;
 }
 elsif (/^FONTBOUNDINGBOX\s+(\d+)\s+(\d+)\s+(.+)\s+(.+)/) { 
-    $START = 40; # first character in font
-    $LENGTH = 122 - $START+1; # number of characters in font
+    $START = 33; # first character in font
+    $LENGTH = 126 - $START+1; # number of characters in font
     $WIDTH= $1 ;
     $HEIGHT= $2 ;
     $BASELINE= $4; # vertical offset of characters - negative or zero 
