@@ -2,7 +2,7 @@
 #define _MESSAGEDISPATCHER_H_
 
 #include "Protocol.h"
-#include "MidiZoneProtocol.h"
+/* #include "MidiZoneProtocol.h" */
 
 #define NO_MESSAGE         -1
 
@@ -117,7 +117,7 @@ private:
   uint8_t index;
 /*   MidiProtocol midiprotocol; */
 public:
-  MidiZoneProtocol midiprotocol;
+/*   MidiZoneProtocol midiprotocol; */
   SerialProtocol serialprotocol;
 public:
   PositionMessage position;
@@ -136,14 +136,14 @@ public:
   }
   void init(){
     protocol = &serialprotocol;
-    midiprotocol.loadPreset(0);
+/*     midiprotocol.loadPreset(0); */
   }
   void setSerialProtocol(){
     protocol = &serialprotocol;
   }
-  void setMidiProtocol(){
-    protocol = &midiprotocol;
-  }
+/*   void setMidiProtocol(){ */
+/*     protocol = &midiprotocol; */
+/*   } */
   bool send(){
     uint8_t cnt = MESSAGE_TYPE_COUNT;
     while(cnt--){

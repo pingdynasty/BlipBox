@@ -4,6 +4,7 @@
 #include "Greeting.h"
 #include "Characters.h"
 #include "Parameters.h"
+#include "MidiPresetReader.h"
 
 #define RX_BUFFER_SIZE 3
 
@@ -52,6 +53,10 @@ uint16_t getTenBitValue(){
 uint8_t getFourBitValue(){
   return rx_buffer[0] & MESSAGE_VALUE_MASK;
 }
+
+// void handleMidiPresetCommand(){
+//   blipbox.setSerialReader(new MidiPresetReader());
+// }
 
 void handleSetLedMessage(){
     rx_buffer_head = 0;
@@ -127,6 +132,9 @@ void handleCommandMessage(){
   case 11: // start led update
     blipbox.leds.start();
     break;
+//   case 12: // receive midi preset command
+//     handleMidiPresetCommand();
+    break;
   case 15: // re-initialise
     blipbox.init();
     break;
@@ -136,7 +144,7 @@ void handleCommandMessage(){
   }
 }
 
-void serialInput(unsigned char c) {
+void SerialProtocolReader::serialInput(unsigned char c) {
   rx_buffer[rx_buffer_head++] = c;
   switch(getMessageType()){
     // 3 byte messages

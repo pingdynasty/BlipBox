@@ -1,16 +1,10 @@
+#include <stdlib.h>
 #include "globals.h"
-#include <wiring.h>
-#include <avr/interrupt.h>
-#include <avr/eeprom.h>
+
+void* operator new(size_t size) { return malloc(size); }
+void operator delete(void* ptr) { free(ptr); }
 
 BlipBox blipbox;
-
-// LedController leds;
-// DisplayManager display;
-// KeyController keys;
-// SignalAnimator signal;
-// Configuration config;
-// MessageSender sender;
 
 // macro to perfom a soft reset using the watchdog timer
 // #define soft_reset()        \
@@ -39,8 +33,6 @@ BlipBox blipbox;
 //         sei();
 // }
 
-
-
 // void WDT_off(void)
 // {
 //         __disable_interrupt();
@@ -66,16 +58,6 @@ BlipBox blipbox;
 //     WDTCSR = 0;
 //     SREG = origSREG;
 //     sei();
-// }
-
-// // blocking call to serialRead
-// uint8_t readByte(){
-//   while(!serialAvailable());
-//   return serialRead();
-// }
-
-// void setmode(uint8_t mode){
-//   eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
 // }
 
 // void reset(uint8_t mode){

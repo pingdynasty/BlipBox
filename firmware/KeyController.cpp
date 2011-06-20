@@ -27,15 +27,16 @@
 // }
 
 KeyState KeyController::keyscan(){
-  uint8_t oldRow = row;
-  uint8_t oldCol = col;
+  uint8_t oldRow = getPosition().row;
+  uint8_t oldCol = getPosition().column;
   if(this->getZ() < blipbox.config.sensitivity){
     this->update(); // sets row/col
     if(!pressed){
       // toggled from released to pressed
       pressed = true;
       return PRESSED;
-    }else if(oldRow != row || oldCol != col){
+    }else if(oldRow != getPosition().row || 
+	     oldCol != getPosition().column){
       // different key pressed
       return DRAGGED;
     }else{
@@ -52,18 +53,10 @@ KeyState KeyController::keyscan(){
 }
 
 void KeyController::update(){
-  row = this->readRow();
-  if(row >= GRID_ROWS)
-    row = GRID_ROWS - 1;
-  col = this->readColumn();
-  if(col >= GRID_COLS)
-    col = GRID_COLS - 1;
-}
-
-uint8_t KeyController::readColumn(){
-  return getPosition().x * GRID_COLS / SENSOR_MAX;
-}
-
-uint8_t KeyController::readRow(){
-  return getPosition().y * GRID_ROWS / SENSOR_MAX;
+  getPosition().column = getPosition().x * GRID_COLS / SENSOR_MAX;
+  if(getPosition().column >= GRID_COLS)
+    getPosition().column = GRID_COLS - 1;
+  getPosition().row = getPosition().y * GRID_ROWS / SENSOR_MAX;
+  if(getPosition().row >= GRID_ROWS)
+    getPosition().row = GRID_ROWS - 1;
 }

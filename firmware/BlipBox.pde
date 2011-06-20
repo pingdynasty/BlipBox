@@ -3,9 +3,10 @@
 #include "globals.h"
 
 #include "MessageDispatcher.h"
-#include "SerialProtocolReader.h"
 #include "BlipBox.h"
 #include "Parameters.h"
+
+#include "MidiZoneEventHandler.h"
 
 unsigned long previousMillis;        // will store last time write was done
 uint16_t counter;
@@ -26,9 +27,24 @@ void setup() {
   blipbox.init();
   blipbox.leds.start();
   blipbox.setMidiMode(false);
-  blipbox.setEditMode(false);
   blipbox.message(ALERT);
+
+// timer0 (used for millis() counting)
+//   TCCR0B = CS01 | CS00; // prescaler 64
+//   TCCR0B = CS02;        // prescaler 256
+//   TCCR0B = CS02 | CS00; // prescaler 1024
+// 16MHz / 256 / 64 = 976.5625Hz
+// 16MHz / 256 / 256 = 244.140625Hz
+// 16MHz / 256 / 1024 = 61.03515625Hz
 }
+
+// volatile unsigned long timer0_overflow_count;
+// SIGNAL(SIG_OVERFLOW0){
+//   timer0_overflow_count++;
+// }
+// unsigned long millis(){
+// 	return timer0_overflow_count * 64UL * 2UL / (F_CPU / 128000UL);
+// }
 
 void loop() {
   blipbox.tick();
@@ -49,18 +65,42 @@ void loop() {
 unsigned long lastpressed = 0xffff;
 unsigned long lasttapped  = 0xffff;
 
-// void BlipBox::setEventHandler(EventHandler* handler){
-//   free(eventhandler);
-//   eventhandler = handler;
-// }
+void BlipBox::setSerialReader(SerialReader* handler){
+  SerialReader* p = receiver;
+  receiver = handler;
+  if(p != &defaultreceiver && p != receiver)
+    free(p);
+}
+
+void BlipBox::resetSerialReader(){
+  SerialReader* p = receiver;
+  receiver = &defaultreceiver;
+  if(p != &defaultreceiver)
+    free(p);
+}
+
+void BlipBox::setEventHandler(EventHandler* handler){
+  EventHandler* p = eventhandler;
+  eventhandler = handler;
+  if(p != &defaulthandler && p != &midizones && p != handler)
+    free(p);
+  eventhandler->init();
+}
+
+void BlipBox::resetEventHandler(){
+  EventHandler* p = eventhandler;
+  eventhandler = &defaulthandler;
+  if(p != &defaulthandler && p != &midizones)
+    free(p);
+}
 
 void BlipBox::setMidiMode(bool midi){
   if(midi){
-    blipbox.sender.setMidiProtocol();
+    eventhandler = &midizones;
     beginSerial(31250L);
     blipbox.setFollowMode(5);
   }else{
-    blipbox.sender.setSerialProtocol();
+    eventhandler = &defaulthandler;
     beginSerial(blipbox.config.serialSpeed);
     blipbox.setFollowMode(0);
   }
@@ -69,11 +109,11 @@ void BlipBox::setMidiMode(bool midi){
 void BlipBox::setEditMode(bool edit){
   blipbox.leds.fill(0x00);
   if(edit){
-    eventhandler = &presetshandler;
-    presetshandler.init();
-    animator = &presetshandler;
+    PresetChooser* presetshandler = new PresetChooser();
+    setEventHandler(presetshandler);
+    animator = presetshandler;
   }else{
-    eventhandler = &defaulthandler;
+    resetEventHandler();
     blipbox.setFollowMode(0);
   }
 }
@@ -111,6 +151,7 @@ void BlipBox::init() {
   leds.init();
   sender.init();
   setFollowMode(config.followMode);
+  receiver = &defaultreceiver;
   sei(); // enable interrupts
 }
 
@@ -164,7 +205,7 @@ SIGNAL(SIG_UART_RECV)
 #else
   unsigned char c = UDR;
 #endif
-  serialInput(c);
+  blipbox.receiver->serialInput(c);
 }
 
 ISR(TIMER1_OVF_vect)

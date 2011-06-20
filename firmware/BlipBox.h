@@ -2,12 +2,16 @@
 #define _BLIPBOX_H_
 
 #include "EventHandler.h"
+#include "PresetChooser.h"
 #include "LedController.h"
 #include "DisplayManager.h"
 #include "KeyController.h"
 #include "Animator.h"
 #include "Configuration.h"
 #include "MessageDispatcher.h"
+#include "SerialReader.h"
+#include "SerialProtocolReader.h"
+#include "MidiZoneEventHandler.h"
 
 // error codes
 // the code corresponds to the number of blinks emmitted to signal the error
@@ -26,17 +30,23 @@ public:
   SignalAnimator signal;
   Configuration config;
   MessageDispatcher sender;
+  MidiZoneEventHandler midizones;
+  SerialReader* receiver;
+  EventHandler* eventhandler;
   void init();
   void tick();
   void message(MessageType code);
   void setFollowMode(uint8_t mode);
   void sendConfigurationParameters();
-
-  EventHandler* eventhandler;
-  PresetChooser presetshandler;
-  DefaultEventHandler defaulthandler;
+  void setSerialReader(SerialReader* handler);
+  void resetSerialReader();
+  void setEventHandler(EventHandler* handler);
+  void resetEventHandler();
   void setEditMode(bool edit);
   void setMidiMode(bool midi);
+private:
+  SerialProtocolReader defaultreceiver;
+  DefaultEventHandler defaulthandler;
 };
 
 #endif /* _BLIPBOX_H_ */

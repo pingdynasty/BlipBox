@@ -16,11 +16,11 @@ public:
 /*   void keychange(uint8_t row, uint8_t col, bool ison); */
 
   inline uint8_t getColumn(){
-    return col;
+    return getPosition().column;
   }
 
   inline uint8_t getRow(){
-    return row;
+    return getPosition().row;
   }
 
   inline bool isPressed(){
@@ -29,12 +29,6 @@ public:
 
 private:
   void update();
-  uint8_t readRow();
-  uint8_t readColumn();
-
-//   TouchController touch;
-  uint8_t col;
-  uint8_t row;
   bool pressed;
 };
 

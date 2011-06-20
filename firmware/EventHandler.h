@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "Position.h"
-#include "Animator.h"
 
 class EventHandler {
 public:
@@ -14,20 +13,6 @@ public:
   virtual void tap(Position& pos){}
   virtual void taptap(Position& pos){}
 };
-
-class PresetChooser : public EventHandler, public Animator {
-private:
-  uint8_t preset;
-  void printPreset();
-public:
-  void init();
-  void tick(uint16_t counter);
-  void tap(Position& pos);
-  void taptap(Position& pos);
-};
-
-// class MidiZonesEventHandler : public EventHandler {
-// };
 
 class DefaultEventHandler : public EventHandler {
 public:
