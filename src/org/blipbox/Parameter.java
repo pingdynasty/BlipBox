@@ -6,7 +6,8 @@ public enum Parameter {
     SENSITIVITY            (0x02<<2, "Sensitivity"),
     TLC_GSCLK_PERIOD       (0x03<<2, "TLC GSCLK period"),
     SERIAL_SPEED           (0x04<<2, "Serial speed"),
-    FOLLOW_MODE            (0x05<<2, "Follow mode");
+    FOLLOW_MODE            (0x05<<2, "Follow mode"),
+    MIDI_ZONE              (0x06<<2, "MIDI zone data");
 
     public int pid;
     public String name;

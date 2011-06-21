@@ -2,10 +2,10 @@ package org.blipbox;
 
 public class BlipBoxSensorConfiguration extends SensorConfiguration {
 
-    public static final int X_MIN = 260;
-    public static final int X_MAX = 800;
-    public static final int Y_MIN = 210;
-    public static final int Y_MAX = 780;
+    public static final int X_MIN = 0;
+    public static final int X_MAX = 1023;
+    public static final int Y_MIN = 0;
+    public static final int Y_MAX = 1023;
     public static final int Z_MIN = 20;
     public static final int Z_MAX = 200;
     public static final int POT_MIN = 252;

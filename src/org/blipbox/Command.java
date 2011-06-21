@@ -11,6 +11,7 @@ public enum Command {
     CFG_WRITE           (9, "Write configuration to EEPROM"),
     LEDS_STOP           (10, "Stop LED screen updates"),
     LEDS_START          (11, "Start LED screen updates"),
+    MIDI_PRESET         (12, "Send MIDI zone preset"),
     RESET               (15, "Soft reset the BlipBox");
 
     public int cid;

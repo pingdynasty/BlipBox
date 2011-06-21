@@ -3,6 +3,7 @@ package org.blipbox;
 import java.io.OutputStream;
 import java.io.IOException;
 import org.apache.log4j.Logger;
+import org.blipbox.presets.*;
 
 public class BlipBoxDataSender implements BlipBoxOutput {
 
@@ -117,9 +118,8 @@ public class BlipBoxDataSender implements BlipBoxOutput {
 
     public void writeText(String str, long delay){
         for(char c: str.toCharArray()){
-            shiftHorizontal(-1);
-            sleep(delay);
-            // currently this writes backwards!
+// 	    shiftLeft(1);
+// 	    sleep(delay);
             for(int pos=9; pos>4; --pos){
                 shiftLeft(1);
                 writeCharacter(pos, c);
@@ -127,6 +127,19 @@ public class BlipBoxDataSender implements BlipBoxOutput {
             }
         }
     }
+
+//     public void writeText(String str, long delay){
+//         for(char c: str.toCharArray()){
+// 	    shiftRight(1);
+//             sleep(delay);
+// //             // currently this writes backwards!
+//             for(int pos=0; pos<4; ++pos){
+// 		shiftRight(1);
+//                 writeCharacter(pos, c);
+//                 sleep(delay);
+//             }
+//         }
+//     }
 
     public void writeCharacter(int pos, char c){
 //         log.debug("Sending character "+c+" at pos "+pos);
@@ -189,4 +202,23 @@ public class BlipBoxDataSender implements BlipBoxOutput {
         serialWrite(new int[]{SET_PARAMETER_MESSAGE | pid | (value >> 8 & 0x3), value & 0xff});
     }
 
+    public void requestMidiZonePreset(int index){
+	sendCommand(Command.MIDI_PRESET);
+	sleep(100);
+	int command = MidiZonePreset.REQUEST_PRESET_COMMAND | index;
+	serialWrite(new int[]{command, 0});
+    }
+
+    public void sendMidiZonePreset(MidiZonePreset preset){
+	sendCommand(Command.MIDI_PRESET);
+	sleep(100);
+	int command = preset.READ_PRESET_COMMAND | preset.getIndex();
+	serialWrite(new int[]{command});
+	int[] buf = new int[4];
+	for(int i=0; i<8; ++i){
+	    preset.getZone(i).write(buf);
+	    serialWrite(buf);
+	}
+	serialWrite(new int[]{0});
+    }
 }
