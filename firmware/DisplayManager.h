@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+#define SHIFT_UP    0x00<<2
+#define SHIFT_DOWN  0x01<<2
+#define SHIFT_LEFT  0x02<<2
+#define SHIFT_RIGHT 0x03<<2
+
 class DisplayManager {
  public:
   /** shifts the led data in the given direction */

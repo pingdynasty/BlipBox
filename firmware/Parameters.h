@@ -11,6 +11,8 @@
 #define SERIAL_SPEED_PARAMETER_ID     (0x04 << 2)
 #define FOLLOW_MODE_PARAMETER_ID      (0x05 << 2)
 
+#define MIDI_ZONE_PARAMETER_ID        (0x06 << 2)
+
 /* #define BRIGHTNESS_PARAMETER_ID       (0x01 << 2) */
 /* #define SENSITIVITY_PARAMETER_ID      (0x02 << 2) */
 /* #define FOLLOW_MODE_PARAMETER_ID      (0x03 << 2) */

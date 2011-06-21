@@ -2,52 +2,65 @@
 #include "globals.h"
 #include "PresetChooser.h"
 
-void PresetChooser::printPreset(){
-  if(preset)
- // ascii numbers start at hex 30
-    blipbox.display.printCharacter(preset+0x30, 3, 0, blipbox.config.brightness);
-  else
-    blipbox.display.printCharacter('u', 3, 0, blipbox.config.brightness);
-}
+#define MAX_PRESET 5
 
 void PresetChooser::init(){
-  blipbox.setFollowMode(0);
-  if(blipbox.eventhandler != &blipbox.midizones)
+  if(blipbox.eventhandler == &blipbox.midizones)
+    preset = 0;
+  else
     preset = blipbox.midizones.getPreset()+1;
   printPreset();
 }
 
-void PresetChooser::tick(uint16_t counter){
-  // draw animated arrows left/right
-  uint8_t brightness = ((counter >> 6) % 100) + 100;
+void PresetChooser::printPreset(){
+  if(preset)
+    blipbox.display.printCharacter('0'+preset, 3, 0, blipbox.config.brightness);
+  else
+    blipbox.display.printCharacter('u', 3, 0, blipbox.config.brightness);
+  // draw arrows left/right
   if(preset){
-    blipbox.leds.setLed(1, 3, brightness);
-    blipbox.leds.setLed(0, 4, brightness+55);
-    blipbox.leds.setLed(1, 5, brightness);
+    blipbox.leds.setLed(1, 3, blipbox.config.brightness);
+    blipbox.leds.setLed(0, 4, blipbox.config.brightness);
+    blipbox.leds.setLed(1, 5, blipbox.config.brightness);
   }
-  if(preset < 5){
-    blipbox.leds.setLed(8, 3, brightness);
-    blipbox.leds.setLed(9, 4, brightness+55);
-    blipbox.leds.setLed(8, 5, brightness);
+  if(preset < MAX_PRESET){
+    blipbox.leds.setLed(8, 3, blipbox.config.brightness);
+    blipbox.leds.setLed(9, 4, blipbox.config.brightness);
+    blipbox.leds.setLed(8, 5, blipbox.config.brightness);
   }
   // draw marker for bottom left corner
-  blipbox.leds.setLed(1, 0, 100);
-  blipbox.leds.setLed(0, 0, 0xff-brightness);
-  blipbox.leds.setLed(0, 1, 100);
+  blipbox.leds.setLed(1, 0, blipbox.config.brightness);
+  blipbox.leds.setLed(0, 1, blipbox.config.brightness);
 }
 
-void PresetChooser::tap(Position& pos){
+void PresetChooser::tick(uint16_t counter){
+  uint8_t brightness = ((counter >> 6) % blipbox.config.brightness);
+  blipbox.leds.setLed(0, 0, blipbox.config.brightness-brightness);
+}
+
+uint8_t column, origin;
+void PresetChooser::press(Position& pos){
+  origin = pos.column;
+  column = pos.column;
+}
+
+void PresetChooser::drag(Position& pos){
   if(pos.row < 2)
     return;
-  if(pos.column < 5){
-    if(preset)
-      --preset;
-    printPreset();
-  }else{
-    if(preset<5)
-      ++preset;
-    printPreset();
-  }
+  if(pos.column > column && preset < MAX_PRESET)
+    blipbox.display.shift(SHIFT_RIGHT);
+  else if(pos.column < column && preset)
+    blipbox.display.shift(SHIFT_LEFT);
+  column = pos.column;
+}
+
+void PresetChooser::release(Position& pos){
+  if(pos.column > origin && preset)
+    preset--;
+  else if(pos.column < origin && preset < MAX_PRESET)
+    preset++;
+  blipbox.leds.clear();
+  printPreset();
 }
 
 void PresetChooser::taptap(Position& pos){
@@ -61,5 +74,9 @@ void PresetChooser::taptap(Position& pos){
       // set usb mode
       blipbox.setMidiMode(false);
     }
+  }else if(pos.row > 1 && pos.column > 1 && pos.column < 8 && preset){
+    // save preset to eeprom
+    blipbox.midizones.savePreset(preset-1);
+    blipbox.message(ALERT);
   }
 }

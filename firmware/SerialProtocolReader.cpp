@@ -54,9 +54,10 @@ uint8_t getFourBitValue(){
   return rx_buffer[0] & MESSAGE_VALUE_MASK;
 }
 
-// void handleMidiPresetCommand(){
-//   blipbox.setSerialReader(new MidiPresetReader());
-// }
+void handleMidiPresetCommand(){
+  blipbox.setSerialReader(new MidiPresetReader());
+  blipbox.leds.clear();
+}
 
 void handleSetLedMessage(){
     rx_buffer_head = 0;
@@ -132,8 +133,8 @@ void handleCommandMessage(){
   case 11: // start led update
     blipbox.leds.start();
     break;
-//   case 12: // receive midi preset command
-//     handleMidiPresetCommand();
+  case 12: // receive midi preset command
+    handleMidiPresetCommand();
     break;
   case 15: // re-initialise
     blipbox.init();

@@ -98,7 +98,8 @@ void BlipBox::setMidiMode(bool midi){
   if(midi){
     eventhandler = &midizones;
     beginSerial(31250L);
-    blipbox.setFollowMode(5);
+    setSerialReader(new SerialReader());
+    animator = &midizones;
   }else{
     eventhandler = &defaulthandler;
     beginSerial(blipbox.config.serialSpeed);
@@ -107,13 +108,15 @@ void BlipBox::setMidiMode(bool midi){
 }
 
 void BlipBox::setEditMode(bool edit){
-  blipbox.leds.fill(0x00);
+  blipbox.leds.clear();
   if(edit){
     PresetChooser* presetshandler = new PresetChooser();
     setEventHandler(presetshandler);
+    setSerialReader(new SerialReader());
     animator = presetshandler;
   }else{
     resetEventHandler();
+    resetSerialReader();
     blipbox.setFollowMode(0);
   }
 }
@@ -192,29 +195,32 @@ void BlipBox::sendConfigurationParameters(){
   sendParameter(FOLLOW_MODE_PARAMETER_ID);
 }
 
+void BlipBox::sendMidiZones(){
+  blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, midizones.getPreset());
+  blipbox.sender.parameter.send();
+  uint8_t data[4];
+  for(int i=0; i<8; ++i){
+    midizones.getZone(i).write(data);
+    for(int j=0; j<4; ++j){
+      blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, data[j]);
+      blipbox.sender.parameter.send();
+    }
+  }
+  message(ALERT);
+}
+
 // Interrupt routines 
 
 #if defined(__AVR_ATmega168__)
-SIGNAL(SIG_USART_RECV)
-#else
-SIGNAL(SIG_UART_RECV)
-#endif
-{
-#if defined(__AVR_ATmega168__)
+SIGNAL(SIG_USART_RECV){
   unsigned char c = UDR0;
 #else
+SIGNAL(SIG_UART_RECV){
   unsigned char c = UDR;
 #endif
   blipbox.receiver->serialInput(c);
 }
 
-ISR(TIMER1_OVF_vect)
-{
+ISR(TIMER1_OVF_vect){
   blipbox.leds.displayCurrentRow();
 }
-
-// ISR(TIMER1_OVF_vect){
-//   leds.displayCurrentRow();
-// }
-
-// EMPTY_INTERRUPT(TIMER1_OVF_vect);

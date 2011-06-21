@@ -15,9 +15,6 @@
 
 // error codes
 // the code corresponds to the number of blinks emmitted to signal the error
-/* #define SIGNAL_ERROR  2 */
-/* #define MESSAGE_READ_ERROR  2 */
-/* #define MESSAGE_WRITE_ERROR 4 */
 enum MessageType {
   ALERT = 2, MESSAGE_READ_ERROR = 4 , MESSAGE_WRITE_ERROR = 6
 };
@@ -38,6 +35,7 @@ public:
   void message(MessageType code);
   void setFollowMode(uint8_t mode);
   void sendConfigurationParameters();
+  void sendMidiZones();
   void setSerialReader(SerialReader* handler);
   void resetSerialReader();
   void setEventHandler(EventHandler* handler);

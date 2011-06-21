@@ -13,7 +13,10 @@ private:
 public:
   void init();
   void tick(uint16_t counter);
-  void tap(Position& pos);
+  void press(Position& pos);
+  void release(Position& pos);
+  void drag(Position& pos);
+/*   void tap(Position& pos); */
   void taptap(Position& pos);
 };
 

@@ -50,6 +50,11 @@ public:
     setLed(x, y, getLed(x, y) ^ 0xff);
   }
 
+  void clear(){
+    memset(led_buffer, 0, LED_BUFFER_LENGTH);
+//     bzero(led_buffer, LED_BUFFER_LENGTH);
+  }
+
   void fill(uint8_t brightness){
     memset(led_buffer, brightness, LED_BUFFER_LENGTH);
   }
