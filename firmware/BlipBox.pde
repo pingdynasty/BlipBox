@@ -12,43 +12,26 @@ unsigned long previousMillis;        // will store last time write was done
 uint16_t counter;
 
 Animator* animator;
-// #define NOF_ANIMATORS 5
-// Animator animators[NOF_ANIMATORS] = {
-// DotAnimator(), CrossAnimator(), 
-// CrissAnimator(), ToggleAnimator(), StarAnimator() };
-DotAnimator dot;
-CrossAnimator cross;
-CrissAnimator criss;
-ToggleAnimator toggle;
-StarAnimator star;
+// DotAnimator dot;
+// CrossAnimator cross;
+// CrissAnimator criss;
+// ToggleAnimator toggle;
+// StarAnimator star;
 
 void setup() {
   blipbox.config.init();
   blipbox.init();
   blipbox.leds.start();
-  blipbox.setMidiMode(false);
+//   blipbox.setEditMode(false);
+  blipbox.receiver = &blipbox.defaultreceiver;
+  blipbox.eventhandler = &blipbox.defaulthandler;
+  beginSerial(blipbox.config.serialSpeed);
   blipbox.message(ALERT);
-
-// timer0 (used for millis() counting)
-//   TCCR0B = CS01 | CS00; // prescaler 64
-//   TCCR0B = CS02;        // prescaler 256
-//   TCCR0B = CS02 | CS00; // prescaler 1024
-// 16MHz / 256 / 64 = 976.5625Hz
-// 16MHz / 256 / 256 = 244.140625Hz
-// 16MHz / 256 / 1024 = 61.03515625Hz
+  animator = NULL;
 }
-
-// volatile unsigned long timer0_overflow_count;
-// SIGNAL(SIG_OVERFLOW0){
-//   timer0_overflow_count++;
-// }
-// unsigned long millis(){
-// 	return timer0_overflow_count * 64UL * 2UL / (F_CPU / 128000UL);
-// }
 
 void loop() {
   blipbox.tick();
-//   readSensors();
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
     blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
@@ -96,14 +79,15 @@ void BlipBox::resetEventHandler(){
 
 void BlipBox::setMidiMode(bool midi){
   if(midi){
-    eventhandler = &midizones;
     beginSerial(31250L);
     setSerialReader(new SerialReader());
+    eventhandler = &midizones;
     animator = &midizones;
   }else{
-    eventhandler = &defaulthandler;
     beginSerial(blipbox.config.serialSpeed);
-    blipbox.setFollowMode(0);
+//     resetSerialReader(); // done by setEditMode(false)
+//     resetEventHandler(); // done by setEditMode(false)
+//     blipbox.setFollowMode(0); // done by setEditMode(false)
   }
 }
 
@@ -117,7 +101,8 @@ void BlipBox::setEditMode(bool edit){
   }else{
     resetEventHandler();
     resetSerialReader();
-    blipbox.setFollowMode(0);
+    animator = NULL;
+//     blipbox.setFollowMode(0);
   }
 }
 
@@ -153,32 +138,31 @@ void BlipBox::init() {
   keys.init();
   leds.init();
   sender.init();
-  setFollowMode(config.followMode);
-  receiver = &defaultreceiver;
+//   setFollowMode(config.followMode);
   sei(); // enable interrupts
 }
 
 void BlipBox::setFollowMode(uint8_t mode) {
   config.followMode = mode;
-  switch(config.followMode){
-  case 1:
-    animator = &dot;
-    break;
-  case 2:
-    animator = &cross;
-    break;
-  case 3:
-    animator = &criss;
-    break;
-  case 4:
-    animator = &toggle;
-    break;
-  case 5:
-    animator = &star;
-    break;
-  default:
-    animator = NULL;
-  }
+//   switch(config.followMode){
+//   case 1:
+//     animator = &dot;
+//     break;
+//   case 2:
+//     animator = &cross;
+//     break;
+//   case 3:
+//     animator = &criss;
+//     break;
+//   case 4:
+//     animator = &toggle;
+//     break;
+//   case 5:
+//     animator = &star;
+//     break;
+//   default:
+//     animator = NULL;
+//   }
 }
 
 void sendParameter(uint8_t pid){
@@ -196,7 +180,7 @@ void BlipBox::sendConfigurationParameters(){
 }
 
 void BlipBox::sendMidiZones(){
-  blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, midizones.getPreset());
+  blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, midizones.preset);
   blipbox.sender.parameter.send();
   uint8_t data[4];
   for(int i=0; i<8; ++i){
@@ -206,7 +190,6 @@ void BlipBox::sendMidiZones(){
       blipbox.sender.parameter.send();
     }
   }
-  message(ALERT);
 }
 
 // Interrupt routines 

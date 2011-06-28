@@ -41,8 +41,7 @@ AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-
-CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp MidiZoneEventHandler.cpp PresetChooser.cpp MidiZone.cpp
+CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp MidiZoneEventHandler.cpp PresetChooser.cpp MidiZone.cpp 
 # CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageSender.cpp Characters.cpp globals.cpp MIC5891Counter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp
 ############################################################################
 # Below here nothing should be changed...
@@ -130,7 +129,8 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: applet_files build sizeafter
 
-build: elf hex 
+build: elf hex
+# build: elf hex eep
 
 applet_files: $(TARGET).pde
 	# Here is the "preprocessing".
@@ -200,7 +200,7 @@ extcoff: $(TARGET).elf
 	$(NM) -n $< > $@
 
 # Link: create ELF output file from library.
-applet/$(TARGET).elf: $(TARGET).pde applet/core.a 
+applet/$(TARGET).elf: $(TARGET).pde applet/core.a
 	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
 
 applet/core.a: $(OBJ)

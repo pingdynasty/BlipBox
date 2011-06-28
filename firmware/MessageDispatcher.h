@@ -2,16 +2,15 @@
 #define _MESSAGEDISPATCHER_H_
 
 #include "Protocol.h"
-/* #include "MidiZoneProtocol.h" */
+#include "Position.h"
 
-#define NO_MESSAGE         -1
-
-extern Protocol* protocol;
+#define NO_MESSAGE        -1
 
 class AbstractMessage {
 public:
-//   virtual bool send() = 0;
-  virtual bool send() { return false; }; // the default function def adds a few bytes of data
+  virtual bool send() { 
+    return false; 
+  };
 };
 
 class ParameterMessage : public AbstractMessage {
@@ -19,46 +18,25 @@ private:
   uint8_t m_pid;
   int16_t m_value;
 public:
-//   ParameterMessage(uint8_t pid) : m_pid(pid), m_value(NO_MESSAGE) {}
   ParameterMessage() : m_value(NO_MESSAGE) {}
-//   void update(uint16_t value){
-//     m_value = value;
-//   }
   void update(uint8_t pid, uint16_t value){
     m_pid = pid;
     m_value = value;
   }
-  bool send(){
-    if(m_value != NO_MESSAGE){
-      protocol->sendParameterMessage(m_pid, m_value);
-      m_value = NO_MESSAGE;
-      return true;
-    }
-    return false;
-  }
+  bool send();
 };
 
 class SensorMessage : public AbstractMessage {
 private:
-  bool m_status;
   uint8_t m_sid;
   int16_t m_value;
 public:
   SensorMessage(uint8_t sid) : m_sid(sid), m_value(NO_MESSAGE) {}
   void update(uint16_t value){
-    if(m_value  != value){
+    if(m_value  != value)
       m_value = value;
-      m_status = true;
-    }
   }
-  bool send(){
-    if(m_status){
-      protocol->sendSensorMessage(m_sid, m_value);
-      m_status = false;
-      return true;
-    }
-    return false;
-  }
+  bool send();
 };
 
 class ReleaseMessage : public AbstractMessage {
@@ -69,14 +47,7 @@ public:
   void update(){
     m_value = 1;
   }
-  bool send(){
-    if(m_value != NO_MESSAGE){
-      protocol->sendReleaseMessage();
-      m_value = NO_MESSAGE;
-      return true;
-    }
-    return false;
-  }
+  bool send();
   void reset(){
     m_value = NO_MESSAGE;
   }
@@ -84,29 +55,20 @@ public:
 
 class PositionMessage : public AbstractMessage {
 private:
-  bool m_status;
-  uint16_t m_x;
-  uint16_t m_y;
+  int16_t m_x;
+  int16_t m_y;
 public:
-  void update(uint16_t x, uint16_t y){
-    if(m_x != x || m_y != y){
-      m_x = x;
-      m_y = y;
-      m_status = true;
+  PositionMessage() : m_x(NO_MESSAGE) {}
+  void update(const Position& pos){
+    if(m_x != pos.x || m_y != pos.y){
+      m_x = pos.x;
+      m_y = pos.y;
     }
   }
   void reset(){
-    m_status = false;
-    m_x = m_y = 0;
+    m_x = NO_MESSAGE;
   }
-  bool send(){
-    if(m_status){
-      protocol->sendPositionMessage(m_x, m_y);
-      m_status = false;
-      return true;
-    }
-    return false;
-  }
+  bool send();
 };
 
 #define MESSAGE_TYPE_COUNT 4
@@ -115,9 +77,8 @@ class MessageDispatcher {
 private:
   AbstractMessage* msgs[MESSAGE_TYPE_COUNT];
   uint8_t index;
-/*   MidiProtocol midiprotocol; */
 public:
-/*   MidiZoneProtocol midiprotocol; */
+  Protocol* protocol;
   SerialProtocol serialprotocol;
 public:
   PositionMessage position;
@@ -136,14 +97,7 @@ public:
   }
   void init(){
     protocol = &serialprotocol;
-/*     midiprotocol.loadPreset(0); */
   }
-  void setSerialProtocol(){
-    protocol = &serialprotocol;
-  }
-/*   void setMidiProtocol(){ */
-/*     protocol = &midiprotocol; */
-/*   } */
   bool send(){
     uint8_t cnt = MESSAGE_TYPE_COUNT;
     while(cnt--){

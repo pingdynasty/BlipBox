@@ -42,9 +42,9 @@ public:
   void resetEventHandler();
   void setEditMode(bool edit);
   void setMidiMode(bool midi);
-private:
   SerialProtocolReader defaultreceiver;
   DefaultEventHandler defaulthandler;
+private:
 };
 
 #endif /* _BLIPBOX_H_ */
