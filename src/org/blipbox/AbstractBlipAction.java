@@ -3,32 +3,34 @@ package org.blipbox;
 public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
     private Position apos = new Position();
     private Position bpos = new Position();
-    private long tapmoment;
-    private long taptime = 200; // max milliseconds between double taps
+    private long lastpressed;
+    private long lasttapped;
+    private static final long TAP_THRESHOLD = 300; // max milliseconds between double taps
+    private static final long TAPTAP_THRESHOLD = 600; // max milliseconds between double taps
     private boolean pressed;
 
     public void sensorChange(BlipSensor sensor){
         switch(sensor.getMessageId()){
         case SensorConfiguration.Z_SENSOR_MSG_ID:
+	    long now = System.currentTimeMillis();
             bpos.setZ(sensor);
             if(sensor.getValue() == 0){
                 if(pressed){
                     pressed = false;
                     release(bpos);
+		    if(now - lasttapped < TAPTAP_THRESHOLD){
+                        taptap(apos);
+		    }else if(now - lastpressed < TAP_THRESHOLD){
+			lasttapped = now;
+                        tap(apos);
+		    }
                 }
             }else{
                 position(bpos);
                 if(!pressed){
                     apos.setZ(sensor);
-                    long now = System.currentTimeMillis();
                     pressed = true;
-                    if(now - tapmoment <= taptime){
-                        tapmoment = now;
-                        taptap(apos);
-                    }else{
-                        tapmoment = now;
-                        tap(apos);
-                    }
+		    lastpressed = now;
                 }else{
                     drag(apos, bpos);
                 }
@@ -45,10 +47,6 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
             bpos.setY(sensor);
             break;            
         }
-    }
-
-    public void setTapTime(int taptime){
-        this.taptime = (long)taptime;
     }
 
     public void parameterValue(Parameter param, int value){}
