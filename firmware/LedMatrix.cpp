@@ -66,72 +66,32 @@ static void shift6bits(uint8_t value) {
 }
 #endif
 
-/* send 10 bits over the TLC5940 data line using an 8 bit value 
-   and 4 (least significant) bits padding */
-static void shift12bits(uint8_t value) {
-  for(uint8_t i=0x80; i; i>>=1){
-    if(value & i)
-      TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
-    else
-      TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
-    // clock
-    TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
-    TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
-  }
-  // shift out four more zeros or ones for the 4 least significant bits
-  if(value)
-    TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
-  else
-    TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
-  for(uint8_t i=0; i<4; ++i){
-    TLC_SCLK_PORT |= _BV(TLC_SCLK_PIN);
-    TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
-  }
-}
-
 void LedController::init(){
   counter.init();
-  counter.reset();
 
-      /* Pin Setup */
-    TLC_XLAT_DDR |= _BV(TLC_XLAT_PIN);
-    TLC_BLANK_DDR |= _BV(TLC_BLANK_PIN);
-    TLC_GSCLK_DDR |= _BV(TLC_GSCLK_PIN);
+  /* Pin Setup */
+  TLC_XLAT_DDR |= _BV(TLC_XLAT_PIN);
+  TLC_BLANK_DDR |= _BV(TLC_BLANK_PIN);
+  TLC_GSCLK_DDR |= _BV(TLC_GSCLK_PIN);
 
 #if TLC_VPRG_ENABLED
-    TLC_VPRG_DDR |= _BV(TLC_VPRG_PIN);
-    TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);  // grayscale mode (VPRG low)
+  TLC_VPRG_DDR |= _BV(TLC_VPRG_PIN);
+  TLC_VPRG_PORT &= ~_BV(TLC_VPRG_PIN);  // grayscale mode (VPRG low)
 #endif
 
 #if TLC_XERR_ENABLED
-    TLC_XERR_DDR &= ~_BV(TLC_XERR_PIN);   // XERR as input
-    TLC_XERR_PORT |= _BV(TLC_XERR_PIN);   // enable pull-up resistor
+  TLC_XERR_DDR &= ~_BV(TLC_XERR_PIN);   // XERR as input
+  TLC_XERR_PORT |= _BV(TLC_XERR_PIN);   // enable pull-up resistor
 #endif
-    TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN); // leave blank high (until the timers start)
+  TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN); // leave blank high (until the timers start)
 
 #if TLC_DCPRG_ENABLED
   TLC_DCPRG_DDR |= _BV(TLC_DCPRG_PIN);
-//   TLC_DCPRG_PORT |= _BV(TLC_DCPRG_PIN); // DCPRG high
+  //   TLC_DCPRG_PORT |= _BV(TLC_DCPRG_PIN); // DCPRG high
   TLC_DCPRG_PORT &= ~_BV(TLC_DCPRG_PIN); // DCPRG low
 #endif
 
-
-
-    tlc_shift8_init();
-
-    /* Timer 1 - BLANK / XLAT */
-    /* 'old' version
-  // Latch timer
-  TCCR1A = (_BV(WGM10));   // Fast PWM 8-bit
-  // Fast PWM 8-bit  : 1/4096th of OC2A, div 64 prescaler
-  TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
-  // CS10 | CS11 : clkI/O/64 (From prescaler)
-  // WGM12 : mode 4
-  // Timer/Counter Mode of Operation: CTC
-  // TOP OCR1A
-  TIMSK1 = _BV(TOIE1);
-  TCNT1 = 0;
-    */
+  tlc_shift8_init();
 
     // OC1A is PB1, XLAT
     // OC1B is PB2, BLANK
@@ -139,21 +99,6 @@ void LedController::init(){
     // OC2B is PD3, GSCLK
     // TCCR1A and TCCR1B control timer 1
     // TCCR2A and TCCR2B control timer 2
-// #define TLC_GSCLK_OC   COM2B0
-
-    // 'old' version for both timers
-    /*
-  TCCR2A = (_BV(WGM21) |   // CTC (Clear Timer on Compare Match)
-            _BV(TLC_GSCLK_OC));  // toggle OC2A or OC2B on match to drive GSCLK
-  TCCR2B = _BV(CS20);      // No prescaler
-  OCR2B = 64;               // toggle every timer clock cycle -> 4 MHz
-  OCR2A = 64;               // toggle every timer clock cycle -> 4 MHz
-  TCNT2 = 0;
-  TCCR1A = (_BV(WGM10));   // Fast PWM 8-bit
-  TCCR1B = (_BV(CS11) | _BV(CS10) | _BV(WGM12));
-  TIMSK1 = _BV(TOIE1);     
-  TCNT1 = 0;
-    */
 
     // Timer 1 drives TIMER1_OVF_vect, BLANK / XLAT
     TCCR1A = 0;               // OC1A/OC1B disconnected.
@@ -171,7 +116,6 @@ void LedController::init(){
     TCCR2B = _BV(WGM22);      // Fast pwm with OCR2A top
     OCR2B = 0;                // duty factor (as short a pulse as possible)
     
-//     OCR2A = TLC_GSCLK_PERIOD;
     OCR2A = blipbox.config.tlc_gsclk_period;
     TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
     TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
@@ -210,10 +154,7 @@ void LedController::init(){
 
 void LedController::displayCurrentRow(void){
   // called by Timer 2 overflow ISR
-  if(running){
-//     running = false;
-
-  // shift, blank, increment, latch, unblank
+  // sequence: shift, blank, increment, latch, unblank
 
   // shift data out
   sendBufferData(counter.getPosition());
@@ -223,9 +164,6 @@ void LedController::displayCurrentRow(void){
 
   // increment
   counter.tick();
-//   counter.off();
-//   counter.increment();
-//   counter.on();
 
   // latch
   TLC_XLAT_PORT |= _BV(TLC_XLAT_PIN);
@@ -233,38 +171,53 @@ void LedController::displayCurrentRow(void){
 
   // unblank
   TLC_BLANK_PORT &= ~_BV(TLC_BLANK_PIN);
-//   running = true;
-  }
+}
+
+void LedController::flip(){
+// #ifdef LED_PAGE_FLIPPED
+//   flipped = !flipped;
+// #endif
+// #ifdef LED_DOUBLE_BUFFERED
+  doflip = true;  
+// #endif
 }
 
 void LedController::sendBufferData(uint8_t row){
   // extra clock pulse for grayscale data
   pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
 
-  //       for(uint8_t i=0;i<LED_CHANNELS;i++)
-  //         shift12bits(led_buffer[row][i]);
+// #ifdef LED_PAGE_FLIPPED
+//   uint8_t* front_buffer = flipped ? buf1 : buf2;
+// #endif
+
+// #ifdef LED_DOUBLE_BUFFERED
+#define getLed(x, y) (front_buffer[y][x])
+  if(doflip){
+    doflip = false;
+    memcpy(front_buffer, back_buffer, LED_BUFFER_LENGTH);
+  }
+// #endif
+
+  // shift out 24 bits for bytes a and b:
+  // aaaaaaaa 0000bbbb bbbb0000
   for(uint8_t i=0;i<LED_CHANNELS;i++){
-    // shift out 24 bits for bytes a and b:
-    // aaaaaaaa 0000bbbb bbbb0000
-    tlc_shift8(led_buffer[row][i++]);
-    tlc_shift8(led_buffer[row][i] >> 4);
-    tlc_shift8(led_buffer[row][i] << 4);
+    tlc_shift8(getLed(i++, row));
+    tlc_shift8(getLed(i, row) >> 4);
+    tlc_shift8(getLed(i, row) << 4);
   }
 }
 
 #if TLC_DATA_TRANSFER_MODE == TLC_BITBANG
 
 /** Sets all the bit-bang pins to output */
-void tlc_shift8_init(void)
-{
+void tlc_shift8_init(void){
     TLC_SIN_DDR |= _BV(TLC_SIN_PIN);   // SIN as output
     TLC_SCLK_DDR |= _BV(TLC_SCLK_PIN); // SCLK as output
     TLC_SCLK_PORT &= ~_BV(TLC_SCLK_PIN);
 }
 
 /** Shifts a byte out, MSB first */
-void tlc_shift8(uint8_t byte)
-{
+void tlc_shift8(uint8_t byte){
     for (uint8_t bit = 0x80; bit; bit >>= 1) {
         if (bit & byte) {
             TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
@@ -278,8 +231,7 @@ void tlc_shift8(uint8_t byte)
 #elif TLC_DATA_TRANSFER_MODE == TLC_SPI
 
 /** Initializes the SPI module to double speed (f_osc / 2) */
-void tlc_shift8_init(void)
-{
+void tlc_shift8_init(void){
     TLC_SIN_DDR    |= _BV(TLC_SIN_PIN);    // SPI MOSI as output
     TLC_SCLK_DDR   |= _BV(TLC_SCLK_PIN);   // SPI SCK as output
     TLC_SS_DDR |= _BV(TLC_SS_PIN); // SPI SS as output
@@ -292,8 +244,7 @@ void tlc_shift8_init(void)
 }
 
 /** Shifts out a byte, MSB first */
-void tlc_shift8(uint8_t byte)
-{
+void tlc_shift8(uint8_t byte){
     SPDR = byte; // starts transmission
     while (!(SPSR & _BV(SPIF)))
         ; // wait for transmission complete

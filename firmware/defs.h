@@ -12,10 +12,6 @@
 /* interval at which to write sensor output (milliseconds) */
 #define SERIAL_WRITE_INTERVAL 20L
 
-#define ROWS 5
-#define COLS 16
-#define FRAME_LENGTH 16 // 16 for serial connection
-
 // set data transfer mode for the TLC5940: serial bitbang or hardware SPI
 #define TLC_SPI 1
 #define TLC_BITBANG 2

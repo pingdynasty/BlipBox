@@ -7,9 +7,12 @@ void MidiZoneEventHandler::taptap(Position& pos){
 }
 
 void MidiZoneEventHandler::tick(uint16_t counter){
-  if(counter % 0x100 == 0){
+  if(counter % MIDI_ZONES_IN_PRESET == 0)
     blipbox.leds.clear();
-    for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i)
-      zones[i].tick();
-  }
+  zones[counter % MIDI_ZONES_IN_PRESET].tick();
+  if(counter % MIDI_ZONES_IN_PRESET == MIDI_ZONES_IN_PRESET-1)
+    blipbox.leds.flip();
+//   for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i)
+//     zones[i].tick();
+//   blipbox.leds.flip();
 }

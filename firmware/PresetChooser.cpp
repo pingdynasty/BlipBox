@@ -27,14 +27,15 @@ void PresetChooser::printPreset(){
     blipbox.leds.setLed(9, 4, blipbox.config.brightness);
     blipbox.leds.setLed(8, 5, blipbox.config.brightness);
   }
-  // draw marker for bottom left corner
-  blipbox.leds.setLed(1, 0, blipbox.config.brightness);
-  blipbox.leds.setLed(0, 1, blipbox.config.brightness);
+//   // draw marker for bottom left corner
+//   blipbox.leds.setLed(1, 0, blipbox.config.brightness);
+//   blipbox.leds.setLed(0, 1, blipbox.config.brightness);
 }
 
 void PresetChooser::tick(uint16_t counter){
-  uint8_t brightness = ((counter >> 6) % blipbox.config.brightness);
+  uint8_t brightness = ((counter >> 3) % blipbox.config.brightness);
   blipbox.leds.setLed(0, 0, blipbox.config.brightness-brightness);
+  blipbox.leds.flip();
 }
 
 uint8_t column, origin;

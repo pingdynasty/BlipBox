@@ -21,8 +21,6 @@ Animator* animator;
 void setup() {
   blipbox.config.init();
   blipbox.init();
-  blipbox.leds.start();
-//   blipbox.setEditMode(false);
   blipbox.receiver = &blipbox.defaultreceiver;
   blipbox.eventhandler = &blipbox.defaulthandler;
   beginSerial(blipbox.config.serialSpeed);
@@ -32,11 +30,10 @@ void setup() {
 
 void loop() {
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
-    blipbox.keys.keyscan();
+    blipbox.keys.keyscan(); // triggers eventhandler
     blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
   }
-//   blipbox.tick();
   // counter overflows at 65536
   blipbox.signal.tick(++counter);
   if(animator != NULL)
@@ -106,32 +103,6 @@ void BlipBox::setEditMode(bool edit){
 // unsigned long lastpressed   = LONG_MAX;
 // unsigned long lasttapped    = LONG_MAX;
 // unsigned long lastreleased  = LONG_MAX;
-
-void BlipBox::tick(){
-  keys.keyscan();
-//   switch(keys.keyscan()){
-//   case DISENGAGED:
-//     break;
-//   case RELEASED:
-//     eventhandler->release(keys.getPosition());
-//     if(millis() - lastpressed < BOUNCE_THRESHOLD){
-//       return; // ignore
-//     if(millis() - lasttapped < TAPTAP_THRESHOLD){
-//       eventhandler->taptap(keys.getPosition());
-//     }else if(millis() - lastpressed < TAP_THRESHOLD){
-//       eventhandler->tap(keys.getPosition());
-//       lasttapped = millis();
-//     }
-//     break;
-//   case PRESSED:
-//     eventhandler->press(keys.getPosition());
-//     lastpressed = millis();
-//     break;
-//   case DRAGGED:
-//   case UNCHANGED: // same column/row, possibly different x/y
-//     eventhandler->drag(keys.getPosition());
-//   }
-}
 
 void BlipBox::message(MessageType code){
   signal.setSignal(code);

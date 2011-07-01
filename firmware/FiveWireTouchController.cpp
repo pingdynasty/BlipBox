@@ -107,20 +107,6 @@ uint16_t TouchController::getZ(){
   return getValue(0);
 }
 
-/*
-uint16_t TouchController::getX(){
-//   float x = (getValue(1) - blipbox.config.touchscreen_x_min) / (float)blipbox.config.touchscreen_x_range;
-//   return (uint16_t)(x * SENSOR_MAX);
-  return pos.x;
-}
-uint16_t TouchController::getY(){
-//   // inverted range.
-//   float y = (SENSOR_MAX - getValue(2) - blipbox.config.touchscreen_y_min) / (float)blipbox.config.touchscreen_y_range;
-//   return (uint16_t)(y * SENSOR_MAX);
-  return pos.y;
-}
-*/
-
 ISR(ADC_vect){
   switch(adc_mode % STATE_COUNT){
   case READ_STANDBY_STATE:{
@@ -152,14 +138,16 @@ ISR(ADC_vect){
 //     break;
 //   }
   }
+  if(adc_mode == READ_STANDBY_STATE){
+    for(int i=0; i<VALUE_COUNT; ++i){
+      adc_values[i] = adc_acc[i] / SAMPLE_COUNT;
+      adc_acc[i] = 0;
+    }
+  }
   if(++adc_mode == END_STATE){
     adc_mode = 0;
 //     memcpy(adc_values, adc_acc, sizeof(adc_values));
 //     memset(adc_acc, 0, sizeof(adc_acc));
 //     bzero(adc_acc, sizeof(adc_acc));
-    for(int i=0; i<VALUE_COUNT; ++i){
-      adc_values[i] = adc_acc[i] / SAMPLE_COUNT;
-      adc_acc[i] = 0;
-    }
   }
 }

@@ -31,7 +31,6 @@ public:
   SerialReader* receiver;
   EventHandler* eventhandler;
   void init();
-  void tick();
   void message(MessageType code);
   void setFollowMode(uint8_t mode);
   void sendConfigurationParameters();

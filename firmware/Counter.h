@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include "defs.h"
 
-#define LED_ROW_PINS 5
-
 class Counter {
 
 public:
@@ -15,31 +13,10 @@ public:
     return pos;
   }
 
-  // turn current pin on
-  void on();
-  // turn current pin off
-  void off();
-
-  void increment(){
-//     this->off();
-    if(++pos == LED_ROW_PINS)
-      pos = 0;
-//     this->on();
-  }
-
   void tick();
 
-  void reset(){
-    if(pos != 0){
-//       this->off();
-      pos = 0;
-//       this->on();
-    }
-  }
-
  private:
-  volatile uint8_t pos;
-  
+  uint8_t pos;  
 };
 
 #endif /* _COUNTER_H_ */

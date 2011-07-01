@@ -8,7 +8,7 @@
 
 #define RX_BUFFER_SIZE 3
 
-#define CLEAR_MESSAGE             0x10
+#define FILL_MESSAGE              0x10
 
 #define SET_LED_MESSAGE           0x20 // sets 1 led - 3 byte message
 // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
@@ -57,13 +57,15 @@ uint8_t getFourBitValue(){
 void handleMidiPresetCommand(){
   blipbox.setSerialReader(new MidiPresetReader());
   blipbox.leds.clear();
+  blipbox.leds.flip();
 }
 
 void handleSetLedMessage(){
-    rx_buffer_head = 0;
+  rx_buffer_head = 0;
   // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
   // 1000mmmm llllllll bbbbbbbb
-    blipbox.leds.setLed(rx_buffer[1] / 16, rx_buffer[1] % 16, rx_buffer[2]);
+  blipbox.leds.setLed(rx_buffer[1] / 16, rx_buffer[1] % 16, rx_buffer[2]);
+  blipbox.leds.flip();
 }
 
 void handleSetLedRowMessage(){  
@@ -71,6 +73,7 @@ void handleSetLedRowMessage(){
   for(uint8_t i=0; i<8; ++i)
     blipbox.leds.setLed(i, getFourBitValue(),
 			(rx_buffer[1] & _BV(i)) ? blipbox.config.brightness : 0 );
+  blipbox.leds.flip();
 }
 
 void handleSetLedColumnMessage(){
@@ -78,11 +81,13 @@ void handleSetLedColumnMessage(){
   for(uint8_t i=0; i<8; ++i)
     blipbox.leds.setLed(getFourBitValue(), i, 
 			(rx_buffer[1] & _BV(i)) ? blipbox.config.brightness : 0 );
+  blipbox.leds.flip();
 }
 
 void handleWriteCharacterMessage(){
   rx_buffer_head = 0;
   blipbox.display.printCharacter(rx_buffer[1], getFourBitValue(), 0, blipbox.config.brightness);
+  blipbox.leds.flip();
 //   uint8_t data[getCharacterHeight()];
 //   getCharacterData(rx_buffer[1], data);
 //   blipbox.display.printCharacter(data, getFourBitValue(), 0, blipbox.config.brightness);
@@ -93,9 +98,10 @@ void handleSetParameterMessage(){
   setParameter(rx_buffer[0] & PARAMETER_ID_MASK, getTenBitValue());
 }
 
-void handleClearMessage(){
+void handleFillMessage(){
   rx_buffer_head = 0;
   blipbox.leds.fill(getFourBitValue() * 0x11);
+  blipbox.leds.flip();
 }
 
 void handleShiftLedsMessage(){
@@ -108,6 +114,7 @@ void handleCommandMessage(){
   switch(getFourBitValue()){
   case 3: // toggle / xor
     blipbox.leds.toggle();
+    blipbox.leds.flip();
     break;
   case 4: // fade
     blipbox.leds.sub(4);
@@ -126,12 +133,6 @@ void handleCommandMessage(){
     break;
   case 9: // write configuration to eeprom
     blipbox.config.write();
-    break;
-  case 10: // stop led update
-    blipbox.leds.stop();
-    break;
-  case 11: // start led update
-    blipbox.leds.start();
     break;
   case 12: // receive midi preset command
     handleMidiPresetCommand();
@@ -167,8 +168,8 @@ void SerialProtocolReader::serialInput(unsigned char c) {
       handleWriteCharacterMessage();
     break;
     // 1 byte messages
-  case CLEAR_MESSAGE:
-    handleClearMessage();
+  case FILL_MESSAGE:
+    handleFillMessage();
     break;
   case SHIFT_LEDS_MESSAGE:
     handleShiftLedsMessage();

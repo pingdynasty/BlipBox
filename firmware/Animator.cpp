@@ -10,6 +10,7 @@ void SignalAnimator::tick(uint16_t counter){
   // blink all leds
   if(signals && counter % 0xfff == 0){
       blipbox.leds.toggle();
+      blipbox.leds.flip();
       --signals;
   }
 }
