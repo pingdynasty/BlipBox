@@ -104,11 +104,6 @@ void MidiZone::press(Position& pos){
 }
 
 void MidiZone::drag(Position& pos){
-//   if(_type == HORIZONTAL_CC){
-//     channelMessage(_data1, scalex(pos));
-//   }else if(_type == VERTICAL_CC){
-//     channelMessage(_data1, scaley(pos));
-//   }
   switch(_type){
   case HORIZONTAL_CC:
     channelMessage(_data1, scalex(pos));
@@ -125,21 +120,6 @@ void MidiZone::drag(Position& pos){
 //   default:
   }
 }
-
-// void MidiZone::tap(Position& pos){
-//   switch(_type){
-//   case NOTE_TOGGLE_BUTTON:
-//     _status ^= 0x10;
-//     // deliberate fall-through
-//   case CC_TOGGLE_BUTTON:
-//     channelMessage(_data1, _data2 ? 0 : 127);
-//     break;
-//   case PRESET_BUTTON:
-//     if(blipbox.midizones.preset != _data1)
-//       blipbox.midizones.loadPreset(_data1);
-//     break;
-//   }
-// }
 
 void MidiZone::tick(){
   switch(_type){

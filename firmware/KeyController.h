@@ -3,25 +3,19 @@
 
 #include <stdint.h>
 #include "TouchController.h"
+#include "Position.h"
 
-enum KeyState {
-  PRESSED, DRAGGED, RELEASED, UNCHANGED, DISENGAGED
-};
+/* enum KeyState { */
+/*   PRESSED, DRAGGED, RELEASED, UNCHANGED, DISENGAGED */
+/* }; */
 
 class KeyController : public TouchController {
 
 public:
+  Position pos;
 //   void init();
-  KeyState keyscan();
+  void keyscan();
 /*   void keychange(uint8_t row, uint8_t col, bool ison); */
-
-  inline uint8_t getColumn(){
-    return getPosition().column;
-  }
-
-  inline uint8_t getRow(){
-    return getPosition().row;
-  }
 
   inline bool isPressed(){
     return pressed;

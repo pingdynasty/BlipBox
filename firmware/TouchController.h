@@ -2,7 +2,6 @@
 #define _TOUCHCONTROLLER_H_
 
 #include <stdint.h>
-#include "Position.h"
 
 class TouchController {
 private:
@@ -12,7 +11,6 @@ public:
 //   uint16_t getX();
 //   uint16_t getY();
   uint16_t getZ();
-  Position& getPosition();
 };
 
 #endif /* _TOUCHCONTROLLER_H_ */

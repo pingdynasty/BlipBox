@@ -31,22 +31,17 @@ void setup() {
 }
 
 void loop() {
-  blipbox.tick();
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
+    blipbox.keys.keyscan();
     blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
-    // counter overflows at 65536
   }
+//   blipbox.tick();
+  // counter overflows at 65536
   blipbox.signal.tick(++counter);
   if(animator != NULL)
     animator->tick(counter);
 }
-
-#define TAP_THRESHOLD 300 // ms between press and release to be considered tap
-#define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
-
-unsigned long lastpressed = 0xffff;
-unsigned long lasttapped  = 0xffff;
 
 void BlipBox::setSerialReader(SerialReader* handler){
   SerialReader* p = receiver;
@@ -106,27 +101,36 @@ void BlipBox::setEditMode(bool edit){
   }
 }
 
+// #define TAP_THRESHOLD    300 // ms between press and release to be considered tap
+// #define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
+// unsigned long lastpressed   = LONG_MAX;
+// unsigned long lasttapped    = LONG_MAX;
+// unsigned long lastreleased  = LONG_MAX;
+
 void BlipBox::tick(){
-  switch(keys.keyscan()){
-  case DISENGAGED:
-    break;
-  case RELEASED:
-    eventhandler->release(keys.getPosition());
-    if(millis() - lasttapped < TAPTAP_THRESHOLD){
-      eventhandler->taptap(keys.getPosition());
-    }else if(millis() - lastpressed < TAP_THRESHOLD){
-      eventhandler->tap(keys.getPosition());
-      lasttapped = millis();
-    }
-    break;
-  case PRESSED:
-    eventhandler->press(keys.getPosition());
-    lastpressed = millis();
-    break;
-  case DRAGGED:
-  case UNCHANGED: // same column/row, possibly different x/y
-    eventhandler->drag(keys.getPosition());
-  }
+  keys.keyscan();
+//   switch(keys.keyscan()){
+//   case DISENGAGED:
+//     break;
+//   case RELEASED:
+//     eventhandler->release(keys.getPosition());
+//     if(millis() - lastpressed < BOUNCE_THRESHOLD){
+//       return; // ignore
+//     if(millis() - lasttapped < TAPTAP_THRESHOLD){
+//       eventhandler->taptap(keys.getPosition());
+//     }else if(millis() - lastpressed < TAP_THRESHOLD){
+//       eventhandler->tap(keys.getPosition());
+//       lasttapped = millis();
+//     }
+//     break;
+//   case PRESSED:
+//     eventhandler->press(keys.getPosition());
+//     lastpressed = millis();
+//     break;
+//   case DRAGGED:
+//   case UNCHANGED: // same column/row, possibly different x/y
+//     eventhandler->drag(keys.getPosition());
+//   }
 }
 
 void BlipBox::message(MessageType code){

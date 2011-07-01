@@ -17,6 +17,6 @@ void DefaultEventHandler::drag(Position& pos){
 }
 
 void DefaultEventHandler::taptap(Position& pos){
-  if(blipbox.keys.getColumn() == 0 && blipbox.keys.getRow() == 0)
+  if(blipbox.keys.pos.column == 0 && blipbox.keys.pos.row == 0)
     blipbox.setEditMode(true);
 }

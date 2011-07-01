@@ -1,3 +1,4 @@
+#include <limits.h>
 #include "KeyController.h"
 #include "TouchController.h"
 #include "globals.h"
@@ -26,37 +27,54 @@
 //   return this->getZ() < blipbox.config.sensitivity;
 // }
 
-KeyState KeyController::keyscan(){
-  uint8_t oldRow = getPosition().row;
-  uint8_t oldCol = getPosition().column;
+#define BOUNCE_THRESHOLD 20
+#define TAP_THRESHOLD    300 // ms between press and release to be considered tap
+#define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
+unsigned long lastpressed   = LONG_MAX;
+unsigned long lasttapped    = LONG_MAX;
+unsigned long lastreleased  = LONG_MAX;
+
+void KeyController::keyscan(){
+  unsigned long now = millis();
   if(this->getZ() < blipbox.config.sensitivity){
-    this->update(); // sets row/col
+    if(now - lastreleased < BOUNCE_THRESHOLD)
+      return;
+    this->update(); // sets x/y/row/col
     if(!pressed){
       // toggled from released to pressed
       pressed = true;
-      return PRESSED;
-    }else if(oldRow != getPosition().row || 
-	     oldCol != getPosition().column){
-      // different key pressed
-      return DRAGGED;
+      blipbox.eventhandler->press(pos);
+      lastpressed = now;
     }else{
-      // same key, still pressed
-      return UNCHANGED;
+      // still pressed
+      blipbox.eventhandler->drag(pos);
     }
   }else if(pressed){
+    if(now - lastpressed < BOUNCE_THRESHOLD)
+      return;
+    lastreleased = now;
     // toggled from pressed to released
     pressed = false;
-    return RELEASED;
-  }else{
-    return DISENGAGED;
+    if(now - lasttapped < TAPTAP_THRESHOLD){
+      blipbox.eventhandler->taptap(pos);
+    }else if(now - lastpressed < TAP_THRESHOLD){
+      blipbox.eventhandler->tap(pos);
+      lasttapped = now;
+    }
+    blipbox.eventhandler->release(pos);
+    return;
   }
 }
 
 void KeyController::update(){
-  getPosition().column = getPosition().x * GRID_COLS / SENSOR_MAX;
-  if(getPosition().column >= GRID_COLS)
-    getPosition().column = GRID_COLS - 1;
-  getPosition().row = getPosition().y * GRID_ROWS / SENSOR_MAX;
-  if(getPosition().row >= GRID_ROWS)
-    getPosition().row = GRID_ROWS - 1;
+  pos.x = (uint16_t)(((getValue(1) - blipbox.config.touchscreen_x_min) / (float)blipbox.config.touchscreen_x_range)*SENSOR_MAX);
+  // inverted range for y
+  pos.y = (uint16_t)(((SENSOR_MAX - getValue(2) - blipbox.config.touchscreen_y_min) / (float)blipbox.config.touchscreen_y_range)*SENSOR_MAX);
+
+  pos.column = pos.x * GRID_COLS / SENSOR_MAX;
+  if(pos.column >= GRID_COLS)
+    pos.column = GRID_COLS - 1;
+  pos.row = pos.y * GRID_ROWS / SENSOR_MAX;
+  if(pos.row >= GRID_ROWS)
+    pos.row = GRID_ROWS - 1;
 }

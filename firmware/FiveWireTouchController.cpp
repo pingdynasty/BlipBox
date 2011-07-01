@@ -68,7 +68,6 @@
 uint16_t adc_acc[VALUE_COUNT];
 uint16_t adc_values[VALUE_COUNT];
 uint8_t adc_mode;
-Position pos;
 #define READ_STANDBY_STATE 1
 #define READ_X_POS_STATE   3
 #define READ_Y_POS_STATE   5
@@ -98,10 +97,6 @@ void TouchController::init(){
 
   STANDBY_CONFIGURATION;
   ADMUX = (ADMUX & ~7) | PIN_SG; // set ADC to read SG pin
-}
-
-Position& TouchController::getPosition(){
-    return pos;
 }
 
 uint16_t TouchController::getValue(uint8_t index){
@@ -166,8 +161,5 @@ ISR(ADC_vect){
       adc_values[i] = adc_acc[i] / SAMPLE_COUNT;
       adc_acc[i] = 0;
     }
-    pos.x = (uint16_t)(((adc_values[1] - blipbox.config.touchscreen_x_min) / (float)blipbox.config.touchscreen_x_range)*SENSOR_MAX);
-    // inverted range for y
-    pos.y = (uint16_t)(((SENSOR_MAX - adc_values[2] - blipbox.config.touchscreen_y_min) / (float)blipbox.config.touchscreen_y_range)*SENSOR_MAX);
   }
 }
