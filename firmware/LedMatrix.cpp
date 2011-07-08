@@ -67,6 +67,7 @@ static void shift6bits(uint8_t value) {
 #endif
 
 void LedController::init(){
+  back_buffer = buf1;
   counter.init();
 
   /* Pin Setup */
@@ -93,117 +94,71 @@ void LedController::init(){
 
   tlc_shift8_init();
 
-    // OC1A is PB1, XLAT
-    // OC1B is PB2, BLANK
-    // OC2A is PB3, SIN
-    // OC2B is PD3, GSCLK
-    // TCCR1A and TCCR1B control timer 1
-    // TCCR2A and TCCR2B control timer 2
+  // OC1A is PB1, XLAT
+  // OC1B is PB2, BLANK
+  // OC2A is PB3, SIN
+  // OC2B is PD3, GSCLK
+  // TCCR1A and TCCR1B control timer 1
+  // TCCR2A and TCCR2B control timer 2
 
-    // Timer 1 drives TIMER1_OVF_vect, BLANK / XLAT
-    TCCR1A = 0;               // OC1A/OC1B disconnected.
-    TCCR1B = _BV(WGM13);      // Phase/freq correct PWM, ICR1 top.
-//     ICR1 = TLC_PWM_PERIOD;
-    ICR1 = (blipbox.config.tlc_gsclk_period+1)*2048;
-    TIFR1 |= _BV(TOV1);
-    TIMSK1 = _BV(TOIE1);
+  // Timer 1 drives TIMER1_OVF_vect, BLANK / XLAT
+  TCCR1A = 0;               // OC1A/OC1B disconnected.
+  TCCR1B = _BV(WGM13);      // Phase/freq correct PWM, ICR1 top.
+  //     ICR1 = TLC_PWM_PERIOD;
+  ICR1 = (blipbox.config.tlc_gsclk_period+1)*2048;
+  TIFR1 |= _BV(TOV1);
+  TIMSK1 = _BV(TOIE1);
 
-    // Timer 2 drives GSCLK
-    TCCR2A = _BV(COM2B1)      // set on BOTTOM, clear on OCR2A (non-inverting),
-                              // output on OC2B
-           | _BV(WGM21)       // Fast pwm with OCR2A top
-           | _BV(WGM20);      // Fast pwm with OCR2A top
-    TCCR2B = _BV(WGM22);      // Fast pwm with OCR2A top
-    OCR2B = 0;                // duty factor (as short a pulse as possible)
+  // Timer 2 drives GSCLK
+  TCCR2A = _BV(COM2B1)      // set on BOTTOM, clear on OCR2A (non-inverting),
+    // output on OC2B
+    | _BV(WGM21)       // Fast pwm with OCR2A top
+    | _BV(WGM20);      // Fast pwm with OCR2A top
+  TCCR2B = _BV(WGM22);      // Fast pwm with OCR2A top
+  OCR2B = 0;                // duty factor (as short a pulse as possible)
     
-    OCR2A = blipbox.config.tlc_gsclk_period;
-    TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
-    TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
+  OCR2A = blipbox.config.tlc_gsclk_period;
+  TCCR2B |= _BV(CS20);      // no prescale, (start pwm output)
+  TCCR1B |= _BV(CS10);      // no prescale, (start pwm output)
 }
 
-/*
-    /// need to add these? ->
-//     sendBufferData(counter.getPosition());
-//     pulse_pin(TLC_XLAT_PORT, TLC_XLAT_PIN);
-
-// TCCR1B = _BV(WGM13) :
-// PWM, Phase and Frequency Correct
-// ICR1 top
-// Update of OCR1x at BOTTOM
-// TOV1 Flag Set on BOTTOM
-
-// TCCR1A = _BV(COM1B1) :
-// Clear OC1A/OC1B on Compare Match, set OC1A/OC1B at BOTTOM (non-inverting mode)
-
-// #define TLC_PWM_PERIOD    8192
-// #define TLC_GSCLK_PERIOD    3
-
-// Output Compare Register B (OCR1B)
-
-// TCCR1A = _BV(COM1B1) enables output on BLANK
-// TCCR1A = _BV(COM1A1) enables output on XLAT
-
-    // Enables the Timer1 Overflow interrupt
-    // Timer Interrupt Flag Register
-    TIFR1 |= _BV(TOV1); 
-    // Timer Interrupt Mask Register
-    TIMSK1 = _BV(TOIE1);
-    // The corresponding Interrupt Vector is executed when the TOV1 Flag, located in TIFR1, is set.
+void LedController::flip(){
+  uint8_t* front_buffer = flipped ? buf2 : buf1;
+  flipped = !flipped;
+  back_buffer = flipped ? buf2 : buf1;  
+  // memcpy(to, from, bytes)
+  memcpy(back_buffer, front_buffer, LED_BUFFER_LENGTH);
 }
-*/
 
 void LedController::displayCurrentRow(void){
   // called by Timer 2 overflow ISR
   // sequence: shift, blank, increment, latch, unblank
-
   // shift data out
   sendBufferData(counter.getPosition());
-
   // blank
   TLC_BLANK_PORT |= _BV(TLC_BLANK_PIN);
-
   // increment
   counter.tick();
-
   // latch
   TLC_XLAT_PORT |= _BV(TLC_XLAT_PIN);
   TLC_XLAT_PORT &= ~_BV(TLC_XLAT_PIN);
-
   // unblank
   TLC_BLANK_PORT &= ~_BV(TLC_BLANK_PIN);
-}
-
-void LedController::flip(){
-// #ifdef LED_PAGE_FLIPPED
-//   flipped = !flipped;
-// #endif
-// #ifdef LED_DOUBLE_BUFFERED
-  doflip = true;  
-// #endif
 }
 
 void LedController::sendBufferData(uint8_t row){
   // extra clock pulse for grayscale data
   pulse_pin(TLC_SCLK_PORT, TLC_SCLK_PIN);
 
-// #ifdef LED_PAGE_FLIPPED
-//   uint8_t* front_buffer = flipped ? buf1 : buf2;
-// #endif
-
-// #ifdef LED_DOUBLE_BUFFERED
-#define getLed(x, y) (front_buffer[y][x])
-  if(doflip){
-    doflip = false;
-    memcpy(front_buffer, back_buffer, LED_BUFFER_LENGTH);
-  }
-// #endif
+  uint8_t* ptr = flipped ? buf2 : buf1;
+  ptr += row * LED_CHANNELS;
 
   // shift out 24 bits for bytes a and b:
   // aaaaaaaa 0000bbbb bbbb0000
   for(uint8_t i=0;i<LED_CHANNELS;i++){
-    tlc_shift8(getLed(i++, row));
-    tlc_shift8(getLed(i, row) >> 4);
-    tlc_shift8(getLed(i, row) << 4);
+    tlc_shift8(ptr[i++]);
+    tlc_shift8(ptr[i]>>4);
+    tlc_shift8(ptr[i]<<4);
   }
 }
 

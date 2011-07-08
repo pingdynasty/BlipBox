@@ -31,16 +31,16 @@ public:
   // i=x%5-(x/5)*5, 
   // offset=(y+x/5*8)*16+y+(x/5)*8
   inline void setLed(uint8_t x, uint8_t y, uint8_t brightness){
-    while(doflip);
+    // while(doflip);
     x = (x-x/LED_STRIPS*LED_STRIPS)*LED_CHANNELS+y+x/LED_STRIPS*LED_COLUMNS;
     if(x < LED_BUFFER_LENGTH)
-      back_buffer[0][x] = brightness;
+      back_buffer[x] = brightness;
   }
 
   inline uint8_t getLed(uint8_t x, uint8_t y){
     x = (x-x/LED_STRIPS*LED_STRIPS)*LED_CHANNELS+y+x/LED_STRIPS*LED_COLUMNS;
     if(x < LED_BUFFER_LENGTH)
-      return back_buffer[0][x];
+      return back_buffer[x];
   }
 
   // xor a single led
@@ -49,49 +49,37 @@ public:
   }
 
   void clear(){
-    while(doflip);
+    // while(doflip);
     memset(back_buffer, 0, LED_BUFFER_LENGTH);
 //     bzero(back_buffer, LED_BUFFER_LENGTH);
   }
 
   void fill(uint8_t brightness){
-    while(doflip);
+    // while(doflip);
     memset(back_buffer, brightness, LED_BUFFER_LENGTH);
   }
 
   // add value to all leds
   void add(uint8_t value){
-    while(doflip);
+    // while(doflip);
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-      if(back_buffer[0][i] <= 0xff - value) // check for overflow
-	back_buffer[0][i] += value;
+      if(back_buffer[i] <= 0xff - value) // check for overflow
+	back_buffer[i] += value;
   }
 
   // subtract value from all leds
   void sub(uint8_t value){
-    while(doflip);
+    // while(doflip);
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-      if(back_buffer[0][i] >= value) // check for underflow
-	back_buffer[0][i] -= value;
+      if(back_buffer[i] >= value) // check for underflow
+	back_buffer[i] -= value;
   }
-
-//   void brighten(uint8_t factor){
-//     while(doflip);
-//     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-//       back_buffer[0][i] = (back_buffer[0][i] << factor) | 0x01;
-//   }
-
-//   void fade(uint8_t factor){
-//     while(doflip);
-//     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-//         back_buffer[0][i] >>= factor;
-//   }
 
   // xor all leds
   void toggle(){
-    while(doflip);
+    // while(doflip);
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
-      back_buffer[0][i] ^= 0xff;
+      back_buffer[i] ^= 0xff;
   }
 
 #ifdef TLC_VPRG_PIN
@@ -99,16 +87,10 @@ public:
 #endif
 
 private:
-  bool volatile doflip;
-  uint8_t back_buffer[LED_STRIPS][LED_CHANNELS];
-  uint8_t front_buffer[LED_STRIPS][LED_CHANNELS];
-//   uint8_t back_buffer[LED_BUFFER_LENGTH];
-//   uint8_t front_buffer[LED_BUFFER_LENGTH];
-// #ifdef LED_PAGE_FLIPPED
-//   bool flipped;
-// #endif
-// #ifdef LED_DOUBLE_BUFFERED
-// #endif
+  bool flipped;
+  uint8_t* back_buffer;
+  uint8_t buf1[LED_BUFFER_LENGTH];
+  uint8_t buf2[LED_BUFFER_LENGTH];
   void sendBufferData(uint8_t row);
   Counter counter;
 };
