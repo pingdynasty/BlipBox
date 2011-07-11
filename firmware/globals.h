@@ -1,6 +1,9 @@
 #ifndef _GLOBALS_H_
 #define _GLOBALS_H_
 
+#include <stddef.h>
+#include <inttypes.h>
+
 #include "BlipBox.h"
 
 void* operator new(size_t size);

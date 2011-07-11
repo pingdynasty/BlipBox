@@ -1,9 +1,5 @@
 #include "BlipBoxProtocol.h"
 
-#include <wiring.h>
-// #include <avr/eeprom.h>
-
-// #include "SerialInterrupt.h"
 #include "defs.h"
 #include "device.h"
 #include "globals.h"

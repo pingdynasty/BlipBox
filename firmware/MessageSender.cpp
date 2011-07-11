@@ -1,11 +1,9 @@
 #include "MessageSender.h"
 
-#ifndef MESSAGE_SENDER_TEST
-#include <wiring.h>
+#include "serial.h"
 #include "globals.h"
 #include "defs.h"
 #include "Parameters.h"
-#endif
 
 #define XY_MSG             0x50 // 0x5 << 4
 #define RELEASE_MSG        0x70 // 0x7 << 4

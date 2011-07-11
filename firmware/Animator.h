@@ -29,30 +29,30 @@ class SignalAnimator : public Animator {
   uint8_t signals;
 };
 
-class DotAnimator : public Animator {
- public:
-  void tick(uint16_t counter);
-};
+/* class DotAnimator : public Animator { */
+/*  public: */
+/*   void tick(uint16_t counter); */
+/* }; */
 
-class CrossAnimator : public Animator {
- public:
-  void tick(uint16_t counter);
-};
+/* class CrossAnimator : public Animator { */
+/*  public: */
+/*   void tick(uint16_t counter); */
+/* }; */
 
-class CrissAnimator : public Animator {
- public:
-  void tick(uint16_t counter);
-};
+/* class CrissAnimator : public Animator { */
+/*  public: */
+/*   void tick(uint16_t counter); */
+/* }; */
 
-class StarAnimator : public Animator {
- public:
-  void tick(uint16_t counter);
-};
+/* class StarAnimator : public Animator { */
+/*  public: */
+/*   void tick(uint16_t counter); */
+/* }; */
 
-class ToggleAnimator : public Animator {
- public:
-  void tick(uint16_t counter);
-};
+/* class ToggleAnimator : public Animator { */
+/*  public: */
+/*   void tick(uint16_t counter); */
+/* }; */
 
 // class TextAnimator : public Animator {
 // public:

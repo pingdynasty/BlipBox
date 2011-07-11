@@ -1,6 +1,5 @@
 #include <stdint.h>
 // #include <avr/delay.h>
-#include <wiring.h>
 #include <LedController.h>
 
 void bounce(LedController& leds){

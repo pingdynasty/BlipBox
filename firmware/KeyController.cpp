@@ -1,7 +1,8 @@
-#include <limits.h>
 #include "KeyController.h"
 #include "TouchController.h"
 #include "globals.h"
+#include "serial.h"
+#include <limits.h>
 #include <stdint.h>
 
 #define GRID_COLS 10

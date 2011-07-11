@@ -22,18 +22,18 @@
   $Id: serial.c,v 1.1 2009/09/19 05:36:16 mars Exp $
 */
 
-#include <wiring_private.h>
+#include <avr/io.h>
+/* #include <wiring_private.h> */
+/* #include <wiring.h> */
+/* #include "unwired.h" */
 
-// Define constants and variables for buffering incoming serial data.  We're
-// using a ring buffer (I think), in which rx_buffer_head is the index of the
-// location to which to write the next incoming character and rx_buffer_tail
-// is the index of the location from which to read.
-#define RX_BUFFER_SIZE 128
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
 
-/* unsigned char rx_buffer[RX_BUFFER_SIZE]; */
-
-/* int rx_buffer_head = 0; */
-/* int rx_buffer_tail = 0; */
 
 void beginSerial(long baud)
 {
@@ -76,137 +76,3 @@ void serialWrite(unsigned char c)
 	UDR = c;
 #endif
 }
-
-/* int serialAvailable() */
-/* { */
-/* 	return (RX_BUFFER_SIZE + rx_buffer_head - rx_buffer_tail) % RX_BUFFER_SIZE; */
-/* } */
-
-/* int serialRead() */
-/* { */
-/* 	// if the head isn't ahead of the tail, we don't have any characters */
-/* 	if (rx_buffer_head == rx_buffer_tail) { */
-/* 		return -1; */
-/* 	} else { */
-/* 		unsigned char c = rx_buffer[rx_buffer_tail]; */
-/* 		rx_buffer_tail = (rx_buffer_tail + 1) % RX_BUFFER_SIZE; */
-/* 		return c; */
-/* 	} */
-/* } */
-
-/* void serialFlush() */
-/* { */
-/* 	// don't reverse this or there may be problems if the RX interrupt */
-/* 	// occurs after reading the value of rx_buffer_head but before writing */
-/* 	// the value to rx_buffer_tail; the previous value of rx_buffer_head */
-/* 	// may be written to rx_buffer_tail, making it appear as if the buffer */
-/* 	// were full, not empty. */
-/* 	rx_buffer_head = rx_buffer_tail; */
-/* } */
-
-/* #if defined(__AVR_ATmega168__) */
-/* SIGNAL(SIG_USART_RECV) */
-/* #else */
-/* SIGNAL(SIG_UART_RECV) */
-/* #endif */
-/* { */
-/* #if defined(__AVR_ATmega168__) */
-/* 	unsigned char c = UDR0; */
-/* #else */
-/* 	unsigned char c = UDR; */
-/* #endif */
-
-/* 	int i = (rx_buffer_head + 1) % RX_BUFFER_SIZE; */
-
-/* 	// if we should be storing the received character into the location */
-/* 	// just before the tail (meaning that the head would advance to the */
-/* 	// current location of the tail), we're about to overflow the buffer */
-/* 	// and so we don't write the character or advance the head. */
-/* 	if (i != rx_buffer_tail) { */
-/* 		rx_buffer[rx_buffer_head] = c; */
-/* 		rx_buffer_head = i; */
-/* 	} */
-/* } */
-
-void printMode(int mode)
-{
-	// do nothing, we only support serial printing, not lcd.
-}
-
-void printByte(unsigned char c)
-{
-	serialWrite(c);
-}
-
-void printNewline()
-{
-	printByte('\n');
-}
-
-void printString(const char *s)
-{
-	while (*s)
-		printByte(*s++);
-}
-
-void printIntegerInBase(unsigned long n, unsigned long base)
-{ 
-	unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
-	unsigned long i = 0;
-
-	if (n == 0) {
-		printByte('0');
-		return;
-	} 
-
-	while (n > 0) {
-		buf[i++] = n % base;
-		n /= base;
-	}
-
-	for (; i > 0; i--)
-		printByte(buf[i - 1] < 10 ?
-			'0' + buf[i - 1] :
-			'A' + buf[i - 1] - 10);
-}
-
-void printInteger(long n)
-{
-	if (n < 0) {
-		printByte('-');
-		n = -n;
-	}
-
-	printIntegerInBase(n, 10);
-}
-
-void printHex(unsigned long n)
-{
-	printIntegerInBase(n, 16);
-}
-
-void printOctal(unsigned long n)
-{
-	printIntegerInBase(n, 8);
-}
-
-void printBinary(unsigned long n)
-{
-	printIntegerInBase(n, 2);
-}
-
-/* Including print() adds approximately 1500 bytes to the binary size,
- * so we replace it with the smaller and less-confusing printString(),
- * printInteger(), etc.
-void print(const char *format, ...)
-{
-	char buf[256];
-	va_list ap;
-	
-	va_start(ap, format);
-	vsnprintf(buf, 256, format, ap);
-	va_end(ap);
-	
-	printString(buf);
-}
-*/

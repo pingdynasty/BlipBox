@@ -74,7 +74,7 @@ void TouchController::init(){
 //   adc_mode = START_STATE; // leave as 0
   ADMUX = (ADMUX & ~7) | STANDBY_PIN;
 
-  ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 128: 125KHz @ 16MHz (divided by 31: 4KHz)
+  ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 128: 125KHz @ 16MHz
   //  ADCSRA |= (1 << ADPS2) | (1 << ADPS1); // prescalar: 64
   ADMUX |= (1 << REFS0); // Set ADC reference to AVCC
   ADCSRA |= (1 << ADATE); // Set ADC to Free-Running Mode
