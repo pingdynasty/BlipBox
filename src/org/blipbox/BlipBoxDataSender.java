@@ -8,7 +8,6 @@ import org.blipbox.presets.*;
 public class BlipBoxDataSender implements BlipBoxOutput {
 
     private static final Logger log = Logger.getLogger(BlipBoxDataSender.class);
-
     private static final int MAX_ROW = 8;
     private static final int MAX_COL = 10;
 
@@ -16,16 +15,13 @@ public class BlipBoxDataSender implements BlipBoxOutput {
     private long frequency = 0;
     private OutputStream serialOutput;
 
-    private static final int CLEAR_MESSAGE                 = 0x10;
-
+    private static final int FILL_MESSAGE                  = 0x10;
     private static final int SET_LED_MESSAGE               = 0x20;
     private static final int SET_LED_ROW_MESSAGE           = 0x30;
     private static final int SET_LED_COL_MESSAGE           = 0x40;
-
     private static final int WRITE_CHARACTER_MESSAGE       = 0x50;
     private static final int SHIFT_LEDS_MESSAGE            = 0x60;
     private static final int COMMAND_MESSAGE               = 0x70;
-
     private static final int SET_PARAMETER_MESSAGE         = 0xc0;
 
 //     private static final int BRIGHTNESS_PARAMETER_ID      = (0x01 << 2);
@@ -101,7 +97,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
      */
     public void clear(){
 //         log.debug("Clear");
-        serialWrite(new int[]{CLEAR_MESSAGE});
+	fill(0);
     }
 
     /**
@@ -113,7 +109,7 @@ public class BlipBoxDataSender implements BlipBoxOutput {
         if(brightness > 0xff || brightness < 0)
             throw new IllegalArgumentException("Fill value out of bounds: "+brightness);
         brightness /= 0x11;
-        serialWrite(new int[]{CLEAR_MESSAGE|brightness});
+        serialWrite(new int[]{FILL_MESSAGE|brightness});
     }
 
     public void writeText(String str, long delay){
