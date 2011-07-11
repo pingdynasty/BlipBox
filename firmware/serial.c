@@ -22,18 +22,117 @@
   $Id: serial.c,v 1.1 2009/09/19 05:36:16 mars Exp $
 */
 
-#include <wiring_private.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
-// Define constants and variables for buffering incoming serial data.  We're
-// using a ring buffer (I think), in which rx_buffer_head is the index of the
-// location to which to write the next incoming character and rx_buffer_tail
-// is the index of the location from which to read.
-#define RX_BUFFER_SIZE 128
+typedef void (*voidFuncPtr)(void);
 
-/* unsigned char rx_buffer[RX_BUFFER_SIZE]; */
+#ifndef __AVR_ATmega168__
+#error "__AVR_ATmega168__ not defined!"
+#define __AVR_ATmega168__
+#endif
 
-/* int rx_buffer_head = 0; */
-/* int rx_buffer_tail = 0; */
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
+
+volatile unsigned long timer0_overflow_count;
+
+SIGNAL(SIG_OVERFLOW0)
+{
+	timer0_overflow_count++;
+}
+
+unsigned long millis(void)
+{
+	// timer 0 increments every 64 cycles, and overflows when it reaches
+	// 256.  we would calculate the total number of clock cycles, then
+	// divide by the number of clock cycles per millisecond, but this
+	// overflows too often.
+	//return timer0_overflow_count * 64UL * 256UL / (F_CPU / 1000UL);
+	
+	// instead find 1/128th the number of clock cycles and divide by
+	// 1/128th the number of clock cycles per millisecond
+	return timer0_overflow_count * 64UL * 2UL / (F_CPU / 128000UL);
+}
+
+void init(void)
+{
+	// this needs to be called before setup() or some functions won't
+	// work there
+	sei();
+	
+	// timer 0 is used for millis() and delay()
+	timer0_overflow_count = 0;
+	// on the ATmega168, timer 0 is also used for fast hardware pwm
+	// (using phase-correct PWM would mean that timer 0 overflowed half as often
+	// resulting in different millis() behavior on the ATmega8 and ATmega168)
+#if defined(__AVR_ATmega168__)
+	sbi(TCCR0A, WGM01);
+	sbi(TCCR0A, WGM00);
+#endif  
+	// set timer 0 prescale factor to 64
+#if defined(__AVR_ATmega168__)
+	sbi(TCCR0B, CS01);
+	sbi(TCCR0B, CS00);
+#else
+	sbi(TCCR0, CS01);
+	sbi(TCCR0, CS00);
+#endif
+	// enable timer 0 overflow interrupt
+#if defined(__AVR_ATmega168__)
+	sbi(TIMSK0, TOIE0);
+#else
+	sbi(TIMSK, TOIE0);
+#endif
+
+	// timers 1 and 2 are used for phase-correct hardware pwm
+	// this is better for motors as it ensures an even waveform
+	// note, however, that fast pwm mode can achieve a frequency of up
+	// 8 MHz (with a 16 MHz clock) at 50% duty cycle
+
+	// set timer 1 prescale factor to 64
+	sbi(TCCR1B, CS11);
+	sbi(TCCR1B, CS10);
+	// put timer 1 in 8-bit phase correct pwm mode
+	sbi(TCCR1A, WGM10);
+
+	// set timer 2 prescale factor to 64
+#if defined(__AVR_ATmega168__)
+	sbi(TCCR2B, CS22);
+#else
+	sbi(TCCR2, CS22);
+#endif
+	// configure timer 2 for phase correct pwm (8-bit)
+#if defined(__AVR_ATmega168__)
+	sbi(TCCR2A, WGM20);
+#else
+	sbi(TCCR2, WGM20);
+#endif
+
+	// set a2d prescale factor to 128
+	// 16 MHz / 128 = 125 KHz, inside the desired 50-200 KHz range.
+	// XXX: this will not work properly for other clock speeds, and
+	// this code should use F_CPU to determine the prescale factor.
+	sbi(ADCSRA, ADPS2);
+	sbi(ADCSRA, ADPS1);
+	sbi(ADCSRA, ADPS0);
+
+	// enable a2d conversions
+	sbi(ADCSRA, ADEN);
+
+	// the bootloader connects pins 0 and 1 to the USART; disconnect them
+	// here so they can be used as normal digital i/o; they will be
+	// reconnected in Serial.begin()
+#if defined(__AVR_ATmega168__)
+	UCSR0B = 0;
+#else
+	UCSRB = 0;
+#endif
+}
 
 void beginSerial(long baud)
 {
@@ -76,137 +175,3 @@ void serialWrite(unsigned char c)
 	UDR = c;
 #endif
 }
-
-/* int serialAvailable() */
-/* { */
-/* 	return (RX_BUFFER_SIZE + rx_buffer_head - rx_buffer_tail) % RX_BUFFER_SIZE; */
-/* } */
-
-/* int serialRead() */
-/* { */
-/* 	// if the head isn't ahead of the tail, we don't have any characters */
-/* 	if (rx_buffer_head == rx_buffer_tail) { */
-/* 		return -1; */
-/* 	} else { */
-/* 		unsigned char c = rx_buffer[rx_buffer_tail]; */
-/* 		rx_buffer_tail = (rx_buffer_tail + 1) % RX_BUFFER_SIZE; */
-/* 		return c; */
-/* 	} */
-/* } */
-
-/* void serialFlush() */
-/* { */
-/* 	// don't reverse this or there may be problems if the RX interrupt */
-/* 	// occurs after reading the value of rx_buffer_head but before writing */
-/* 	// the value to rx_buffer_tail; the previous value of rx_buffer_head */
-/* 	// may be written to rx_buffer_tail, making it appear as if the buffer */
-/* 	// were full, not empty. */
-/* 	rx_buffer_head = rx_buffer_tail; */
-/* } */
-
-/* #if defined(__AVR_ATmega168__) */
-/* SIGNAL(SIG_USART_RECV) */
-/* #else */
-/* SIGNAL(SIG_UART_RECV) */
-/* #endif */
-/* { */
-/* #if defined(__AVR_ATmega168__) */
-/* 	unsigned char c = UDR0; */
-/* #else */
-/* 	unsigned char c = UDR; */
-/* #endif */
-
-/* 	int i = (rx_buffer_head + 1) % RX_BUFFER_SIZE; */
-
-/* 	// if we should be storing the received character into the location */
-/* 	// just before the tail (meaning that the head would advance to the */
-/* 	// current location of the tail), we're about to overflow the buffer */
-/* 	// and so we don't write the character or advance the head. */
-/* 	if (i != rx_buffer_tail) { */
-/* 		rx_buffer[rx_buffer_head] = c; */
-/* 		rx_buffer_head = i; */
-/* 	} */
-/* } */
-
-void printMode(int mode)
-{
-	// do nothing, we only support serial printing, not lcd.
-}
-
-void printByte(unsigned char c)
-{
-	serialWrite(c);
-}
-
-void printNewline()
-{
-	printByte('\n');
-}
-
-void printString(const char *s)
-{
-	while (*s)
-		printByte(*s++);
-}
-
-void printIntegerInBase(unsigned long n, unsigned long base)
-{ 
-	unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
-	unsigned long i = 0;
-
-	if (n == 0) {
-		printByte('0');
-		return;
-	} 
-
-	while (n > 0) {
-		buf[i++] = n % base;
-		n /= base;
-	}
-
-	for (; i > 0; i--)
-		printByte(buf[i - 1] < 10 ?
-			'0' + buf[i - 1] :
-			'A' + buf[i - 1] - 10);
-}
-
-void printInteger(long n)
-{
-	if (n < 0) {
-		printByte('-');
-		n = -n;
-	}
-
-	printIntegerInBase(n, 10);
-}
-
-void printHex(unsigned long n)
-{
-	printIntegerInBase(n, 16);
-}
-
-void printOctal(unsigned long n)
-{
-	printIntegerInBase(n, 8);
-}
-
-void printBinary(unsigned long n)
-{
-	printIntegerInBase(n, 2);
-}
-
-/* Including print() adds approximately 1500 bytes to the binary size,
- * so we replace it with the smaller and less-confusing printString(),
- * printInteger(), etc.
-void print(const char *format, ...)
-{
-	char buf[256];
-	va_list ap;
-	
-	va_start(ap, format);
-	vsnprintf(buf, 256, format, ap);
-	va_end(ap);
-	
-	printString(buf);
-}
-*/

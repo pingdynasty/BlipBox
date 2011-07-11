@@ -1,7 +1,7 @@
-#include <wiring.h>
 #include <avr/eeprom.h>
 #include "MidiZone.h"
 #include "globals.h"
+#include "serial.h"
 
 #define NOTE_ZONE_BIT      1<<2
 #define BUTTON_ZONE_BIT    1<<3

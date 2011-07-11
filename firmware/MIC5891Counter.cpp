@@ -1,7 +1,6 @@
 #include "Counter.h"
 #include <stdlib.h>
 #include <avr/io.h>
-#include <wiring.h>
 #include "device.h"
 
 #define CNT_PINS 5

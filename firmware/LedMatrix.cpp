@@ -20,10 +20,7 @@
 
 #include "LedController.h"
 
-#include <stdlib.h>
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include <wiring.h>
 #include "device.h"
 #include "globals.h"
 
@@ -50,7 +47,7 @@
 #define pulse_pin(port, pin)   port |= _BV(pin); port &= ~_BV(pin)
 
 void tlc_shift8_init(void);
-void tlc_shift8(uint8_t byte);
+void tlc_shift8(uint8_t data);
 
 #ifdef TLC_VPRG_PIN
 /* send 6 bits from an 8 bit value over the TLC5940 data line */
@@ -172,9 +169,9 @@ void tlc_shift8_init(void){
 }
 
 /** Shifts a byte out, MSB first */
-void tlc_shift8(uint8_t byte){
+void tlc_shift8(uint8_t data){
     for (uint8_t bit = 0x80; bit; bit >>= 1) {
-        if (bit & byte) {
+        if (bit & data) {
             TLC_SIN_PORT |= _BV(TLC_SIN_PIN);
         } else {
             TLC_SIN_PORT &= ~_BV(TLC_SIN_PIN);
@@ -199,8 +196,8 @@ void tlc_shift8_init(void){
 }
 
 /** Shifts out a byte, MSB first */
-void tlc_shift8(uint8_t byte){
-    SPDR = byte; // starts transmission
+void tlc_shift8(uint8_t data){
+    SPDR = data; // starts transmission
     while (!(SPSR & _BV(SPIF)))
         ; // wait for transmission complete
 }

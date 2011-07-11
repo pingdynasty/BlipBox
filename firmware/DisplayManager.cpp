@@ -74,44 +74,44 @@ void DisplayManager::printCharacter(char c, int8_t dx, int8_t dy, uint8_t bright
 //   }
 // }
 
-void DisplayManager::setDiagonalCross(uint8_t x, uint8_t y, uint8_t value){
-  //   x: 0-9, y: 0-7
-//   uint8_t d1 = row - col;
-//   uint8_t d2 = 7 - row - col;
-//   for(uint8_t i=0; i<8; ++i){
-//     if(i+d1 >= 0 && i+d1 < 10)
-// //       blipbox.leds.setLed(i+d1, i, value);
-//       blipbox.leds.setLed(i+d1, i, value * abs(i-col) / 7);
-//     if(i-d2 >= 0 && i-d2 < 10)
-// //       blipbox.leds.setLed(i-d2, 7-i, value);
-//       blipbox.leds.setLed(i-d2, 7-i, value * abs(7-i-col) / 7);
-//   }
-  for(int8_t i=0; i<8; ++i){
-    blipbox.leds.setLed(x+abs(y-i), i, value-(value/8)*abs(x-i));
-    blipbox.leds.setLed(x-abs(y-i), i, value-(value/8)*abs(x-i));
-  }    
-//   for(int8_t i=-8; i<8; ++i){
+// void DisplayManager::setDiagonalCross(uint8_t x, uint8_t y, uint8_t value){
+//   //   x: 0-9, y: 0-7
+// //   uint8_t d1 = row - col;
+// //   uint8_t d2 = 7 - row - col;
+// //   for(uint8_t i=0; i<8; ++i){
+// //     if(i+d1 >= 0 && i+d1 < 10)
+// // //       blipbox.leds.setLed(i+d1, i, value);
+// //       blipbox.leds.setLed(i+d1, i, value * abs(i-col) / 7);
+// //     if(i-d2 >= 0 && i-d2 < 10)
+// // //       blipbox.leds.setLed(i-d2, 7-i, value);
+// //       blipbox.leds.setLed(i-d2, 7-i, value * abs(7-i-col) / 7);
+// //   }
+//   for(int8_t i=0; i<8; ++i){
+//     blipbox.leds.setLed(x+abs(y-i), i, value-(value/8)*abs(x-i));
+//     blipbox.leds.setLed(x-abs(y-i), i, value-(value/8)*abs(x-i));
+//   }    
+// //   for(int8_t i=-8; i<8; ++i){
+// //     blipbox.leds.setLed(x+i, y+i, value / (2*abs(i) + 1));
+// //     blipbox.leds.setLed(x-i, y+i, value / (2*abs(i) + 1));
+// //   }
+// }
+
+// // todo: set blob with 10 or 8 bit precision location
+// void DisplayManager::setBlob(uint8_t x, uint8_t y, uint8_t value){
+//   for(int8_t i=-3; i<4; i+=2){
 //     blipbox.leds.setLed(x+i, y+i, value / (2*abs(i) + 1));
+//     blipbox.leds.setLed(x+i, y-i, value / (2*abs(i) + 1));
 //     blipbox.leds.setLed(x-i, y+i, value / (2*abs(i) + 1));
+//     blipbox.leds.setLed(x-i, y-i, value / (2*abs(i) + 1));
 //   }
-}
+// }
 
-// todo: set blob with 10 or 8 bit precision location
-void DisplayManager::setBlob(uint8_t x, uint8_t y, uint8_t value){
-  for(int8_t i=-3; i<4; i+=2){
-    blipbox.leds.setLed(x+i, y+i, value / (2*abs(i) + 1));
-    blipbox.leds.setLed(x+i, y-i, value / (2*abs(i) + 1));
-    blipbox.leds.setLed(x-i, y+i, value / (2*abs(i) + 1));
-    blipbox.leds.setLed(x-i, y-i, value / (2*abs(i) + 1));
-  }
-}
-
-void DisplayManager::setCross(uint8_t x, uint8_t y, uint8_t value){
-  for(uint8_t i=0; i<10; ++i)
-    blipbox.leds.setLed(i, y, value-(value/9)*abs(y-i));
-  for(uint8_t i=0; i<8; ++i)
-    blipbox.leds.setLed(x, i, value-(value/7)*abs(x-i));
-}
+// void DisplayManager::setCross(uint8_t x, uint8_t y, uint8_t value){
+//   for(uint8_t i=0; i<10; ++i)
+//     blipbox.leds.setLed(i, y, value-(value/9)*abs(y-i));
+//   for(uint8_t i=0; i<8; ++i)
+//     blipbox.leds.setLed(x, i, value-(value/7)*abs(x-i));
+// }
 
 void DisplayManager::setStar(uint8_t x, uint8_t y, uint8_t value){
   blipbox.leds.setLed(x+1, y, value);

@@ -41,22 +41,14 @@ AVRDUDE_PROGRAMMER = stk500v1
 MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp MidiZoneEventHandler.cpp PresetChooser.cpp MidiZone.cpp 
-# CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageSender.cpp Characters.cpp globals.cpp MIC5891Counter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp
+CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp MidiZoneEventHandler.cpp PresetChooser.cpp MidiZone.cpp SerialProtocol.cpp BlipBox.cpp
+
 ############################################################################
-# Below here nothing should be changed...
 
 ARDUINO = $(INSTALL_DIR)/hardware/cores/arduino
 AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
-SRC =  $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c \
-$(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
-$(ARDUINO)/wiring_pulse.c \
-$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c \
-serial.c # $(ARDUINO)/wiring_serial.c
-CXXSRC = $(ARDUINO)/WMath.cpp $(CPP_SRC)
-# below 2 lines are taken from 0016
-# CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp \
-# $(ARDUINO)/Print.cpp $(CPP_SRC)
+SRC = serial.c
+CXXSRC = $(CPP_SRC)
 FORMAT = ihex
 
 # Name of this Makefile (used for "make depend").
@@ -127,7 +119,8 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: applet_files build sizeafter
+all: build sizeafter
+# all: applet_files build sizeafter
 
 build: elf hex
 # build: elf hex eep
@@ -200,8 +193,10 @@ extcoff: $(TARGET).elf
 	$(NM) -n $< > $@
 
 # Link: create ELF output file from library.
-applet/$(TARGET).elf: $(TARGET).pde applet/core.a
-	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
+# applet/$(TARGET).elf: $(TARGET).pde applet/core.a
+# 	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
+applet/$(TARGET).elf: $(TARGET).cpp applet/core.a
+	$(CC) $(ALL_CFLAGS) -o $@ $(TARGET).cpp -L. applet/core.a $(LDFLAGS)
 
 applet/core.a: $(OBJ)
 	@for i in $(OBJ); do echo $(AR) rcs applet/core.a $$i; $(AR) rcs applet/core.a $$i; done

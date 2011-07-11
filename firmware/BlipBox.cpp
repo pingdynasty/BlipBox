@@ -1,11 +1,12 @@
+#include <stdlib.h>
+#include <avr/interrupt.h>
+#include "serial.h"
 #include "defs.h"
 #include "device.h"
 #include "globals.h"
-
 #include "MessageDispatcher.h"
 #include "BlipBox.h"
 #include "Parameters.h"
-
 #include "MidiZoneEventHandler.h"
 
 unsigned long previousMillis;        // will store last time write was done
@@ -26,6 +27,10 @@ void setup() {
   beginSerial(blipbox.config.serialSpeed);
   blipbox.message(ALERT);
   animator = NULL;
+
+  // todo: remove!
+  blipbox.sender.release.update();
+  blipbox.sender.release.send();
 }
 
 void loop() {
@@ -167,8 +172,11 @@ void BlipBox::sendMidiZones(){
   }
 }
 
-// Interrupt routines 
+#ifndef __AVR_ATmega168__
+#error "__AVR_ATmega168__ not defined!"
+#endif
 
+// Interrupt routines
 #if defined(__AVR_ATmega168__)
 SIGNAL(SIG_USART_RECV){
   unsigned char c = UDR0;
@@ -181,4 +189,16 @@ SIGNAL(SIG_UART_RECV){
 
 ISR(TIMER1_OVF_vect){
   blipbox.leds.displayCurrentRow();
+}
+
+int main(void)
+{
+	init();
+
+	setup();
+    
+	for (;;)
+		loop();
+        
+	return 0;
 }

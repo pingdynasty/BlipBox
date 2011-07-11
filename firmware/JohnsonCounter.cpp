@@ -1,7 +1,6 @@
 #include "JohnsonCounter.h"
 #include <stdlib.h>
 #include <avr/io.h>
-#include <wiring.h>
 
 #define CNT_PORT PORTB
 #define CNT_PIN PB4 // also counter reset

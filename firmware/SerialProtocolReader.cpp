@@ -1,5 +1,3 @@
-#include <wiring.h>
-#include <avr/interrupt.h>
 #include "globals.h"
 #include "Greeting.h"
 #include "Characters.h"
