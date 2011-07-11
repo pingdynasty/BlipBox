@@ -11,7 +11,7 @@
 // messages to blipbox, first 4 bits is message type:
 
 // 1 byte messages
-// clear : 00010000 / 0x10
+// fill : 0001vvvv
 // follow mode: 4 bits marker type : 0010tttt
 // display effect: 4 bits effect type
 // shift leds: 2 bits direction, 2 bits steps (0: up; 1: down; 2: left; 3: right)
@@ -44,25 +44,19 @@
 #include "globals.h"
 #endif // MESSAGE_RECEIVER_TEST
 
-#define CLEAR_MESSAGE             0x10
-
+#define FILL_MESSAGE              0x10
 #define SET_LED_MESSAGE           0x20 // sets 1 led - 3 byte message
 #define SET_LED_ROW_MESSAGE       0x30 // sets 8 leds - two byte message
 #define SET_LED_COL_MESSAGE       0x40 // sets 8 leds - two byte message
-
 #define WRITE_CHARACTER_MESSAGE   0x50
 #define SHIFT_LEDS_MESSAGE        0x60
 #define DISPLAY_EFFECT_MESSAGE    0x70
-
 #define SET_PARAMETER_MESSAGE     0xc0
 // set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
-
 #define MESSAGE_ID_MASK           0xf0
 #define MESSAGE_VALUE_MASK        0x0f
-
 #define PARAMETER_ID_MASK         0x3c
 #define PARAMETER_VALUE_MASK      0x03
-
 #define MAX_MESSAGE_LENGTH 3
 
 class MessageReceiver {

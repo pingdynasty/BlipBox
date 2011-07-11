@@ -5,9 +5,6 @@
 extern "C"{
 #endif
 
-void init(void);
-unsigned long millis(void);
-
 void beginSerial(long);
 void serialWrite(unsigned char);
 

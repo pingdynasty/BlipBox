@@ -24,7 +24,7 @@ bool MessageReceiver::receiveMessage(){
         pos = 0;
       break;
       // 1 byte messages
-    case CLEAR_MESSAGE:
+    case FILL_MESSAGE:
     case SHIFT_LEDS_MESSAGE:
     case DISPLAY_EFFECT_MESSAGE:
       pos = 0;

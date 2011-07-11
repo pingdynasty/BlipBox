@@ -38,11 +38,12 @@ void loop() {
     blipbox.keys.keyscan(); // triggers eventhandler
     blipbox.sender.send();
     previousMillis = millis();   // remember the last time we did this
+
+    // counter overflows at 65536
+    blipbox.signal.tick(++counter);
+    if(animator != NULL)
+      animator->tick(counter);
   }
-  // counter overflows at 65536
-  blipbox.signal.tick(++counter);
-  if(animator != NULL)
-    animator->tick(counter);
 }
 
 void BlipBox::setSerialReader(SerialReader* handler){
@@ -172,11 +173,8 @@ void BlipBox::sendMidiZones(){
   }
 }
 
-#ifndef __AVR_ATmega168__
-#error "__AVR_ATmega168__ not defined!"
-#endif
-
 // Interrupt routines
+
 #if defined(__AVR_ATmega168__)
 SIGNAL(SIG_USART_RECV){
   unsigned char c = UDR0;

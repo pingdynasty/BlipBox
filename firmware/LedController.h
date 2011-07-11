@@ -88,7 +88,7 @@ public:
 
 private:
   bool flipped;
-  uint8_t* back_buffer;
+  uint8_t* volatile back_buffer;
   uint8_t buf1[LED_BUFFER_LENGTH];
   uint8_t buf2[LED_BUFFER_LENGTH];
   void sendBufferData(uint8_t row);

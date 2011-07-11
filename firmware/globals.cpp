@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <avr/interrupt.h>
 #include "globals.h"
 
 void* operator new(size_t size) { return malloc(size); }
@@ -6,65 +7,49 @@ void operator delete(void* ptr) { free(ptr); }
 
 BlipBox blipbox;
 
-// macro to perfom a soft reset using the watchdog timer
-// #define soft_reset()        \
-// do                          \
-// {                           \
-//     wdt_enable(WDTO_15MS);  \
-//     for(;;)                 \
-//     {
-//     }
-// } while(0)
+#ifndef __AVR_ATmega168__
+#error "__AVR_ATmega168__ not defined!"
+#endif
 
-// Disable watchdog: Function Implementation
-// void wdt_init(void) {
-// void disable_watchdog(void) {
-// //     MCUSR = 0;
-//         cli();
-//         /* Clear WDRF in MCUSR */
-//         MCUSR &= ~(1<<WDRF);
-//         /* Write logical one to WDCE and WDE */
-//         /* Keep old prescaler to prevent unintentional time-out */
-//         WDTCSR |= (1<<WDCE) | (1<<WDE);
-//         /* Turn off WDT */
-//         WDTCSR = 0x00;
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
 
-//     wdt_disable();
-//         sei();
-// }
+volatile unsigned long timer0_overflow_count;
 
-// void WDT_off(void)
-// {
-//         __disable_interrupt();
-//         __watchdog_reset();
-//         /* Clear WDRF in MCUSR */
-//         MCUSR &= ~(1<<WDRF);
-//         /* Write logical one to WDCE and WDE */
-//         /* Keep old prescaler to prevent unintentional time-out */
-//         WDTCSR |= (1<<WDCE) | (1<<WDE);
-//         /* Turn off WDT */
-//         WDTCSR = 0x00;
-//         __enable_interrupt();
-// }
+SIGNAL(SIG_OVERFLOW0){
+  timer0_overflow_count++;
+}
 
-// inline void wdt_disable(){
-// void wdt_init() {
-//     uint8_t origSREG = SREG;
-//     cli();
-//     wdt_reset();
-// //     __asm__ ( "cli" );
-//     MCUSR &= ~(_BV(WDRF));
-//     WDTCSR |= _BV(_WD_CHANGE_BIT) | _BV(WDE);
-//     WDTCSR = 0;
-//     SREG = origSREG;
-//     sei();
-// }
+unsigned long millis(){
+  // timer 0 increments every 64 cycles, and overflows when it reaches
+  // 256.  we would calculate the total number of clock cycles, then
+  // divide by the number of clock cycles per millisecond, but this
+  // overflows too often.
+  //return timer0_overflow_count * 64UL * 256UL / (F_CPU / 1000UL);
+  // instead find 1/128th the number of clock cycles and divide by
+  // 1/128th the number of clock cycles per millisecond
+  //return timer0_overflow_count * 64UL * 2UL / (F_CPU / 128000UL);
+  return timer0_overflow_count; // the multiply by factor is 1.024, we will be off by 2.4%.
+}
 
-// void reset(uint8_t mode){
-//   eeprom_write_byte(EEPROM_MODE_ADDRESS, mode);
-//   wdt_enable(WDTO_120MS); // will 30ms or 60ms work with the bootloader?
-//   for(;;);
-// }
+void init(){
+  // timer 0 is used for millis() and delay()
+  timer0_overflow_count = 0;
+  // on the ATmega168, timer 0 is also used for fast hardware pwm
+  // (using phase-correct PWM would mean that timer 0 overflowed half as often
+  // resulting in different millis() behavior on the ATmega8 and ATmega168)
+  TCCR0A |= _BV(WGM01);
+  TCCR0A |= _BV(WGM00);
+  // set timer 0 prescale factor to 64
+  TCCR0B |= _BV(CS01);
+  TCCR0B |= _BV(CS00);
+  // enable timer 0 overflow interrupt
+  TIMSK0 |= _BV(TOIE0);
+}
 
 // hack/workaround to get round problem with virtual constructors/methods:
 // undefined reference to `__cxa_pure_virtual'
