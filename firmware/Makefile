@@ -42,23 +42,13 @@ MCU = atmega168
 F_CPU = 16000000
 
 CPP_SRC = FiveWireTouchController.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp MidiZoneEventHandler.cpp PresetChooser.cpp MidiZone.cpp SerialProtocol.cpp BlipBox.cpp
+
 ############################################################################
-# Below here nothing should be changed...
 
 ARDUINO = $(INSTALL_DIR)/hardware/cores/arduino
 AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
-# SRC =   unwired.c serial.c
+SRC = serial.c
 CXXSRC = $(CPP_SRC)
-# SRC =  $(ARDUINO)/wiring.c $(ARDUINO)/wiring_serial.c 
-SRC = $(ARDUINO)/pins_arduino.c  $(ARDUINO)/wiring.c \
-$(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
-$(ARDUINO)/wiring_pulse.c \
-$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c \
-serial.c
-CXXSRC = $(ARDUINO)/WMath.cpp $(CPP_SRC)
-# below 2 lines are taken from 0016
-# CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp \
-# $(ARDUINO)/Print.cpp $(CPP_SRC)
 FORMAT = ihex
 
 # Name of this Makefile (used for "make depend").

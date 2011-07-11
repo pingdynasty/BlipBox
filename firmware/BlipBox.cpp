@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
-#include <wiring.h>
-// #include "serial.h"
+#include "serial.h"
 #include "defs.h"
 #include "device.h"
 #include "globals.h"
@@ -173,8 +172,11 @@ void BlipBox::sendMidiZones(){
   }
 }
 
-// Interrupt routines 
+#ifndef __AVR_ATmega168__
+#error "__AVR_ATmega168__ not defined!"
+#endif
 
+// Interrupt routines
 #if defined(__AVR_ATmega168__)
 SIGNAL(SIG_USART_RECV){
   unsigned char c = UDR0;
