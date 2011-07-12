@@ -10,10 +10,10 @@
 // For the horizontal measurement, the upper left corner
 // and lower left corner are connected to ground and the upper
 // right and lower right corners are connected to V+
-#include "TouchController.h"
-#include "globals.h"
 #include <avr/interrupt.h> 
 #include <string.h> // for memset
+#include "TouchController.h"
+#include "globals.h"
 
 // seems to currently work with these connections:
 // PC0 - RL / pin 2
@@ -76,14 +76,12 @@ uint8_t adc_mode;
 #define START_STATE        READ_STANDBY_STATE
 #define END_STATE          SAMPLE_COUNT*STATE_COUNT // accumulate readings
 
+#define adc_setmux(pin) (ADMUX = (ADMUX & ~7) | pin)
+
 void TouchController::init(){
-//   pinMode(PIN_RL, OUTPUT);
-//   pinMode(PIN_LT, OUTPUT);
-// //   pinMode(PIN_RL, INPUT); // enables pull-up resistor
-// //   pinMode(PIN_LT, INPUT); // enables pull-up resistor
-//   pinMode(PIN_RT, OUTPUT);
-//   bzero(adc_acc, sizeof(adc_acc));
-//   bzero(adc_values, sizeof(adc_values)); // where is bzero?
+  STANDBY_CONFIGURATION;
+  adc_setmux(PIN_SG); // set ADC to read SG pin
+
   memset(adc_acc, 0, sizeof(adc_acc));
   memset(adc_values, 0, sizeof(adc_values));
 
@@ -94,9 +92,6 @@ void TouchController::init(){
   ADCSRA |= (1 << ADEN); // Enable ADC
   ADCSRA |= (1 << ADSC); // Start A2D Conversions
   ADCSRA |= (1 << ADIE); // enable ADC interrupt
-
-  STANDBY_CONFIGURATION;
-  ADMUX = (ADMUX & ~7) | PIN_SG; // set ADC to read SG pin
 }
 
 uint16_t TouchController::getValue(uint8_t index){
@@ -108,46 +103,47 @@ uint16_t TouchController::getZ(){
 }
 
 ISR(ADC_vect){
-  switch(adc_mode % STATE_COUNT){
+  switch(adc_mode++ % STATE_COUNT){
   case READ_STANDBY_STATE:{
-    X_POS_CONFIGURATION;
-    adc_acc[0] += ADCL | ADCH << 8;
-//     adc_values[0] = ADCL | ADCH << 8;
-//     ADMUX = (ADMUX & ~7) | POT_PIN;
+    uint16_t val = ADCL | ADCH << 8;
+    if(val < blipbox.config.sensitivity){
+      X_POS_CONFIGURATION;
+      adc_acc[0] += val;
+    }else{
+      memset(adc_acc, 0, sizeof(adc_acc));
+      adc_values[0] = val;
+      adc_mode = READ_STANDBY_STATE;
+    }
     break;
   }
   case READ_X_POS_STATE:{
     Y_POS_CONFIGURATION;
     adc_acc[1] += ADCL | ADCH << 8;
-//     adc_values[1] = ADCL | ADCH << 8;
-//     ADMUX = (ADMUX & ~7) | POT_PIN;
+//     adc_setmux(POT_PIN);
     break;
   }
   case READ_Y_POS_STATE:{
     STANDBY_CONFIGURATION;
     adc_acc[2] += ADCL | ADCH << 8;
-//     adc_values[2] = ADCL | ADCH << 8;
-//     ADMUX = (ADMUX & ~7) | POT_PIN;
+//     adc_setmux(POT_PIN);
     break;
   }
 //   default:{
 //     // happens on every even adc_mode, i.e. every other time
 //     adc_values[3] = ADCL;
 //     adc_values[3] |= ADCH << 8;
-//     ADMUX = (ADMUX & ~7) | PIN_SG;
+//     adc_setmux(PIN_SG);
 //     break;
 //   }
   }
-  if(adc_mode == READ_STANDBY_STATE){
-    for(int i=0; i<VALUE_COUNT; ++i){
+  if(adc_mode == END_STATE){
+    adc_mode = 0;
+    for(uint8_t i=0; i<VALUE_COUNT; ++i){
       adc_values[i] = adc_acc[i] / SAMPLE_COUNT;
       adc_acc[i] = 0;
     }
   }
-  if(++adc_mode == END_STATE){
-    adc_mode = 0;
 //     memcpy(adc_values, adc_acc, sizeof(adc_values));
 //     memset(adc_acc, 0, sizeof(adc_acc));
 //     bzero(adc_acc, sizeof(adc_acc));
-  }
 }
