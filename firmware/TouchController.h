@@ -8,8 +8,6 @@ private:
 public:
   void init();
   uint16_t getValue(uint8_t index);
-//   uint16_t getX();
-//   uint16_t getY();
   uint16_t getZ();
 };
 

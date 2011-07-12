@@ -3,8 +3,8 @@
 #include "EventHandler.h"
 
 void DefaultEventHandler::press(Position& pos){
-  blipbox.sender.position.update(pos);
   blipbox.sender.release.reset();
+  blipbox.sender.position.update(pos);
 }
 
 void DefaultEventHandler::release(Position& pos){

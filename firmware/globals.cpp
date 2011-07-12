@@ -42,11 +42,11 @@ void init(){
   // on the ATmega168, timer 0 is also used for fast hardware pwm
   // (using phase-correct PWM would mean that timer 0 overflowed half as often
   // resulting in different millis() behavior on the ATmega8 and ATmega168)
-  TCCR0A |= _BV(WGM01);
-  TCCR0A |= _BV(WGM00);
+  TCCR0A |= _BV(WGM01) | _BV(WGM00);
   // set timer 0 prescale factor to 64
-  TCCR0B |= _BV(CS01);
-  TCCR0B |= _BV(CS00);
+  TCCR0B |= _BV(CS01) | _BV(CS00);
+//   TCCR0B |= _BV(CS02); // prescale factor 256
+//   TCCR0B |= _BV(CS02) | _BV(CS00);  // prescale factor 1024, 16 times higher than 64
   // enable timer 0 overflow interrupt
   TIMSK0 |= _BV(TOIE0);
 }

@@ -13,9 +13,8 @@ class KeyController : public TouchController {
 
 public:
   Position pos;
-//   void init();
+  KeyController() : pressed(false) {}
   void keyscan();
-/*   void keychange(uint8_t row, uint8_t col, bool ison); */
 
   inline bool isPressed(){
     return pressed;
