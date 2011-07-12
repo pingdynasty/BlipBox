@@ -1,19 +1,19 @@
 #include "Animator.h"
 #include "globals.h"
 
-void FadeAnimator::tick(uint16_t counter){
-  if(counter % prescaler == 0)
-    blipbox.leds.sub(1);
-}
-
 void SignalAnimator::tick(uint16_t counter){
   // blink all leds
-  if(signals && counter % 0xfff == 0){
+  if(signals && counter % 0x20 == 0){
       blipbox.leds.toggle();
       blipbox.leds.flip();
       --signals;
   }
 }
+
+// void FadeAnimator::tick(uint16_t counter){
+//   if(counter % prescaler == 0)
+//     blipbox.leds.sub(1);
+// }
 
 // void DotAnimator::tick(uint16_t counter){
 //   if(counter % 32 == 0)

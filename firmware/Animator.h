@@ -8,16 +8,6 @@ public:
   virtual void tick(uint16_t counter);
 };
 
-class FadeAnimator : public Animator {
-public:
-  FadeAnimator(uint8_t _prescaler)
-    : prescaler(_prescaler) {
-  }
-  virtual void tick(uint16_t counter);
-private:
-  uint8_t prescaler;
-};
-
 class SignalAnimator : public Animator {
   /* Animator used to signal errors by turning an LED on/off */
  public:
@@ -28,6 +18,16 @@ class SignalAnimator : public Animator {
  private:
   uint8_t signals;
 };
+
+/* class FadeAnimator : public Animator { */
+/* public: */
+/*   FadeAnimator(uint8_t _prescaler) */
+/*     : prescaler(_prescaler) { */
+/*   } */
+/*   virtual void tick(uint16_t counter); */
+/* private: */
+/*   uint8_t prescaler; */
+/* }; */
 
 /* class DotAnimator : public Animator { */
 /*  public: */
