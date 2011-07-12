@@ -3,16 +3,22 @@
 #include "globals.h"
 #include "serial.h"
 
-#define NOTE_ZONE_BIT      1<<2
-#define BUTTON_ZONE_BIT    1<<3
-#define HORIZONTAL_CC      1
-#define VERTICAL_CC        2
-#define CC_PUSH_BUTTON     1 | BUTTON_ZONE_BIT
-#define CC_TOGGLE_BUTTON   2 | BUTTON_ZONE_BIT
-#define HORIZONTAL_NOTE    1 | NOTE_ZONE_BIT
-#define VERTICAL_NOTE      2 | NOTE_ZONE_BIT
-#define NOTE_PUSH_BUTTON   1 | NOTE_ZONE_BIT | BUTTON_ZONE_BIT
-#define NOTE_TOGGLE_BUTTON 2 | NOTE_ZONE_BIT | BUTTON_ZONE_BIT
+// #define HORIZONTAL_CC      0x1
+// #define VERTICAL_CC        0x2
+// #define CC_PUSH_BUTTON     0x9
+// etc
+
+#define NOTE_ZONE_BIT      (1<<2)
+#define BUTTON_ZONE_BIT    (1<<3)
+#define HORIZONTAL_CC      0x1
+#define VERTICAL_CC        0x2
+#define CC_PUSH_BUTTON     (1 | BUTTON_ZONE_BIT)
+#define CC_TOGGLE_BUTTON   (2 | BUTTON_ZONE_BIT)
+#define HORIZONTAL_NOTE    (1 | NOTE_ZONE_BIT)
+#define HORIZONTAL_NOTE    (1 | NOTE_ZONE_BIT)
+#define VERTICAL_NOTE      (2 | NOTE_ZONE_BIT)
+#define NOTE_PUSH_BUTTON   (1 | NOTE_ZONE_BIT | BUTTON_ZONE_BIT)
+#define NOTE_TOGGLE_BUTTON (2 | NOTE_ZONE_BIT | BUTTON_ZONE_BIT)
 #define PRESET_BUTTON      0
 
 void MidiZone::channelMessage(uint8_t data1, uint8_t data2){
@@ -63,6 +69,7 @@ void MidiZone::load(uint8_t index){
 
 uint8_t scalex(Position& pos){
   return pos.x >> 3;
+//   return ((int16_t)127*(pos.x-__from_x*1023/10)/((_to_x-_from_x)*1023/10));
   //     return ((int16_t)127*(pos.column-_from_x))/(_to_x-_from_x);
 }
 
@@ -81,13 +88,6 @@ uint8_t MidiZone::gety(){
   //     return (int16_t)_data2*(_to_y-_from_y)/127+_from_y;
 }
 
-void MidiZone::release(Position& pos){
-//   if(_type & NOTE_ZONE_BIT)
-//     _status = 0x80 | (_status & 0x0f);
-  if(_type == NOTE_PUSH_BUTTON || _type == CC_PUSH_BUTTON)
-    channelMessage(_data1, 0);
-}
-
 void MidiZone::press(Position& pos){
 //   if(_type & NOTE_ZONE_BIT)
 //     _status = 0x90 | (_status & 0x0f);
@@ -101,6 +101,13 @@ void MidiZone::press(Position& pos){
     if(blipbox.midizones.preset != _data1)
       blipbox.midizones.loadPreset(_data1);
   }
+}
+
+void MidiZone::release(Position& pos){
+//   if(_type & NOTE_ZONE_BIT)
+//     _status = 0x80 | (_status & 0x0f);
+  if(_type == NOTE_PUSH_BUTTON || _type == CC_PUSH_BUTTON)
+    channelMessage(_data1, 0);
 }
 
 void MidiZone::drag(Position& pos){
@@ -126,13 +133,13 @@ void MidiZone::tick(){
   case HORIZONTAL_CC:
   case VERTICAL_NOTE:
     int8_t x = getx();
-    for(int i=_from_y; i<_to_y; ++i)
-      blipbox.leds.setLed(x, i, blipbox.config.brightness);
+    for(int8_t y=_from_y; y<_to_y; ++y)
+      blipbox.leds.setLed(x, y, blipbox.config.brightness);
     break;
   case VERTICAL_CC:
   case HORIZONTAL_NOTE:
     int8_t y = gety();
-    for(int i=_from_x; i<_to_x; ++i)
+    for(int8_t i=_from_x; i<_to_x; ++i)
       blipbox.leds.setLed(i, y, blipbox.config.brightness);
     break;
   case NOTE_TOGGLE_BUTTON:
@@ -140,14 +147,14 @@ void MidiZone::tick(){
   case NOTE_PUSH_BUTTON:
   case CC_PUSH_BUTTON:
     if(_data2)
-      for(int x=_from_x; x<_to_x; ++x)
-	for(int y=_from_y; y<_to_y; ++y)
+      for(int8_t x=_from_x; x<_to_x; ++x)
+	for(int8_t y=_from_y; y<_to_y; ++y)
 	  blipbox.leds.setLed(x, y, blipbox.config.brightness);
     break;
   case PRESET_BUTTON:
     if(blipbox.midizones.preset == _data1)
-      for(int x=_from_x; x<_to_x; ++x)
-	for(int y=_from_y; y<_to_y; ++y)
+      for(int8_t x=_from_x; x<_to_x; ++x)
+	for(int8_t y=_from_y; y<_to_y; ++y)
 	  blipbox.leds.setLed(x, y, blipbox.config.brightness);
     break;
   }
