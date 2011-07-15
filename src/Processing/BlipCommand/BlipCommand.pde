@@ -1,9 +1,7 @@
 import controlP5.*;
 
-ProcessingBlipBox bli
-pbox;
+ProcessingBlipBox blipbox;
 ControlP5 controlP5;
-//DropdownList p1, p2;
 ListBox l1;
 
 int lastx = -1;
@@ -24,10 +22,23 @@ void setup(){
     l1.addItem(cmd.name, cmd.ordinal());
   }
   controlP5.addButton("toggleDraw", 10, 200, 0, 80, 12).setLabel("draw");
-  controlP5.addSlider("brightness", 0, 255, 255, 200, 13, 80, 12);
+  controlP5.addSlider("setBrightness", 0, 255, 255, 200, 13, 80, 12);
+  controlP5.addSlider("setSensitivity", 0, 1023, 200, 200, 30, 80, 12);
+  String modes[] = new String[]{"none", "dot", "cross", "criss", "toggle", "star"};
+  for(int i=0; i<modes.length; ++i)
+    controlP5.addButton("setFollowMode", i, 300, 13*i, 80, 12).setLabel(modes[i]);
 }
 
-void brightness(float value){
+void setFollowMode(int value){
+  println("follow "+value);
+  blipbox.setParameterValue(Parameter.FOLLOW_MODE, value);
+}
+
+void setSensitivity(float value){
+  blipbox.setParameterValue(Parameter.SENSITIVITY, (int)value);
+}
+
+void setBrightness(float value){
   this.brightness = (int)value;
   println("brightness "+brightness);
   blipbox.setParameterValue(Parameter.BRIGHTNESS, brightness);
@@ -50,18 +61,18 @@ void controlEvent(ControlEvent event) {
   }
 }
 
-void touchPressed(Position pos){
-  println("pressed "+pos);
-}
-
 void touchReleased(Position pos){
-  println("released "+pos);
+  println("released "+pos.getRawX()+"/"+pos.getRawY());
   lastx = -1;
   lasty = -1;
 }
  
-void touchDragged(Position pos){
-  println("dragged "+pos);
+void touchDragged(Position origin, Position pos){
+  println("dragged "+pos.getRawX()+"/"+pos.getRawY());
+}
+
+void touch(Position pos){
+  println("touch "+pos.getRawX()+"/"+pos.getRawY());
   if(draw){
     int x = pos.getX(0, 10);
     int y = pos.getY(0, 8);
@@ -76,30 +87,20 @@ void touchDragged(Position pos){
   }
 }
 
+void touchClicked(Position pos){
+  println("clicked "+pos.getRawX()+"/"+pos.getRawY());
+}
+
+void touchDoubleClicked(Position pos){
+  println("double clicked "+pos.getRawX()+"/"+pos.getRawY());
+}
+
+void touchPressed(Position pos){
+  println("pressed "+pos.getRawX()+"/"+pos.getRawY());
+}
+
 void keyTyped() {
-  if(key == 'f')
-    blipbox.fill(0xff);
-  else if(key == 'c')
-    blipbox.fill(0);
-  else if(key == 'g')
-    blipbox.sendCommand(Command.LEDS_START);
-  else if(key == 'h')
-    blipbox.sendCommand(Command.LEDS_STOP);
-  else if(key == 'k')
-    blipbox.sendCommand(Command.CFG_REQUEST);
-  else if(key == 43)
-    blipbox.sendCommand(Command.BRIGHTEN);
-  else if(key == 45)
-    blipbox.sendCommand(Command.FADE);
-  else if(key == 'd'){
-    int val = blipbox.getParameterValue(Parameter.FOLLOW_MODE);
-    if(++val > 5)
-      val = 0;
-    blipbox.setParameterValue(Parameter.FOLLOW_MODE, val);
-    println("set follow mode to "+blipbox.getParameterValue(Parameter.FOLLOW_MODE));
-  }else if(key > 47 && key < 58){
-    brightness = (key - 48)*28+1; // keys 0-9 scaled to 1-253
-  }
+  println("typed "+key);
 }
 
 int getScreenX(){
