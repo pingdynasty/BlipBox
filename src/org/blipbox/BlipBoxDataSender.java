@@ -114,8 +114,6 @@ public class BlipBoxDataSender implements BlipBoxOutput {
 
     public void writeText(String str, long delay){
         for(char c: str.toCharArray()){
-// 	    shiftLeft(1);
-// 	    sleep(delay);
             for(int pos=9; pos>4; --pos){
                 shiftLeft(1);
                 writeCharacter(pos, c);
@@ -126,11 +124,11 @@ public class BlipBoxDataSender implements BlipBoxOutput {
 
 //     public void writeText(String str, long delay){
 //         for(char c: str.toCharArray()){
-// 	    shiftRight(1);
+//          shiftRight(1);
 //             sleep(delay);
 // //             // currently this writes backwards!
 //             for(int pos=0; pos<4; ++pos){
-// 		shiftRight(1);
+//              shiftRight(1);
 //                 writeCharacter(pos, c);
 //                 sleep(delay);
 //             }

@@ -17,23 +17,24 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
             if(sensor.getValue() == 0){
                 if(pressed){
                     pressed = false;
-                    release(bpos);
 		    if(now - lasttapped < TAPTAP_THRESHOLD){
                         taptap(apos);
 		    }else if(now - lastpressed < TAP_THRESHOLD){
 			lasttapped = now;
                         tap(apos);
 		    }
+                    release(bpos);
                 }
             }else{
-                position(bpos);
                 if(!pressed){
                     apos.setZ(sensor);
                     pressed = true;
 		    lastpressed = now;
+		    press(apos);
                 }else{
                     drag(apos, bpos);
                 }
+                position(bpos);
             }
             break;            
         case SensorConfiguration.X_SENSOR_MSG_ID:
@@ -50,9 +51,10 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
     }
 
     public void parameterValue(Parameter param, int value){}
+    public void press(Position pos){}
+    public void drag(Position from, Position to){}
+    public void release(Position pos){}
     public void tap(Position pos){}
     public void taptap(Position pos){}
-    public void release(Position pos){}
-    public void drag(Position from, Position to){}
     public void position(Position pos){}
 }

@@ -4,20 +4,22 @@ import java.lang.reflect.Method;
 
 public class DynamicBlipAction extends AbstractBlipAction {
     private Object obj;
+    private Method press;
+    private Method drag;
+    private Method release;
     private Method tap;
     private Method taptap;
-    private Method release;
-    private Method drag;
     private Method position;
     private Method parameter;
 
     public DynamicBlipAction(Object obj){
         this.obj = obj;
-        tap = getMethod("touchPressed", new Class[]{Position.class});
-        taptap = getMethod("taptap", new Class[]{Position.class});
-        release = getMethod("touchReleased", new Class[]{Position.class});
+        press = getMethod("touchPressed", new Class[]{Position.class});
         drag = getMethod("touchDragged", new Class[]{Position.class, Position.class});
-        position = getMethod("touchDragged", new Class[]{Position.class});
+        release = getMethod("touchReleased", new Class[]{Position.class});
+        tap = getMethod("touchClicked", new Class[]{Position.class});
+        taptap = getMethod("touchDoubleClicked", new Class[]{Position.class});
+        position = getMethod("touch", new Class[]{Position.class});
         parameter = getMethod("parameter", new Class[]{Parameter.class, Integer.TYPE});
     }
 
@@ -29,22 +31,19 @@ public class DynamicBlipAction extends AbstractBlipAction {
         }
     }
 
-    // todo?
-    //     public void parameterValue(int pid, int value){}
-
-    public void tap(Position pos){
-        if(tap != null)
+    public void press(Position pos){
+        if(press != null)
             try{
-                tap.invoke(obj, new Object[]{pos});
+                press.invoke(obj, new Object[]{pos});
             }catch(Exception exc){
                 throw new RuntimeException(exc);
             }
     }
 
-    public void taptap(Position pos){
-        if(taptap != null)
+    public void drag(Position from, Position to){
+        if(drag != null)
             try{
-                taptap.invoke(obj, new Object[]{pos});
+                drag.invoke(obj, new Object[]{from, to});
             }catch(Exception exc){
                 throw new RuntimeException(exc);
             }
@@ -59,10 +58,19 @@ public class DynamicBlipAction extends AbstractBlipAction {
             }
     }
 
-    public void drag(Position from, Position to){
-        if(drag != null)
+    public void tap(Position pos){
+        if(tap != null)
             try{
-                drag.invoke(obj, new Object[]{from, to});
+                tap.invoke(obj, new Object[]{pos});
+            }catch(Exception exc){
+                throw new RuntimeException(exc);
+            }
+    }
+
+    public void taptap(Position pos){
+        if(taptap != null)
+            try{
+                taptap.invoke(obj, new Object[]{pos});
             }catch(Exception exc){
                 throw new RuntimeException(exc);
             }
