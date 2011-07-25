@@ -34,6 +34,8 @@
 unsigned long lastpressed   = LONG_MAX;
 unsigned long lasttapped    = LONG_MAX;
 unsigned long lastreleased  = LONG_MAX;
+uint8_t       firstpos      = 0xff;
+uint8_t       lastpos       = 0xff;
 
 void KeyController::keyscan(){
   unsigned long now = millis();
@@ -41,9 +43,13 @@ void KeyController::keyscan(){
     if(now - lastreleased < BOUNCE_THRESHOLD)
       return;
     this->update(); // sets x/y/row/col
+    lastpos = (pos.column << 4) | pos.row;
     if(!pressed){
       // toggled from released to pressed
       pressed = true;
+      if(lastpos != firstpos)
+        lasttapped = LONG_MAX;
+      firstpos = lastpos;
       blipbox.eventhandler->press(pos);
       lastpressed = now;
     }else{
@@ -56,9 +62,10 @@ void KeyController::keyscan(){
     lastreleased = now;
     // toggled from pressed to released
     pressed = false;
-    if(now - lasttapped < TAPTAP_THRESHOLD){
+    if(now - lasttapped < TAPTAP_THRESHOLD && lastpos == firstpos){
       blipbox.eventhandler->taptap(pos);
-    }else if(now - lastpressed < TAP_THRESHOLD){
+      lasttapped = LONG_MAX;
+    }else if(now - lastpressed < TAP_THRESHOLD && lastpos == firstpos){
       blipbox.eventhandler->tap(pos);
       lasttapped = now;
     }
