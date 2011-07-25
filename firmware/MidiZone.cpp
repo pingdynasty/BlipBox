@@ -67,14 +67,24 @@ void MidiZone::load(uint8_t index){
   read(buf);
 }
 
-uint8_t scalex(Position& pos){
-  return pos.x >> 3;
-//   return ((int16_t)127*(pos.x-__from_x*1023/10)/((_to_x-_from_x)*1023/10));
+uint8_t MidiZone::scalex(Position& pos){
+  float p = (pos.x/1023.0-_from_x/10.0)*(_to_x-_from_x)/10.0;
+  return (uint8_t)(p*127.0);
+//   pos = pos.x/1023.0;
+//   min = _from_x/10.0;
+//   range = (_to_x-_from_x)/10.0;
+//   pos = (pos-min)*range
+  
+//   return pos.x >> 3;
+//   return ((int16_t)127*(pos.x-_from_x*1023/10)/((_to_x-_from_x)*1023/10));
   //     return ((int16_t)127*(pos.column-_from_x))/(_to_x-_from_x);
 }
 
-uint8_t scaley(Position& pos){
-  return pos.y >> 3;
+uint8_t MidiZone::scaley(Position& pos){
+  float p = (pos.y/1023.0-_from_y/8.0)*(_to_y-_from_y)/8.0;
+  return (uint8_t)(p*127.0);
+
+//   return pos.y >> 3;
   //     return ((int16_t)127*(pos.row-_from_y))/(_to_y-_from_y);
 }
 
