@@ -44,12 +44,12 @@ void DisplayManager::shift(uint8_t direction){
 void DisplayManager::printCharacter(char c, int8_t dx, int8_t dy, uint8_t brightness){
   uint8_t data[getCharacterHeight()];
   getCharacterData(c, data);
-  for(int y=0; y<getCharacterHeight(); ++y){
-    for(int x=0; x<getCharacterWidth(); ++x){
+  for(uint8_t y=0; y<getCharacterHeight(); ++y){
+    for(uint8_t x=0; x<getCharacterWidth(); ++x){
       // font data is 8 bits left adjusted
-      if(data[y] & _BV(7-x))
+      if((data[y] & _BV(7-x)) && x+dx<10)
         blipbox.leds.setLed(x+dx, 7-y+dy, brightness);
-      else
+      else if(x+dx<10)
         blipbox.leds.setLed(x+dx, 7-y+dy, 0x00);
     }
   }
