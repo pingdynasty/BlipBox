@@ -2,31 +2,48 @@ import controlP5.*;
 
 ProcessingBlipBox blipbox;
 ControlP5 controlP5;
-ListBox l1;
 
 int lastx = -1;
 int lasty = -1;
 int brightness = 0xff;
 int ratiox, ratioy;
 boolean draw = false;
+int textspeed = 200;
 
 void setup(){
   size(800, 640);
-  blipbox = new ProcessingBlipBox(this, 0);
+  blipbox = new ProcessingBlipBox(this, 2);
   controlP5 = new ControlP5(this);
   ratiox = (width-200)/9;
   ratioy = (height-200)/7;
-  l1 = controlP5.addListBox("command", 0, 0, 180, 80);
-  //l1.actAsPulldownMenu(true);
-  for(Command cmd: Command.values()){
+  ListBox l1 = controlP5.addListBox("command", 0, 0, 180, 80);
+  for(Command cmd: Command.values())
     l1.addItem(cmd.name, cmd.ordinal());
-  }
   controlP5.addButton("toggleDraw", 10, 200, 0, 80, 12).setLabel("draw");
   controlP5.addSlider("setBrightness", 0, 255, 255, 200, 13, 80, 12);
-  controlP5.addSlider("setSensitivity", 0, 1023, 200, 200, 30, 80, 12);
+  controlP5.addSlider("setSensitivity", 0, 1023, 200, 200, 13*2, 80, 12);
+  controlP5.addButton("clear", 0, 200, 13*3, 80, 12);
+  controlP5.addButton("fill", 0, 200, 13*4, 80, 12);
   String modes[] = new String[]{"none", "dot", "cross", "criss", "toggle", "star"};
   for(int i=0; i<modes.length; ++i)
     controlP5.addButton("setFollowMode", i, 300, 13*i, 80, 12).setLabel(modes[i]);
+  controlP5.addTextfield("text", 400, 0, 80, 12);
+  controlP5.addSlider("textspeed", 0, 1023, textspeed, 400, 13, 80, 12);
+}
+
+void clear(){
+  println("clear");
+  blipbox.clear();
+}
+
+void fill(){
+  println("fill");
+  blipbox.fill(brightness);
+}
+
+void text(String txt){
+  println("text "+txt);
+  blipbox.writeText(txt, textspeed);
 }
 
 void setFollowMode(int value){
@@ -100,7 +117,7 @@ void touchPressed(Position pos){
 }
 
 void keyTyped() {
-  println("typed "+key);
+//  println("typed "+key);
 }
 
 int getScreenX(){
