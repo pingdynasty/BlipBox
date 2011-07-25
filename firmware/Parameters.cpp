@@ -20,6 +20,18 @@ void setParameter(uint8_t pid, uint16_t value){
   case FOLLOW_MODE_PARAMETER_ID:
     blipbox.setFollowMode((uint8_t)value);
     break;
+  case X_MIN_PARAMETER_ID:
+    blipbox.config.touchscreen_x_min = value;
+    break;
+  case X_RANGE_PARAMETER_ID:
+    blipbox.config.touchscreen_x_range = value;
+    break;
+  case Y_MIN_PARAMETER_ID:
+    blipbox.config.touchscreen_y_min = value;
+    break;
+  case Y_RANGE_PARAMETER_ID:
+    blipbox.config.touchscreen_y_range = value;
+    break;
   default:
     blipbox.message(MESSAGE_READ_ERROR);
   }
