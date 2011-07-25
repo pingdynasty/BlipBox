@@ -13,11 +13,6 @@ unsigned long previousMillis;        // will store last time write was done
 uint16_t counter;
 
 Animator* animator;
-// DotAnimator dot;
-// CrossAnimator cross;
-// CrissAnimator criss;
-// ToggleAnimator toggle;
-// StarAnimator star;
 
 void setup() {
   blipbox.config.init();
@@ -125,25 +120,7 @@ void BlipBox::init() {
 
 void BlipBox::setFollowMode(uint8_t mode) {
   config.followMode = mode;
-//   switch(config.followMode){
-//   case 1:
-//     animator = &dot;
-//     break;
-//   case 2:
-//     animator = &cross;
-//     break;
-//   case 3:
-//     animator = &criss;
-//     break;
-//   case 4:
-//     animator = &toggle;
-//     break;
-//   case 5:
-//     animator = &star;
-//     break;
-//   default:
-//     animator = NULL;
-//   }
+  // todo: update
 }
 
 void sendParameter(uint8_t pid){
