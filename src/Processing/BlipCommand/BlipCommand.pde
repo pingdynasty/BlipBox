@@ -85,11 +85,12 @@ void touchReleased(Position pos){
 }
  
 void touchDragged(Position origin, Position pos){
-  println("dragged "+pos.getRawX()+"/"+pos.getRawY());
+//  println("dragged "+pos.getRawX()+"/"+pos.getRawY());
+  println("drag  "+origin.getColumn()+"/"+origin.getRow()+" "+pos.getColumn()+"/"+pos.getRow());
 }
 
 void touch(Position pos){
-  println("touch "+pos.getRawX()+"/"+pos.getRawY());
+//  println("touch "+pos.getRawX()+"/"+pos.getRawY());
   if(draw){
     int x = pos.getX(0, 10);
     int y = pos.getY(0, 8);
@@ -105,15 +106,18 @@ void touch(Position pos){
 }
 
 void touchClicked(Position pos){
-  println("clicked "+pos.getRawX()+"/"+pos.getRawY());
+//  println("clicked "+pos.getRawX()+"/"+pos.getRawY());
+println("click  "+pos.getColumn()+"/"+pos.getRow());
 }
 
 void touchDoubleClicked(Position pos){
-  println("double clicked "+pos.getRawX()+"/"+pos.getRawY());
+//  println("double clicked "+pos.getRawX()+"/"+pos.getRawY());
+  blipbox.clear();
 }
 
 void touchPressed(Position pos){
-  println("pressed "+pos.getRawX()+"/"+pos.getRawY());
+println("press  "+pos.getColumn()+"/"+pos.getRow());
+//  println("pressed "+pos.getRawX()+"/"+pos.getRawY());
 }
 
 void keyTyped() {
@@ -161,14 +165,21 @@ void draw(){
   background(0xff);
   fill(0x0);
   rect(100, 100, width-120, height-120);
+  stroke(126);
+  if(blipbox.isScreenPressed()){
+    line(blipbox.getX(100, width-20), 100, 
+         blipbox.getX(100, width-20), height-20);
+    line(100, blipbox.getY(height-20, 100), 
+         width-20, blipbox.getY(height-20, 100));
+  }
   pushMatrix();
-  translate(120, 120);
+  translate(140, 140);
   for(int x=0; x<10; ++x){
     for(int y=0; y<8; ++y){
       fill(204, 102, 0, 127);
       ellipse(x*ratiox, y*ratioy, 22, 22);
-      fill(blipbox.getLed(x, y), 0, 0);
-      ellipse(x*ratiox+1, y*ratioy+1, 20, 20);
+      fill(blipbox.getLed(x, 7-y), 0, 0);
+      ellipse(x*ratiox, y*ratioy, 20, 20);
     }
   }
   popMatrix();
