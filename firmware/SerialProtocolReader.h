@@ -4,7 +4,9 @@
 #include "SerialReader.h"
 
 class SerialProtocolReader : public SerialReader {
+public:
   void serialInput(unsigned char c);
+private:
 };
 
 #endif /* _SERIALPROTOCOLREADER_H_ */
