@@ -9,6 +9,8 @@ public enum Command {
     CFG_RESET           (7, "Reset configuration"),
     CFG_READ            (8, "Read configuration from EEPROM"),
     CFG_WRITE           (9, "Write configuration to EEPROM"),
+    START_LED_BLOCK     (10, "Start LED update block"),
+    END_LED_BLOCK       (11, "End LED update block"),
     MIDI_PRESET         (12, "Send MIDI zone preset"),
     RESET               (15, "Soft reset the BlipBox");
 

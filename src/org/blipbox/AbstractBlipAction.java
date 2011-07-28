@@ -9,6 +9,7 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
     private static final long TAPTAP_THRESHOLD = 600; // max milliseconds between double taps
     private boolean pressed;
 
+    private int firstcol, firstrow;
     public void sensorChange(BlipSensor sensor){
         switch(sensor.getMessageId()){
         case SensorConfiguration.Z_SENSOR_MSG_ID:
@@ -17,9 +18,13 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
             if(sensor.getValue() == 0){
                 if(pressed){
                     pressed = false;
-		    if(now - lasttapped < TAPTAP_THRESHOLD){
+		    if(now - lasttapped < TAPTAP_THRESHOLD &&
+                       firstcol == bpos.getColumn() &&
+                       firstrow == bpos.getRow()){
                         taptap(apos);
-		    }else if(now - lastpressed < TAP_THRESHOLD){
+		    }else if(now - lastpressed < TAP_THRESHOLD &&
+                             firstcol == bpos.getColumn() &&
+                             firstrow == bpos.getRow()){
 			lasttapped = now;
                         tap(apos);
 		    }
@@ -27,6 +32,11 @@ public abstract class AbstractBlipAction implements BlipAction, BlipBoxInput {
                 }
             }else{
                 if(!pressed){
+                    if(firstcol != apos.getColumn() ||
+                       firstrow != apos.getRow())
+                        lasttapped = -1;
+                    firstcol = apos.getColumn();
+                    firstrow = apos.getRow();
                     apos.setZ(sensor);
                     pressed = true;
 		    lastpressed = now;

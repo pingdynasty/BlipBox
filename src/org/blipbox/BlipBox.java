@@ -119,11 +119,21 @@ public class BlipBox extends BlipBoxDataSender
         }
     }
 
+    public void fade(int levels){
+        for(int i=0; i<levels; ++i)
+            fade();
+    }
+
     public void fade(){
         super.sendCommand(Command.FADE);
         for(int i=0; i<leds.length; ++i)
             leds[i] = Math.max(leds[i]-BRIGHTNESS_STEP, 0);
 //             leds[i] >>= 1;
+    }
+
+    public void brighten(int levels){
+        for(int i=0; i<levels; ++i)
+            brighten();
     }
 
     public void brighten(){

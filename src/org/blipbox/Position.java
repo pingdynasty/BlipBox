@@ -25,6 +25,14 @@ public class Position {
         this.z = z;
     }
 
+    public int getColumn(){
+        return x.scale(0, 10);
+    }
+
+    public int getRow(){
+        return y.scale(0, 8);
+    }
+
     public float getX(){
         return x.getValue();
     }
