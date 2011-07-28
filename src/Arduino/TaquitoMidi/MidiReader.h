@@ -1,6 +1,7 @@
 #ifndef _MIDIREADER_H_
 #define _MIDIREADER_H_
 
+#include <inttypes.h>
 #include "MidiInterface.h"
 
 #define STANDBY  0
@@ -117,7 +118,7 @@ public:
   }
 
 private:
-  int state, data1, data2;
+  int8_t state, data1, data2;
   MidiInterface* midi;
 
   void reset(){

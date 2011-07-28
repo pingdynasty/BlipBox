@@ -1,6 +1,7 @@
 #ifndef _MIDIWRITER_H_
 #define _MIDIWRITER_H_
 
+#include <inttypes.h>
 #include "MidiInterface.h"
 
 class MidiWriter : public MidiInterface {
@@ -11,7 +12,7 @@ public:
     channel = _channel-1;
   }
 
-  void channelPressure(int value){
+  void channelPressure(uint8_t value){
     write(0xd0 | channel);
     write(value & 0x7f);
   }
@@ -32,25 +33,30 @@ public:
    write(0xf8);
   }
 
-  void pitchBend(int16_t value){
+  void pitchBend(uint16_t value){
     write(0xe0 | channel);
     write(value & 0x7f);
     write((value>>7) & 0x7f);
   }
 
- void controlChange(int cc, int value){
+ void controlChange(uint8_t cc, uint8_t value){
    write(0xb0 | channel);
    write(cc & 0x7f);
    write(value & 0x7f);
  }
 
- void noteOff(int note, int velocity){
+ void programChange(uint8_t pg){
+   write(0xc0 | channel);
+   write(pg & 0x7f);
+ }
+
+ void noteOff(uint8_t note, uint8_t velocity){
    write(0x80 | channel);
    write(note & 0x7f);
    write(velocity & 0x7f);
  }
 
- void noteOn(int note, int velocity){
+ void noteOn(uint8_t note, uint8_t velocity){
    write(0x90 | channel);
    write(note & 0x7f);
    write(velocity & 0x7f);
