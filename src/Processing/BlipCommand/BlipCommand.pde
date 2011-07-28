@@ -112,6 +112,7 @@ println("click  "+pos.getColumn()+"/"+pos.getRow());
 
 void touchDoubleClicked(Position pos){
 //  println("double clicked "+pos.getRawX()+"/"+pos.getRawY());
+  println("double clicked "+pos.getColumn()+"/"+pos.getRow());
   blipbox.clear();
 }
 
@@ -129,7 +130,7 @@ int getScreenX(){
 }
 
 int getScreenY(){
-  return (mouseY-100) / ratioy;
+  return (height-mouseY-20) / ratioy;
 }
 
 boolean mouseOnBox(){

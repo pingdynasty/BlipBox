@@ -6,6 +6,11 @@ int lasty = -1;
 int brightness = 0xff;
 int interval = 120;
 
+void setup(){
+  blipbox = new ProcessingBlipBox(this, 2);
+  grid = new Grid(10, 8);
+}
+
 class Grid {
   int width, height;
   Cell[][] cells;
@@ -78,13 +83,9 @@ class Cell {
   }
 }
 
-void setup(){
-  blipbox = new ProcessingBlipBox(this, 0);
-  grid = new Grid(10, 8);
-}
-
+//void touchClicked(Position pos){
 void touchPressed(Position pos){
-//  println("pressed "+pos);
+  println("pressed "+pos);
   int x = pos.getX(0, 10);
   int y = pos.getY(0, 8);
   if(x == 0 && y == 0){
@@ -100,7 +101,8 @@ void touchReleased(Position pos){
   lasty = -1;
 }
 
-void touchDragged(Position pos){
+void touchDragged(Position origin, Position pos){
+  println("dragged");
   int x = pos.getX(0, 10);
   if(x == 0){
     interval = pos.getY(800, 0);
@@ -133,7 +135,9 @@ void draw(){
       for(int y=0; y<grid.height; y++)
         next.cells[x][y].alive = grid.cells[x][y].survive();
     grid = next;
+    blipbox.sendCommand(Command.START_LED_BLOCK);
     grid.draw();
+    blipbox.sendCommand(Command.END_LED_BLOCK);
     delay(interval);
   }
 }
