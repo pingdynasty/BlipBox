@@ -6,6 +6,9 @@
 /* #define BLIPBOX_P4 */
 /* #define MONOTAR_P1 */
 
+#define MIDI_SERIAL_SPEED 31250L
+/* #define MIDI_SERIAL_SPEED 57600L */
+
 // used for inverting sensor input values: 10 bits max value
 #define SENSOR_MAX 1023
 

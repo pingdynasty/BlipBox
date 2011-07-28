@@ -13,6 +13,8 @@ private:
   int8_t _from_x, _to_x;
   int8_t _from_y, _to_y;
   void channelMessage(uint8_t data1, uint8_t data2);
+  uint8_t scalex(Position& pos);
+  uint8_t scaley(Position& pos);
 public:
   void read(const uint8_t* data);
   void write(uint8_t* data);

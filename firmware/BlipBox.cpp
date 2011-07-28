@@ -72,7 +72,7 @@ void BlipBox::resetEventHandler(){
 
 void BlipBox::setMidiMode(bool midi){
   if(midi){
-    beginSerial(31250L);
+    beginSerial(MIDI_SERIAL_SPEED);
     setSerialReader(new SerialReader());
     eventhandler = &midizones;
     animator = &midizones;

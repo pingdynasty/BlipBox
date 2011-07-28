@@ -65,6 +65,8 @@ public:
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
       if(back_buffer[i] <= 0xff - value) // check for overflow
 	back_buffer[i] += value;
+      else
+        back_buffer[i] = 0xff;
   }
 
   // subtract value from all leds
@@ -73,6 +75,8 @@ public:
     for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
       if(back_buffer[i] >= value) // check for underflow
 	back_buffer[i] -= value;
+      else
+        back_buffer[i] = 0;
   }
 
   // xor all leds
