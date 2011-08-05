@@ -1,0 +1,89 @@
+TARGET = BlipBox
+
+CPP_SRC = simulator/FiveWireTouchController.cpp simulator/LedMatrix.cpp Configuration.cpp KeyController.cpp MessageDispatcher.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp MidiZoneEventHandler.cpp PresetChooser.cpp MidiZone.cpp SerialProtocol.cpp BlipBox.cpp main.cpp
+
+SRC = simulator/serial.c simulator/avr/io.c simulator/avr/eeprom.c simulator/avr/pgmspace.c simulator/avr/interrupt.c
+CXXSRC = $(CPP_SRC)
+CINCS = -Isimulator
+CXXINCS = -Isimulator
+CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA)
+CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT)
+#ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
+LDFLAGS = -lm
+
+CC = gcc
+CXX = g++
+OBJCOPY = objcopy
+OBJDUMP = objdump
+AR  = ar
+SIZE = size
+NM = nm
+REMOVE = rm -f
+MV = mv -f
+
+# Name of this Makefile (used for "make depend").
+MAKEFILE = Makefile
+
+# Define all object files.
+OBJ = $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o) 
+
+# Define all listing files.
+LST = $(ASRC:.S=.lst) $(CXXSRC:.cpp=.lst) $(SRC:.c=.lst)
+
+# Combine all necessary flags and optional flags.
+# Add target processor to flags.
+ALL_CFLAGS = -I. $(CFLAGS)
+ALL_CXXFLAGS = -I. $(CXXFLAGS)
+ALL_ASFLAGS = -I. -x assembler-with-cpp $(ASFLAGS)
+
+
+# Default target.
+all: build sizeafter
+# all: sim_files build sizeafter
+
+build: sim/$(TARGET)
+
+sim/$(TARGET): $(TARGET).cpp sim/core.a
+	$(CXX) $(ALL_CFLAGS) -o $@ $(TARGET).cpp -L. sim/core.a $(LDFLAGS)
+
+sim/core.a: $(OBJ)
+	@for i in $(OBJ); do echo $(AR) rcs sim/core.a $$i; $(AR) rcs sim/core.a $$i; done
+
+# Compile: create object files from C++ source files.
+.cpp.o:
+	$(CXX) -c $(ALL_CXXFLAGS) $< -o $@ 
+
+# Compile: create object files from C source files.
+.c.o:
+	$(CC) -c $(ALL_CFLAGS) $< -o $@ 
+
+
+# Compile: create assembler files from C source files.
+.c.s:
+	$(CC) -S $(ALL_CFLAGS) $< -o $@
+
+
+# Assemble: create object files from assembler source files.
+.S.o:
+	$(CC) -c $(ALL_ASFLAGS) $< -o $@
+
+
+
+# Target: clean project.
+clean:
+	$(REMOVE) sim/$(TARGET).hex sim/$(TARGET).eep sim/$(TARGET).cof sim/$(TARGET).elf \
+	sim/$(TARGET).map sim/$(TARGET).sym sim/$(TARGET).lss sim/core.a \
+	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
+
+depend:
+	if grep '^# DO NOT DELETE' $(MAKEFILE) >/dev/null; \
+	then \
+		sed -e '/^# DO NOT DELETE/,$$d' $(MAKEFILE) > \
+			$(MAKEFILE).$$$$ && \
+		$(MV) $(MAKEFILE).$$$$ $(MAKEFILE); \
+	fi
+	echo '# DO NOT DELETE THIS LINE -- make depend depends on it.' \
+		>> $(MAKEFILE); \
+	$(CC) -M -mmcu=$(MCU) $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE)
+
+.PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sim_files sizebefore sizeafter
