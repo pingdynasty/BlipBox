@@ -19,6 +19,9 @@ enum MessageType {
   ALERT = 2, MESSAGE_READ_ERROR = 4 , MESSAGE_WRITE_ERROR = 6
 };
 
+void setup();
+void loop();
+
 class BlipBox {
 public:
   LedController leds;

@@ -2,13 +2,13 @@
 #define _MIDIPRESETREADER_H_
 
 #include <avr/eeprom.h>
-#include "MidiZone.h"
+#include "defs.h"
+#include "globals.h"
 #include "SerialReader.h"
 
 #define RECEIVE_PRESET_COMMAND 1
 #define REQUEST_PRESET_COMMAND 2
 
-// MIDI_ZONE_PRESET_LENGTH = 1+8*4+1 = 34
 #define MIDI_ZONE_PRESET_LENGTH 1+MIDI_ZONES_IN_PRESET*MIDI_ZONE_PRESET_SIZE+1
 
 class MidiPresetReader : public SerialReader {

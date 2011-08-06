@@ -13,8 +13,6 @@
 #define LED_ROWS          10
 #define LED_BUFFER_LENGTH LED_STRIPS * LED_CHANNELS
 
-#define LED_DOUBLE_BUFFERED
-
 class LedController {
 public:
 
@@ -41,6 +39,7 @@ public:
     x = (x-x/LED_STRIPS*LED_STRIPS)*LED_CHANNELS+y+x/LED_STRIPS*LED_COLUMNS;
     if(x < LED_BUFFER_LENGTH)
       return back_buffer[x];
+    return 0;
   }
 
   // xor a single led

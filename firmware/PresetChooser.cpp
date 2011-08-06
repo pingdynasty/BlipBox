@@ -32,13 +32,6 @@ void PresetChooser::printPreset(){
 //   blipbox.leds.setLed(0, 1, blipbox.config.brightness);
 }
 
-void PresetChooser::tick(uint16_t counter){
-  uint8_t brightness = ((counter >> 3) % blipbox.config.brightness);
-  blipbox.leds.setLed(0, 0, blipbox.config.brightness-brightness);
-  blipbox.leds.flip();
-}
-
-uint8_t column, origin;
 void PresetChooser::press(Position& pos){
   origin = pos.column;
   column = pos.column;
@@ -78,4 +71,11 @@ void PresetChooser::taptap(Position& pos){
       blipbox.setMidiMode(false);
     }
   }
+}
+
+void PresetChooser::tick(uint16_t counter){
+//   uint8_t brightness = ((counter >> 3) % blipbox.config.brightness);
+//   blipbox.leds.setLed(0, 0, blipbox.config.brightness-brightness);
+  blipbox.leds.setLed(0, 0, blipbox.leds.getLed(0, 0)-6);
+  blipbox.leds.flip();
 }

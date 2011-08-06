@@ -21,9 +21,11 @@
 #define TLC_DATA_TRANSFER_MODE TLC_SPI
 
 // ATMega168 has 512 bytes EEPROM
-#define MIDI_PRESET_OFFSET 32 // arbitrary 32 bytes for configuration
-#define MIDI_ZONE_PRESET_SIZE 4
+#define MIDI_PRESET_OFFSET 32 // arbitrary 32 bytes for configuration, 480 available for presets
+#define MIDI_ZONE_PRESET_SIZE 7
 #define MIDI_ZONES_IN_PRESET 8
-#define MIDI_ZONE_PRESETS 5
+#define MIDI_ZONE_PRESETS 8
+// total preset size = MIDI_ZONE_PRESET_SIZE*MIDI_ZONES_IN_PRESET*MIDI_ZONE_PRESETS
+// 7*8*8 = 448 bytes (out of 480 available)
 
 #endif /* _DEFS_H_ */

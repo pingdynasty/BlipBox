@@ -18,6 +18,7 @@ public:
   void drag(Position& pos);
 /*   void tap(Position& pos); */
   void taptap(Position& pos);
+  uint8_t column, origin;
 };
 
 #endif /* _PRESETCHOOSER_H_ */

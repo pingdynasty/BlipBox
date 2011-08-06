@@ -5,8 +5,6 @@
 #include <avr/io.h>
 
 #define __AVR_ATmega168__
-#define UDR (getchar())
-#define UDR0 (getchar())
 
 #ifdef __cplusplus
 extern "C" {

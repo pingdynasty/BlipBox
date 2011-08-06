@@ -11,6 +11,7 @@ extern "C" {
 
 extern uint8_t TCCR0A, WGM01, WGM00, TCCR0B, CS01, CS00, TIMSK0, TOIE0;
 extern uint8_t DDRD, PORTD, PD2, PD3, PD4, PD5, PD6, PD7;
+extern uint8_t UDR0;
 
 #ifdef __cplusplus
 }

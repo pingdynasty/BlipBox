@@ -165,15 +165,3 @@ SIGNAL(SIG_UART_RECV){
 ISR(TIMER1_OVF_vect){
   blipbox.leds.displayCurrentRow();
 }
-
-int main(void)
-{
-	init();
-
-	setup();
-    
-	for (;;)
-		loop();
-        
-	return 0;
-}
