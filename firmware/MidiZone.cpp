@@ -3,42 +3,6 @@
 #include "globals.h"
 #include "serial.h"
 
-// 4 bits
-// note/cc button/slider horizontal-momentary/vertical-toggle inverted
-
-#define BUTTON_SLIDER_ZONE_BIT       (1<<4)
-#define HORIZONTAL_VERTICAL_ZONE_BIT (1<<5) // bit 5 used by sliders
-#define MOMENTARY_TOGGLE_ZONE_BIT    (1<<5) // bit 5 used by buttons
-#define INVERTED_ZONE_BIT            (1<<7)
-
-#define ZONE_TYPE_MASK                0x03
-#define EMPTY_ZONE_TYPE               0x00
-#define MIDI_ZONE_TYPE                0x01
-#define NRPN_ZONE_TYPE                0x02
-#define SELECTOR_ZONE_TYPE            0x03
-
-#define DISPLAY_TYPE_MASK             0x0c
-#define NO_DISPLAY_TYPE               0x00
-#define DOT_DISPLAY_TYPE              0x01
-#define BAR_DISPLAY_TYPE              0x02
-#define FILL_DISPLAY_TYPE             0x03
-
-#define NRPN_PARAMETER_MSB_CC         99
-#define NRPN_PARAMETER_LSB_CC         98
-#define NRPN_VALUE_MSB_CC             6
-#define NRPN_VALUE_LSB_CC             38
-
-#define MIDI_NOTE_OFF                 0x80
-#define MIDI_NOTE_ON                  0x90
-#define MIDI_AFTERTOUCH               0xA0
-#define MIDI_CONTROL_CHANGE           0xB0
-#define MIDI_PROGRAM_CHANGE           0xC0
-#define MIDI_CHANNEL_PRESSURE         0xD0
-#define MIDI_PITCH_BEND               0xE0
-#define MIDI_SYSTEM_MESSAGE           0xF0
-
-  // for buttons the on/off values are determined by _min and _max
-
 bool MidiZone::doDrag(){
   return !(_type & BUTTON_SLIDER_ZONE_BIT);
 }
@@ -54,7 +18,7 @@ bool MidiZone::doRelease(){
 
 float MidiZone::scale(Position& pos){
   float p;
-  if(HORIZONTAL_VERTICAL_ZONE_BIT)
+  if(_type & HORIZONTAL_VERTICAL_ZONE_BIT)
     p = ((pos.x-(_from_column*1023.0/10.0))/((_to_column-_from_column)*1023.0/10.0));
   else
     p = ((pos.y-(_from_row*1023.0/8.0))/((_to_row-_from_row)*1023.0/8.0));
@@ -100,20 +64,29 @@ void MidiZone::release(Position& pos){
 class PitchBendZone : public MidiZone {
   void drag(Position& pos){
     uint16_t data = scale14(pos);
-    if(((uint8_t)data & 0x7f) != _data2){ // LSB changed
-      _data2 = data & 0x7f;
-      sendMessage((data>>7) & 0x7f, _data2);
+    if(((uint8_t)data & 0x7f) != _data1){
+      _data1 = data & 0x7f; // LSB 
+      _data2 = (data>>7) & 0x7f; // MSB
+      sendMessage(_data1, _data2);
     }
   }
 };
 
-class NRPNZone : public PitchBendZone {
+class NRPNZone : public MidiZone {
+  // _data1 is used to store parameter LSB
+  void drag(Position& pos){
+    uint16_t data = scale14(pos);
+//     if((((data>>7) & 0x7f)) != _data2){ // comparing MSB only
+    _data2 = (data>>7) & 0x7f; // MSB
+    sendMessage(_data2, data & 0x7f);
+//     }
+  }
   void sendMessage(uint8_t data1, uint8_t data2){
-    sendMessage(NRPN_PARAMETER_MSB_CC, blipbox.config.nrpn_parameter_msb);
-    sendMessage(NRPN_PARAMETER_LSB_CC, _data1);
-    sendMessage(NRPN_VALUE_MSB_CC, data1);
+    MidiZone::sendMessage(NRPN_PARAMETER_MSB_CC, blipbox.config.nrpn_parameter_msb);
+    MidiZone::sendMessage(NRPN_PARAMETER_LSB_CC, _data1);
+    MidiZone::sendMessage(NRPN_VALUE_MSB_CC, data1);
     if(data2)
-      sendMessage(NRPN_VALUE_LSB_CC, data2);
+      MidiZone::sendMessage(NRPN_VALUE_LSB_CC, data2);
   }
   void press(Position& pos){
     if(_type & MOMENTARY_TOGGLE_ZONE_BIT){
@@ -127,7 +100,7 @@ class NRPNZone : public PitchBendZone {
   void release(Position& pos){
     if((_type & MOMENTARY_TOGGLE_ZONE_BIT)){
       _data2 = _min;
-      sendMessage(_data2, 0);
+      sendMessage(_data2, _min);
     }
   }
 };
@@ -184,16 +157,22 @@ class NoteZone : public MidiZone {
     return true;
   }
   void release(Position& pos){
-    if(_type & BUTTON_SLIDER_ZONE_BIT)
-      MidiZone::release(pos);
-    else
+    if(_type & BUTTON_SLIDER_ZONE_BIT){
+      if((_type & MOMENTARY_TOGGLE_ZONE_BIT) && _data1 != 0){
+	_data2 = 0;
+	sendMessage(_data1, 0);
+      }
+    }else if(_data2 != -1){
       sendMessage(_data2, 0);
+      _data2 = -1;
+    }
   }
   void drag(Position& pos){
     uint8_t data = scale7(pos);
     if(data != _data2){
       // turn previous note off
-      sendMessage(_data2, 0);
+      if(_data2 != -1)
+	sendMessage(_data2, 0);
       _data2 = data;
       sendMessage(_data2, _data1);
     }
@@ -261,7 +240,7 @@ void MidiZone::read(const uint8_t* data){
 }
 
 void MidiZone::write(uint8_t* data){
-  data[0] = (_type << 4) | (_status & 0x0f);
+  data[0] = _type;
   data[1] = _data1;
   data[2] = _status;
   data[3] = _min;
@@ -284,61 +263,18 @@ void MidiZone::load(uint8_t index){
   read(buf);
 }
 
-// uint8_t MidiZone::scalex(Position& pos){
-// // min = _from_column*1023.0/10.0
-// // max = _to_column*1023.0/10.0
-// // val = (pos.x-min)/(max-min)*127.0
-
-//   float p = ((pos.x-(_from_column*1023.0/10.0))/((_to_column-_from_column)*1023.0/10.0));
-//   if(_type & INVERTED_ZONE_BIT)
-//     p = 1.0-p;
-//   return (uint8_t)p;
-  
-// //   float p = 127.0*((pos.x-(_from_column*1023.0/10.0))/((_to_column-_from_column)*1023.0/10.0));
-// //   if(_type & INVERTED_ZONE_BIT)
-// //     p = 127.0-p;
-// //   return (uint8_t)p;
-// }
-
-// uint8_t MidiZone::scaley(Position& pos){
-//   float p = ((pos.y-(_from_row*1023.0/8.0))/((_to_row-_from_row)*1023.0/8.0));
-//   if(_type & INVERTED_ZONE_BIT)
-//     p = 1.0-p;
-// //   float p = 127.0*((pos.y-(_from_row*1023.0/8.0))/((_to_row-_from_row)*1023.0/8.0));
-// //   if(_type & INVERTED_ZONE_BIT)
-// //     p = 127.0-p;
-//   return (uint8_t)p;
-// }
-
-// uint8_t MidiZone::getx(){
-// //   return _data2*10/127;
-//   uint8_t d = (_type & NOTE_CC_ZONE_BIT) ? _data1 : _data2;
-//   d = d*(_to_column-_from_column)/127+_from_column;
-//   if(_type & INVERTED_ZONE_BIT)
-//     d = _to_column-d-1;
-//   return d;
-// }
-
-// uint8_t MidiZone::gety(){
-// //   return _data2*8/127;
-//   uint8_t d = (_type & NOTE_CC_ZONE_BIT) ? _data1 : _data2;
-//   d = d*(_to_row-_from_row)/127+_from_row;
-//   if(_type & INVERTED_ZONE_BIT)
-//     d = _to_row-d-1;
-//   return d;
-// }
-
 uint8_t MidiZone::getx(){
-  uint8_t d = _data2;
-  d = d*(_to_column-_from_column)/127+_from_column;
+  uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
+//   uint8_t d = _data2;
+  d = (d-_min)*(_to_column-_from_column)/(_max-_min)+_from_column;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_column-d-1;
   return d;
 }
 
 uint8_t MidiZone::gety(){
-  uint8_t d = _data2;
-  d = d*(_to_row-_from_row)/127+_from_row;
+  uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
+  d = (d-_min)*(_to_row-_from_row)/(_max-_min)+_from_row;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_row-d-1;
   return d;
@@ -350,6 +286,7 @@ void MidiZone::tick(){
     brightness -= brightness/3;
   switch(_type & DISPLAY_TYPE_MASK){
   case DOT_DISPLAY_TYPE:
+    blipbox.leds.setLed(getx(), gety(), brightness);
     break;
   case BAR_DISPLAY_TYPE:
     if(_type & HORIZONTAL_VERTICAL_ZONE_BIT){

@@ -12,8 +12,6 @@
 unsigned long previousMillis;        // will store last time write was done
 uint16_t counter;
 
-Animator* animator;
-
 void setup() {
   blipbox.config.init();
   blipbox.init();
@@ -21,7 +19,7 @@ void setup() {
   blipbox.eventhandler = &blipbox.defaulthandler;
   beginSerial(blipbox.config.serialSpeed);
   blipbox.message(ALERT);
-  animator = NULL;
+  blipbox.animator = NULL;
 
   // todo: remove!
   blipbox.sender.release.update();
@@ -36,8 +34,8 @@ void loop() {
 
     // counter overflows at 65536
     blipbox.signal.tick(++counter);
-    if(animator != NULL)
-      animator->tick(counter);
+    if(blipbox.animator != NULL)
+      blipbox.animator->tick(counter);
   }
 }
 

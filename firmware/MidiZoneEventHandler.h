@@ -7,7 +7,7 @@
 #include "Animator.h"
 
 class MidiZoneEventHandler : public EventHandler, public Animator {
-private:
+protected:
   MidiZone zones[MIDI_ZONES_IN_PRESET];
 public:
   uint8_t preset;

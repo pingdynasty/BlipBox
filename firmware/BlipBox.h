@@ -33,6 +33,7 @@ public:
   MidiZoneEventHandler midizones;
   SerialReader* receiver;
   EventHandler* eventhandler;
+  Animator* animator;
   void init();
   void message(MessageType code);
   void setFollowMode(uint8_t mode);
