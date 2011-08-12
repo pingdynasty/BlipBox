@@ -138,11 +138,11 @@ void BlipBox::sendConfigurationParameters(){
 void BlipBox::sendMidiZones(){
   blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, midizones.preset);
   blipbox.sender.parameter.send();
-  uint8_t data[4];
-  for(int i=0; i<8; ++i){
-    midizones.getZone(i).write(data);
-    for(int j=0; j<4; ++j){
-      blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, data[j]);
+  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
+  for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
+    midizones.getZone(i).write(buf);
+    for(int j=0; j<MIDI_ZONE_PRESET_SIZE; ++j){
+      blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, buf[j]);
       blipbox.sender.parameter.send();
     }
   }

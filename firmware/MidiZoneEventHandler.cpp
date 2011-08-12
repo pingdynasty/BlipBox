@@ -53,6 +53,7 @@ void MidiZoneEventHandler::tick(uint16_t counter){
   blipbox.leds.sub(0x20);
 //   blipbox.leds.clear();
   for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i)
-    zones[i].tick();
+    if(zones[i].doTick())
+      zones[i].tick();
   blipbox.leds.flip();
 }

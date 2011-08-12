@@ -16,6 +16,11 @@ bool MidiZone::doRelease(){
          (_type & MOMENTARY_TOGGLE_ZONE_BIT);
 }
 
+bool MidiZone::doTick(){
+  return (_type & DISPLAY_TYPE_MASK) != NO_DISPLAY_TYPE &&
+    _data2 != -1;
+}
+
 float MidiZone::scale(Position& pos){
   float p;
   if(_type & HORIZONTAL_VERTICAL_ZONE_BIT)
@@ -76,10 +81,11 @@ class NRPNZone : public MidiZone {
   // _data1 is used to store parameter LSB
   void drag(Position& pos){
     uint16_t data = scale14(pos);
-//     if((((data>>7) & 0x7f)) != _data2){ // comparing MSB only
-    _data2 = (data>>7) & 0x7f; // MSB
-    sendMessage(_data2, data & 0x7f);
-//     }
+    if((((data>>7) & 0x7f)) != _data2){ // comparing MSB only
+      _data2 = (data>>7) & 0x7f; // MSB
+      sendMessage(_data2, 0);
+//       sendMessage(_data2, data & 0x7f);
+    }
   }
   void sendMessage(uint8_t data1, uint8_t data2){
     MidiZone::sendMessage(NRPN_PARAMETER_MSB_CC, blipbox.config.nrpn_parameter_msb);
@@ -196,7 +202,6 @@ void * operator new (size_t, void * p) { return p ; }
 void MidiZone::read(const uint8_t* data){
   _type   = data[0];
   _data1  = data[1];
-//   _data2  = data[2];
   _status = data[2];
   _min    = data[3];
   _max    = data[4];
@@ -204,7 +209,7 @@ void MidiZone::read(const uint8_t* data){
   _from_row    = data[5] & 0x0f;
   _to_column   = data[6] >> 4;
   _to_row      = data[6] & 0x0f;
-
+  _data2 = -1;
   switch(_type & ZONE_TYPE_MASK){
   case SELECTOR_ZONE_TYPE:
     new(this)SelectorZone();
@@ -213,7 +218,7 @@ void MidiZone::read(const uint8_t* data){
     new(this)NRPNZone();
     break;
   case MIDI_ZONE_TYPE:
-    switch(_status & 0xf0){
+    switch(_status & MIDI_STATUS_MASK){
     case MIDI_NOTE_ON:
     case MIDI_NOTE_OFF:
       new(this)NoteZone();
@@ -264,8 +269,10 @@ void MidiZone::load(uint8_t index){
 }
 
 uint8_t MidiZone::getx(){
-  uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
-//   uint8_t d = _data2;
+//   if(_data2 < _min || _max == _min)
+//     return _min;
+//   uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
+  uint8_t d = _data2;
   d = (d-_min)*(_to_column-_from_column)/(_max-_min)+_from_column;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_column-d-1;
@@ -273,7 +280,10 @@ uint8_t MidiZone::getx(){
 }
 
 uint8_t MidiZone::gety(){
-  uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
+//   if(_data2 < _min || _max == _min)
+//     return _min;
+//   uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
+  uint8_t d = _data2;
   d = (d-_min)*(_to_row-_from_row)/(_max-_min)+_from_row;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_row-d-1;
@@ -282,8 +292,8 @@ uint8_t MidiZone::gety(){
 
 void MidiZone::tick(){
   uint8_t brightness = blipbox.config.brightness;
-  if(!(blipbox.keys.isPressed() && check(blipbox.keys.pos)))
-    brightness -= brightness/3;
+//   if(!(blipbox.keys.isPressed() && check(blipbox.keys.pos)))
+//     brightness -= brightness/3;
   switch(_type & DISPLAY_TYPE_MASK){
   case DOT_DISPLAY_TYPE:
     blipbox.leds.setLed(getx(), gety(), brightness);
@@ -300,7 +310,26 @@ void MidiZone::tick(){
     }
     break;
   case FILL_DISPLAY_TYPE:
-    if(_data2 && _data2 != _min){
+    if(!(_type & BUTTON_SLIDER_ZONE_BIT)){
+      uint8_t fy = _from_row;
+      uint8_t ty = _to_row;
+      uint8_t fx = _from_column;
+      uint8_t tx = _to_column;
+      if(_type & HORIZONTAL_VERTICAL_ZONE_BIT){
+	if(_type & INVERTED_ZONE_BIT)
+	  fx = getx();
+	else
+	  tx = getx()+1;
+      }else{
+	if(_type & INVERTED_ZONE_BIT)
+	  fy = gety();
+	else
+	  ty = gety()+1;
+      }
+      for(int8_t x=fx; x<tx; ++x)
+	for(int8_t y=fy; y<ty; ++y)
+	  blipbox.leds.setLed(x, y, brightness);
+    }else if(_data2 != _min){
       for(int8_t x=_from_column; x<_to_column; ++x)
 	for(int8_t y=_from_row; y<_to_row; ++y)
 	  blipbox.leds.setLed(x, y, brightness);

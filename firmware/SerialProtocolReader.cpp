@@ -2,6 +2,7 @@
 #include "Greeting.h"
 #include "Characters.h"
 #include "Parameters.h"
+#include "Command.h"
 #include "MidiPresetReader.h"
 
 #define RX_BUFFER_SIZE 3
@@ -113,44 +114,44 @@ void handleShiftLedsMessage(){
 void handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
-  case 3: // toggle / xor
+  case TOGGLE: // toggle / xor
     blipbox.leds.toggle();
     if(autoflip)
       blipbox.leds.flip();
     break;
-  case 4: // fade
+  case FADE: // fade
     blipbox.leds.sub(4);
     if(autoflip)
       blipbox.leds.flip();
     break;
-  case 5: // brighten
+  case BRIGHTEN: // brighten
     blipbox.leds.add(4);
     if(autoflip)
       blipbox.leds.flip();
     break;
-  case 6: // 
+  case CFG_REQUEST: // 
     blipbox.sendConfigurationParameters();
     break;
-  case 7: // reset configuration to defaults
+  case CFG_RESET: // reset configuration to defaults
     blipbox.config.reset();
     break;
-  case 8: // read configuration from eeprom (if possible)
+  case CFG_READ: // read configuration from eeprom (if possible)
     blipbox.config.init();
     break;
-  case 9: // write configuration to eeprom
+  case CFG_WRITE: // write configuration to eeprom
     blipbox.config.write();
     break;
-  case 10: // start LED command block
+  case START_LED_BLOCK: // start LED command block
     autoflip = false;
     break;    
-  case 11: // end LED command block
+  case END_LED_BLOCK: // end LED command block
     autoflip = true;
     blipbox.leds.flip();
     break;    
-  case 12: // receive midi preset command
+  case MIDI_PRESET: // receive midi preset command
     handleMidiPresetCommand();
     break;
-  case 15: // re-initialise
+  case RESET: // re-initialise
     blipbox.init();
     break;
   default:
