@@ -5,9 +5,6 @@
 #include "Position.h"
 #include "defs.h"
 
-// 4 bits
-// note/cc button/slider horizontal-momentary/vertical-toggle inverted
-
 #define BUTTON_SLIDER_ZONE_BIT       (1<<4)
 #define HORIZONTAL_VERTICAL_ZONE_BIT (1<<5) // bit 5 used by sliders
 #define MOMENTARY_TOGGLE_ZONE_BIT    (1<<5) // bit 5 used by buttons
@@ -41,7 +38,7 @@
 #define MIDI_PITCH_BEND               0xE0
 #define MIDI_SYSTEM_MESSAGE           0xF0
 
-  // for buttons the on/off values are determined by _min and _max
+// for buttons the on/off values are determined by _min and _max
 
 class MidiZone {
 protected:
@@ -65,7 +62,7 @@ public:
   void read(const uint8_t* data);
   void write(uint8_t* data);
 //   void save(uint8_t index);
-  void load(uint8_t index);
+  void load(uint8_t* index);
   virtual bool doDrag();
   virtual bool doPress();
   virtual bool doRelease();

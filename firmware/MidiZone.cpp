@@ -66,6 +66,7 @@ void MidiZone::release(Position& pos){
   sendMessage(_data1, _data2);
 }
 
+#ifndef CV_DAC_HACK
 class PitchBendZone : public MidiZone {
   void drag(Position& pos){
     uint16_t data = scale14(pos);
@@ -137,25 +138,6 @@ class ProgramChangeZone : public TwoByteMessageZone {
   void release(Position& pos){}
 };
 
-// class ProgramChangeZone : public MidiZone {
-//   // no release / zero message is sent
-//   void release(Position& pos){}
-//   void sendMessage(uint8_t data1, uint8_t data2){
-//     serialWrite(_status);
-//     serialWrite(data2 & 0x7f);
-//   }
-// };
-
-// class ChannelAftertouchZone : public MidiZone {
-//   void drag(Position& pos){
-//     uint8_t data = scale7(pos);
-//     if(data != _data2){
-//       _data2 = data;
-//       sendMessage(_data2);
-//     }
-//   }
-// };
-
 class NoteZone : public MidiZone {
   // nb: if NoteZone is a button, then _data1 is the (fixed) note pitch
   //     if NoteZone is a slider, then _data1 is the (fixed) velocity
@@ -196,6 +178,33 @@ void MidiZone::sendMessage(uint8_t data1, uint8_t data2){
   serialWrite(data2 & 0x7f);
 }
 
+#endif // CV_DAC_HACK
+
+#ifdef CV_DAC_HACK
+#include "spi.h"
+// #define DAC_A_B_BIT  _BV(7)
+// #define DAC_BUF_BIT  _BV(6)   // 0 = unbuffered, 1 = buffered
+// #define DAC_GA_BIT   _BV(5)   // 0 = 2x gain,    1 = 1x gain
+// #define DAC_SHDN_BIT _BV(4)
+
+#define DAC_A_B_BIT  7
+#define DAC_BUF_BIT  6
+#define DAC_GA_BIT   5
+#define DAC_SHDN_BIT 4
+#define TRANSFER_BITS _BV(DAC_SHDN_BIT)
+void MidiZone::sendMessage(uint8_t data1, uint8_t data2){
+  spi_cs_toggle();
+  bool cs = data1 == 40 || data1 == 41;
+  spi_cs(cs);
+  uint16_t data = data2 << 5;
+  data = (TRANSFER_BITS << 8) | (data & 0x0fff);
+  if(data1 == 40 || data1 == 42)
+    data |= _BV(DAC_A_B_BIT) << 8;
+  spi_send_word(data);
+  spi_cs_toggle();
+}
+#endif // CV_DAC_HACK
+
 // http://en.wikipedia.org/wiki/Placement_syntax
 void * operator new (size_t, void * p) { return p ; }
 
@@ -210,6 +219,7 @@ void MidiZone::read(const uint8_t* data){
   _to_column   = data[6] >> 4;
   _to_row      = data[6] & 0x0f;
   _data2 = -1;
+#ifndef CV_DAC_HACK
   switch(_type & ZONE_TYPE_MASK){
   case SELECTOR_ZONE_TYPE:
     new(this)SelectorZone();
@@ -219,13 +229,13 @@ void MidiZone::read(const uint8_t* data){
     break;
   case MIDI_ZONE_TYPE:
     switch(_status & MIDI_STATUS_MASK){
-    case MIDI_NOTE_ON:
-    case MIDI_NOTE_OFF:
-      new(this)NoteZone();
-      break;
     case MIDI_AFTERTOUCH:
     case MIDI_CONTROL_CHANGE:
       new(this)MidiZone();
+      break;
+    case MIDI_NOTE_ON:
+    case MIDI_NOTE_OFF:
+      new(this)NoteZone();
       break;
     case MIDI_PROGRAM_CHANGE:
       new(this)ProgramChangeZone();
@@ -242,6 +252,7 @@ void MidiZone::read(const uint8_t* data){
     }
     break;
   }
+#endif // CV_DAC_HACK
 }
 
 void MidiZone::write(uint8_t* data){
@@ -261,10 +272,9 @@ void MidiZone::write(uint8_t* data){
 //   eeprom_write_block(buf, (uint8_t*)index, sizeof(buf));
 // }
 
-void MidiZone::load(uint8_t index){
-  index = MIDI_PRESET_OFFSET+index*MIDI_ZONE_PRESET_SIZE;
+void MidiZone::load(uint8_t* address){
   uint8_t buf[MIDI_ZONE_PRESET_SIZE];
-  eeprom_read_block(buf, (uint8_t*)index, sizeof(buf));
+  eeprom_read_block(buf, address, sizeof(buf));
   read(buf);
 }
 

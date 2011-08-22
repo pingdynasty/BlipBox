@@ -1,11 +1,21 @@
 #include "MidiZoneEventHandler.h"
 #include "globals.h"
 
+void MidiZoneEventHandler::init(){
+#ifdef CV_DAC_HACK
+#include "spi.h"
+  spi_init();
+#endif
+}
+
 void MidiZoneEventHandler::loadPreset(uint8_t index){
   preset = index;
-  index = index*MIDI_ZONES_IN_PRESET;
-  for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i)
-    zones[i].load(i+index);
+  uint16_t offset = MIDI_PRESET_OFFSET +
+    index * MIDI_ZONES_IN_PRESET * MIDI_ZONE_PRESET_SIZE;
+  for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i){
+    zones[i].load((uint8_t*)offset);
+    offset += MIDI_ZONE_PRESET_SIZE;
+  }
 }
 
 // void MidiZoneEventHandler::savePreset(uint8_t index){

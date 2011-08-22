@@ -14,6 +14,7 @@ public:
   MidiZone& getZone(uint8_t zone){
     return zones[zone];
   }
+  void init();
   void loadPreset(uint8_t index);
   void savePreset(uint8_t index);
   void press(Position& pos);
