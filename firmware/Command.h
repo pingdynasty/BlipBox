@@ -12,6 +12,8 @@ enum Command {
   START_LED_BLOCK = 10, // Start LED update block
   END_LED_BLOCK   = 11, // End LED update block
   MIDI_PRESET     = 12, // Send MIDI zone preset
+/*   ENABLE_MENU     = 13, // Enable tap-tap menu */
+/*   DISABLE_MENU    = 14, // Disable tap-tap menu */
   RESET           = 15  // Soft reset the BlipBox
 };
 

@@ -1,6 +1,8 @@
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
+#define CV_DAC_HACK
+
 /* #define BLIPBOX_V6 */
 #define BLIPBOX_V9
 /* #define BLIPBOX_P4 */
@@ -18,7 +20,7 @@
 // set data transfer mode for the TLC5940: serial bitbang or hardware SPI
 #define TLC_SPI 1
 #define TLC_BITBANG 2
-#define TLC_DATA_TRANSFER_MODE TLC_SPI
+#define TLC_DATA_TRANSFER_MODE TLC_BITBANG
 
 // ATMega168 has 512 bytes EEPROM
 #define MIDI_PRESET_OFFSET 32 // arbitrary 32 bytes for configuration, 480 available for presets

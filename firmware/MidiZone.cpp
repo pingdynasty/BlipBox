@@ -66,7 +66,14 @@ void MidiZone::release(Position& pos){
   sendMessage(_data1, _data2);
 }
 
+void MidiZone::sendMessage(uint8_t data1, uint8_t data2){
+  serialWrite(_status);
+  serialWrite(data1 & 0x7f);
+  serialWrite(data2 & 0x7f);
+}
+
 #ifndef CV_DAC_HACK
+
 class PitchBendZone : public MidiZone {
   void drag(Position& pos){
     uint16_t data = scale14(pos);
@@ -167,42 +174,47 @@ class NoteZone : public MidiZone {
   }
 };
 
-// void MidiZone::sendMessage(uint8_t data1){
-//   serialWrite(_status);
-//   serialWrite(data1 & 0x7f);
-// }
-
-void MidiZone::sendMessage(uint8_t data1, uint8_t data2){
-  serialWrite(_status);
-  serialWrite(data1 & 0x7f);
-  serialWrite(data2 & 0x7f);
-}
-
 #endif // CV_DAC_HACK
 
 #ifdef CV_DAC_HACK
 #include "spi.h"
-// #define DAC_A_B_BIT  _BV(7)
-// #define DAC_BUF_BIT  _BV(6)   // 0 = unbuffered, 1 = buffered
-// #define DAC_GA_BIT   _BV(5)   // 0 = 2x gain,    1 = 1x gain
-// #define DAC_SHDN_BIT _BV(4)
+#define DAC_A_B_BIT  7 // 1 = Write to A, 0 = Write to B
+#define DAC_BUF_BIT  6 // 1 = Buffered, 0 = Unbuffered
+#define DAC_GA_BIT   5 // 1 = 1x Gain, 0 = 2x Gain
+#define DAC_SHDN_BIT 4 // 1 = Output buffer enabled, 0 = Output buffer disabled
+#define DAC_TRANSFER_BITS _BV(DAC_SHDN_BIT)
 
-#define DAC_A_B_BIT  7
-#define DAC_BUF_BIT  6
-#define DAC_GA_BIT   5
-#define DAC_SHDN_BIT 4
-#define TRANSFER_BITS _BV(DAC_SHDN_BIT)
-void MidiZone::sendMessage(uint8_t data1, uint8_t data2){
-  spi_cs_toggle();
-  bool cs = data1 == 40 || data1 == 41;
-  spi_cs(cs);
-  uint16_t data = data2 << 5;
-  data = (TRANSFER_BITS << 8) | (data & 0x0fff);
-  if(data1 == 40 || data1 == 42)
-    data |= _BV(DAC_A_B_BIT) << 8;
-  spi_send_word(data);
-  spi_cs_toggle();
-}
+class CV_DAC_HACK_Zone : public MidiZone {
+  void drag(Position& pos){
+    uint16_t data = scale14(pos);
+    if(((uint8_t)data & 0x7f) != _data1){
+      _data1 = data & 0x7f; // LSB 
+      _data2 = (data>>7) & 0x7f; // MSB
+      sendMessage(_data1, _data2);
+    }
+  }
+  void press(Position& pos){
+    _data1 = 127;
+    MidiZone::press(pos);
+  }
+  void release(Position& pos){
+    _data1 = 0;
+    MidiZone::release(pos);
+  }
+  void sendMessage(uint8_t data1, uint8_t data2){
+    spi_cs_toggle();
+    spi_cs(_status & 0x01);
+    data1 = ((data2 << 5) & 0xff) | (data1 >> 2);
+    data2 = (data2 >> 3) & 0x0f;
+    data2 |= DAC_TRANSFER_BITS;
+    if(_status & 0x02)
+      data2 |= _BV(DAC_A_B_BIT);
+    spi_send(data2);
+    spi_send(data1);
+    spi_cs_toggle();
+  }
+};
+
 #endif // CV_DAC_HACK
 
 // http://en.wikipedia.org/wiki/Placement_syntax
@@ -219,6 +231,11 @@ void MidiZone::read(const uint8_t* data){
   _to_column   = data[6] >> 4;
   _to_row      = data[6] & 0x0f;
   _data2 = -1;
+
+#ifdef CV_DAC_HACK
+  new(this)CV_DAC_HACK_Zone();
+#endif // CV_DAC_HACK
+
 #ifndef CV_DAC_HACK
   switch(_type & ZONE_TYPE_MASK){
   case SELECTOR_ZONE_TYPE:

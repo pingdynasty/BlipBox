@@ -148,6 +148,10 @@ void handleCommandMessage(){
     autoflip = true;
     blipbox.leds.flip();
     break;    
+//   case ENABLE_MENU:
+//     break;    
+//   case DISABLE_MENU:
+//     break;    
   case MIDI_PRESET: // receive midi preset command
     handleMidiPresetCommand();
     break;

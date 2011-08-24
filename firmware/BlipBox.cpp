@@ -97,12 +97,6 @@ void BlipBox::setEditMode(bool edit){
   }
 }
 
-// #define TAP_THRESHOLD    300 // ms between press and release to be considered tap
-// #define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
-// unsigned long lastpressed   = LONG_MAX;
-// unsigned long lasttapped    = LONG_MAX;
-// unsigned long lastreleased  = LONG_MAX;
-
 void BlipBox::message(MessageType code){
   signal.setSignal(code);
 }
@@ -112,7 +106,7 @@ void BlipBox::init() {
   keys.init();
   leds.init();
   sender.init();
-//   setFollowMode(config.followMode);
+  midizones.init();
   sei(); // enable interrupts
 }
 

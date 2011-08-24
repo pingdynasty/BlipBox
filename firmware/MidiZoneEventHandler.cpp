@@ -1,4 +1,5 @@
 #include "MidiZoneEventHandler.h"
+#include "defs.h"
 #include "globals.h"
 
 void MidiZoneEventHandler::init(){
