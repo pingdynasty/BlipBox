@@ -1,5 +1,5 @@
-#include "TouchController.h"
-#include "globals.h"
+#include "../TouchController.h"
+#include "../globals.h"
 
 #define VALUE_COUNT 3
 uint16_t adc_acc[VALUE_COUNT];

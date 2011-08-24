@@ -1,4 +1,4 @@
-#include "LedController.h"
+#include "../LedController.h"
 
 void LedController::init(){
   back_buffer = buf1;

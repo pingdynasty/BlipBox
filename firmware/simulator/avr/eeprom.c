@@ -1,6 +1,7 @@
 #include "eeprom.h"
 
 #include <string.h>
+#include <stdio.h>
 
 #define EEPROM_SIZE 512
 
