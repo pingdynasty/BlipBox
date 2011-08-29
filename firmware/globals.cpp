@@ -2,8 +2,10 @@
 #include <avr/interrupt.h>
 #include "globals.h"
 
+#if ! JUCE_WINDOWS
 void* operator new(size_t size) { return malloc(size); }
 void operator delete(void* ptr) { free(ptr); }
+#endif
 
 BlipBox blipbox;
 

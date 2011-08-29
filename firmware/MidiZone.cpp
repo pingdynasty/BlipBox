@@ -217,8 +217,12 @@ class CV_DAC_HACK_Zone : public MidiZone {
 
 #endif // CV_DAC_HACK
 
-// http://en.wikipedia.org/wiki/Placement_syntax
+// see http://en.wikipedia.org/wiki/Placement_syntax
+#if JUCE_WINDOWS
+void * operator new (size_t, void * p);
+#else
 void * operator new (size_t, void * p) { return p ; }
+#endif
 
 void MidiZone::read(const uint8_t* data){
   _type   = data[0];
