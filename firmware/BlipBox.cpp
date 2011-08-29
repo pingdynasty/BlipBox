@@ -106,7 +106,9 @@ void BlipBox::init() {
   keys.init();
   leds.init();
   sender.init();
+#ifdef CV_DAC_HACK
   midizones.init();
+#endif
   sei(); // enable interrupts
 }
 
