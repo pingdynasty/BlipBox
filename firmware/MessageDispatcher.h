@@ -32,8 +32,8 @@ private:
   int16_t m_value;
 public:
   SensorMessage(uint8_t sid) : m_sid(sid), m_value(NO_MESSAGE) {}
-  void update(uint16_t value){
-    if(m_value  != value)
+  void update(int16_t value){
+    if(m_value != value)
       m_value = value;
   }
   bool send();
@@ -56,11 +56,11 @@ public:
 class PositionMessage : public AbstractMessage {
 private:
   int16_t m_x;
-  int16_t m_y;
+  uint16_t m_y;
 public:
   PositionMessage() : m_x(NO_MESSAGE) {}
   void update(const Position& pos){
-    if(m_x != pos.x || m_y != pos.y){
+    if(m_x != (int16_t)pos.x || m_y != pos.y){
       m_x = pos.x;
       m_y = pos.y;
     }
