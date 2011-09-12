@@ -18,6 +18,7 @@ bool MidiZone::doRelease(){
 
 bool MidiZone::doTick(){
   return (_type & DISPLAY_TYPE_MASK) != NO_DISPLAY_TYPE &&
+    _from_column != _to_column && _from_row != _to_row &&
     _data2 != -1;
 }
 
@@ -121,8 +122,10 @@ class NRPNZone : public MidiZone {
 
 class SelectorZone : public MidiZone {
   void press(Position& pos){
-    if(blipbox.midizones.preset != _data1)
+    if(blipbox.midizones.preset != _data1 && _data1 < MIDI_ZONE_PRESETS)
       blipbox.midizones.loadPreset(_data1);
+  }
+  void release(Position& pos){
   }
 };
 
@@ -240,6 +243,7 @@ void MidiZone::read(const uint8_t* data){
   switch(_type & ZONE_TYPE_MASK){
   case SELECTOR_ZONE_TYPE:
     new(this)SelectorZone();
+    _data2 = blipbox.midizones.preset == _data1 ? _max : _min;
     break;
   case NRPN_ZONE_TYPE:
     new(this)NRPNZone();
@@ -323,17 +327,23 @@ void MidiZone::tick(){
 //     brightness -= brightness/3;
   switch(_type & DISPLAY_TYPE_MASK){
   case DOT_DISPLAY_TYPE:
-    blipbox.leds.setLed(getx(), gety(), brightness);
+//     if(blipbox.keys.isPressed() && check(blipbox.keys.pos))
+//       blipbox.leds.setLed(blipbox.keys.pos.column, blipbox.keys.pos.row, brightness);
+    if(blipbox.keys.isPressed() && check(blipbox.keys.pos)){
+      blipbox.display.line(0, 0, blipbox.keys.pos.column, blipbox.keys.pos.row, brightness);
+      blipbox.display.line(0, 7, blipbox.keys.pos.column, blipbox.keys.pos.row, brightness);
+      blipbox.display.line(9, 0, blipbox.keys.pos.column, blipbox.keys.pos.row, brightness);
+      blipbox.display.line(9, 7, blipbox.keys.pos.column, blipbox.keys.pos.row, brightness);
+    }
+//     blipbox.leds.setLed(getx(), gety(), brightness);
     break;
   case BAR_DISPLAY_TYPE:
     if(_type & HORIZONTAL_VERTICAL_ZONE_BIT){
       int8_t col = getx();
-      for(int8_t row=_from_row; row<_to_row; ++row)
-	blipbox.leds.setLed(col, row, brightness);
+      blipbox.display.line(col, _from_row, col, _to_row-1, brightness);
     }else{
       int8_t row = gety();
-      for(int8_t col=_from_column; col<_to_column; ++col)
-	blipbox.leds.setLed(col, row, brightness);
+      blipbox.display.line(_from_column, row, _to_column-1, row, brightness);
     }
     break;
   case FILL_DISPLAY_TYPE:
@@ -353,13 +363,9 @@ void MidiZone::tick(){
 	else
 	  ty = gety()+1;
       }
-      for(int8_t x=fx; x<tx; ++x)
-	for(int8_t y=fy; y<ty; ++y)
-	  blipbox.leds.setLed(x, y, brightness);
+      blipbox.display.fill(fx, fy, tx, ty, brightness);
     }else if(_data2 != _min){
-      for(int8_t x=_from_column; x<_to_column; ++x)
-	for(int8_t y=_from_row; y<_to_row; ++y)
-	  blipbox.leds.setLed(x, y, brightness);
+      blipbox.display.fill(_from_column, _from_row, _to_column, _to_row, brightness);
     }
     break;
   case NO_DISPLAY_TYPE:

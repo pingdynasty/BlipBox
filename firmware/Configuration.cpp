@@ -13,7 +13,7 @@
 #define DEFAULT_X_RANGE      760 - DEFAULT_X_MIN
 #define DEFAULT_Y_MIN        215
 #define DEFAULT_Y_RANGE      830 - DEFAULT_Y_MIN
-#define DEFAULT_NRPN_MSB     3
+#define DEFAULT_NRPN_MSB     2
 
 void Configuration::init(){
   checksum = sizeof(*this);
@@ -42,8 +42,6 @@ void Configuration::read(){
 void Configuration::write(){
   eeprom_write_block((uint8_t*)this, CONFIGURATION_EEPROM_OFFSET, sizeof(this));
 }
-
-
 
 // uint8_t config_brightness EEMEM = DEFAULT_BRIGHTNESS;
 // uint16_t config_sensitivity EEMEM = DEFAULT_SENSITIVITY;
@@ -77,19 +75,4 @@ void Configuration::write(){
 // 		DEFAULT_X_RANGE,
 // 		DEFAULT_Y_MIN,
 // 		DEFAULT_Y_RANGE);
-
-// void Configuration::read(){
-//   eeprom_read_block((uint8_t*)(void*)this, &eepromcfg, sizeof(this));
-//     uint8_t* p = (uint8_t*)(void*)this;
-//     for(uint8_t i = 0; i < sizeof(*this); i++)
-//       *p++ = eeprom_read_byte((uint8_t*)i);
-//   }
-
-// void Configuration::write(){
-//   eeprom_write_block((uint8_t*)(void*)this, &eepromcfg, sizeof(this));
-// }
-
-//     uint8_t* p = (uint8_t*)(void*)this;
-//     for(uint8_t i = 0; i < sizeof(*this); i++)
-//       eeprom_write_byte((uint8_t*)i, *p++);
 

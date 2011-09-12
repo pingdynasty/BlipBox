@@ -94,18 +94,63 @@ void DisplayManager::printCharacter(char c, int8_t dx, int8_t dy, uint8_t bright
 //     blipbox.leds.setLed(x, i, value-(value/7)*abs(x-i));
 // }
 
-void DisplayManager::setStar(uint8_t x, uint8_t y, uint8_t value){
-  blipbox.leds.setLed(x+1, y, value);
-  blipbox.leds.setLed(x, y+1, value);
-  blipbox.leds.setLed(x-1, y, value);
-  blipbox.leds.setLed(x, y-1, value);
+// void DisplayManager::setStar(uint8_t x, uint8_t y, uint8_t value){
+//   blipbox.leds.setLed(x+1, y, value);
+//   blipbox.leds.setLed(x, y+1, value);
+//   blipbox.leds.setLed(x-1, y, value);
+//   blipbox.leds.setLed(x, y-1, value);
+// }
+
+// void DisplayManager::setSquare(uint8_t x, uint8_t y, uint8_t value){
+//   setStar(x, y, value);
+//   value >>= 1;
+//   blipbox.leds.setLed(x+1, y+1, value);
+//   blipbox.leds.setLed(x-1, y+1, value);
+//   blipbox.leds.setLed(x+1, y-1, value);
+//   blipbox.leds.setLed(x-1, y-1, value);
+// }
+
+void DisplayManager::line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t brightness){
+  // Bresenham's line algorithm
+  // 248 bytes
+  // todo: try Xiaolin Wu's anti-aliasing line algorithm
+  int8_t dx, dy, inx, iny, e;	
+  dx = x2 - x1;
+  dy = y2 - y1;
+  inx = dx > 0 ? 1 : -1;
+  iny = dy > 0 ? 1 : -1;
+  dx = abs(dx);
+  dy = abs(dy);	
+  if(dx >= dy) {
+    dy <<= 1;
+    e = dy - dx;
+    dx <<= 1;
+    while (x1 != x2) {
+      blipbox.leds.setLed(x1, y1, brightness);
+      if(e >= 0) {
+	y1 += iny;
+	e-= dx;
+      }
+      e += dy; x1 += inx;
+    }
+  }else{
+    dx <<= 1;
+    e = dx - dy;
+    dy <<= 1;
+    while (y1 != y2) {
+      blipbox.leds.setLed(x1, y1, brightness);
+      if(e >= 0) {
+	x1 += inx;
+	e -= dy;
+      }
+      e += dx; y1 += iny;
+    }
+  }
+  blipbox.leds.setLed(x1, y1, brightness);
 }
 
-void DisplayManager::setSquare(uint8_t x, uint8_t y, uint8_t value){
-  setStar(x, y, value);
-  value >>= 1;
-  blipbox.leds.setLed(x+1, y+1, value);
-  blipbox.leds.setLed(x-1, y+1, value);
-  blipbox.leds.setLed(x+1, y-1, value);
-  blipbox.leds.setLed(x-1, y-1, value);
+void DisplayManager::fill(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t brightness){
+  for(; x1<x2; ++x1)
+    for(uint8_t y=y1;y<y2; ++y)
+      blipbox.leds.setLed(x1, y, brightness);
 }
