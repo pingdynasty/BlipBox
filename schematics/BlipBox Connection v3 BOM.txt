@@ -1,0 +1,31 @@
+Partlist
+
+Exported from USB+ v3.sch at 17/10/2011 07:53
+
+EAGLE Version 5.11.0 Copyright (c) 1988-2010 CadSoft
+
+Part     Value          Device          Package        Library     Sheet
+
+C2       100n           C-EU050-030X075 C050-030X075   resistor    1
+C3       0.33u          CAPPTH2         CAP-PTH-SMALL2 SparkFun    1
+C4       100n           C-EU050-030X075 C050-030X075   resistor    1
+D1       1N4004         1N4004          DO41-10        diode       1
+D2       1N4148DO35-10  1N4148DO35-10   DO35-10        diode       1
+IC1      7805T          7805T           TO220H         linear      1
+IC2      FT232RL        FT232RL         SSOP28         ftdichip    1
+J1                      POWER_JACKPTH   POWER_JACK_PTH SparkFun    1
+JP1                     M06SIP          1X06           SparkFun    1
+JP2                     M06SIP          1X06           SparkFun    1
+LED1                    LEDB155         Q62902-B155    Pingdynasty 1
+MIDI_IN  DIN5-SOCKET    DIN5-SOCKET     MAB5SH         Pingdynasty 1
+MIDI_OUT DIN5-SOCKET    DIN5-SOCKET     MAB5SH         Pingdynasty 1
+OK1      6N137          6N137           DIL08          optocoupler 1
+R1       1k             R-EU_0309/10    0309/10        rcl         1
+R2       220            R-EU_0309/10    0309/10        rcl         1
+R3       220            R-EU_0309/10    0309/10        rcl         1
+R4       10k            R-EU_0309/10    0309/10        rcl         1
+S1                      SWITCH-SPSTPTH  SWITCH-SPDT    SparkFun    1
+S2                      SWITCH-SPSTPTH  SWITCH-SPDT    SparkFun    1
+S3                      SWITCH-SPSTPTH  SWITCH-SPDT    SparkFun    1
+S4                      SWITCH-SPSTPTH  SWITCH-SPDT    SparkFun    1
+X1       USBPTH         USBPTH          USB-B-PTH      SparkFun    1

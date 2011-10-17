@@ -1,0 +1,40 @@
+Partlist
+
+Exported from BlipBox v10.sch at 14/10/2011 10:46
+
+EAGLE Version 5.11.0 Copyright (c) 1988-2010 CadSoft
+
+Part     Value             Device               Package       Library        Sheet
+
+C1       100nF             C-EU050-030X075      C050-030X075  rcl            1
+C2       100nF             C-EU050-030X075      C050-030X075  rcl            1
+C3       100nF             C-EU050-030X075      C050-030X075  rcl            1
+C4       100uF             CPOL-EUE2,5-6E       E2,5-6E       resistor       1
+C5       100nF             C-EU050-030X075      C050-030X075  rcl            1
+C6       100nF             C-EU050-030X075      C050-030X075  rcl            1
+IC1      MEGA168-P         MEGA8-P              DIL28-3       atmel          1
+IC2      TLC5940           TLC5940              DIL28-3       Pingdynasty    1
+JP1                        M06SIP               1X06          SparkFun       1
+JP2                        M06SIP               1X06          SparkFun       1
+JP3                        M05PTH               1X05          SparkFun       1
+JP4      AVR_SPI           AVR_SPI_PRG_6NS      2X3-NS        SparkFun       1
+LED1     FYM-034851AX      FYM-034851AX         FYM-034851AX  Pingdynasty    1
+LED2     FYM-034851AX      FYM-034851AX         FYM-034851AX  Pingdynasty    1
+Q1       BC550B            BC550B               TO92-EBC      transistor-npn 1
+Q2       BC550B            BC550B               TO92-EBC      transistor-npn 1
+Q3       BC550B            BC550B               TO92-EBC      transistor-npn 1
+Q4       BC550B            BC550B               TO92-EBC      transistor-npn 1
+Q5       BC550B            BC550B               TO92-EBC      transistor-npn 1
+R1       2k                R-EU_0207/10         0207/10       resistor       1
+R2       10k               R-EU_0207/10         0207/10       resistor       1
+R3       1k                R-EU_0207/10         0207/10       resistor       1
+R4       1k                R-EU_0207/10         0207/10       resistor       1
+R5       1k                R-EU_0207/10         0207/10       resistor       1
+R6       1k                R-EU_0207/10         0207/10       resistor       1
+R7       1k                R-EU_0207/10         0207/10       resistor       1
+R8       10k               R-EU_0207/10         0207/10       resistor       1
+R9       10k               R-EU_0207/10         0207/10       resistor       1
+SJ1      SOLDERJUMPERTRACE SOLDERJUMPERTRACE    SJ_2S-TRACE   SparkFun       1
+SJ2      SOLDERJUMPERTRACE SOLDERJUMPERTRACE    SJ_2S-TRACE   SparkFun       1
+U$3      RESONATORPTH      RESONATORPTH         RESONATOR-PTH SparkFun       1
+X1                         5WIRE-TOUCHSCREENFFC 5-WIRE-FFC    Pingdynasty    1
