@@ -1,21 +1,18 @@
 <sidebar>
   <para>
-    <ulink url="blipbox.html">BlipBox</ulink>
+    <ulink url="http://blipbox.org/blog/news/">BlipBox</ulink>
 <!--     <itemizedlist> -->
 <!--       <listitem><para><ulink url="blipbox.html">about</ulink></para></listitem> -->
 <!--       <listitem><para><ulink url="blipbox-functionality.html">functionality</ulink></para></listitem> -->
 <!--     </itemizedlist> -->
   </para>
   <para>
-    <ulink url="polynome.html">Polynome</ulink>
+    <ulink url="http://blipbox.org/blog/projects/polynome/">Polynome</ulink>
   </para>
   <para>
-    <ulink url="taquito.html">Taquito</ulink>
+    <ulink url="http://blipbox.org/blog/projects/taquito/">Taquito</ulink>
   </para>
   <para>
-    <ulink url="about.html">About</ulink>
-  </para>
-  <para>
-    <ulink url="contact.html">Contact</ulink>
+    <ulink url="http://blipbox.org/blog/about/">About</ulink>
   </para>
 </sidebar>
