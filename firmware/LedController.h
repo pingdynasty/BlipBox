@@ -78,6 +78,16 @@ public:
         back_buffer[i] = 0;
   }
 
+  void shiftright(uint8_t value = 1){
+    for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
+      back_buffer[i] >>= value;
+  }
+
+  void shiftleft(uint8_t value = 1){
+    for(uint8_t i = 0; i < LED_BUFFER_LENGTH; ++i)
+      back_buffer[i] <<= value;
+  }
+
   // xor all leds
   void toggle(){
     // while(doflip);

@@ -10,7 +10,7 @@ class Configuration {
   uint16_t sensitivity;
   uint8_t tlc_gsclk_period;
   uint16_t serialSpeed;
-  uint8_t followMode;
+  uint8_t preset;
   uint16_t touchscreen_x_min;
   uint16_t touchscreen_x_range;
   uint16_t touchscreen_y_min;

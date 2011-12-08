@@ -31,31 +31,33 @@
 #define BOUNCE_THRESHOLD 20
 #define TAP_THRESHOLD    300 // ms between press and release to be considered tap
 #define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
-unsigned long lastpressed   = LONG_MAX;
-unsigned long lasttapped    = LONG_MAX;
-unsigned long lastreleased  = LONG_MAX;
-uint8_t       firstpos      = 0xff;
-uint8_t       lastpos       = 0xff;
+
+KeyController::KeyController() : 
+  pos(), pressed(false), firstpos(0xf, 0xf), lastpos(0xf, 0xf), 
+  lastpressed(LONG_MAX), lasttapped(LONG_MAX), lastreleased(LONG_MAX) {}
 
 void KeyController::keyscan(){
   unsigned long now = millis();
+  TouchEvent event;
   if(this->getZ() < blipbox.config.sensitivity){
     if(now - lastreleased < BOUNCE_THRESHOLD)
       return;
     this->update(); // sets x/y/row/col
-    lastpos = (pos.column << 4) | pos.row;
+    lastpos = pos;
     if(!pressed){
       // toggled from released to pressed
+      event.type = PRESS_EVENT_TYPE;
       pressed = true;
       if(lastpos != firstpos)
         lasttapped = LONG_MAX;
       firstpos = lastpos;
-      blipbox.eventhandler->press(pos);
       lastpressed = now;
     }else{
       // still pressed
-      blipbox.eventhandler->drag(pos);
+      event.type = DRAG_EVENT_TYPE;
     }
+    event.pos = &pos;
+    blipbox.eventhandler->handle(event);
   }else if(pressed){
     if(now - lastpressed < BOUNCE_THRESHOLD)
       return;
@@ -63,14 +65,19 @@ void KeyController::keyscan(){
     // toggled from pressed to released
     pressed = false;
     if(now - lasttapped < TAPTAP_THRESHOLD && lastpos == firstpos){
-      blipbox.eventhandler->taptap(pos);
+      event.type = TAPTAP_EVENT_TYPE;
+      event.pos = &pos;
+      blipbox.eventhandler->handle(event);
       lasttapped = LONG_MAX;
     }else if(now - lastpressed < TAP_THRESHOLD && lastpos == firstpos){
-      blipbox.eventhandler->tap(pos);
+      event.type = TAP_EVENT_TYPE;
+      event.pos = &pos;
+      blipbox.eventhandler->handle(event);
       lasttapped = now;
     }
-    blipbox.eventhandler->release(pos);
-    return;
+    event.pos = NULL;
+    event.type = RELEASE_EVENT_TYPE;
+    blipbox.eventhandler->handle(event);
   }
 }
 
@@ -79,10 +86,6 @@ void KeyController::update(){
   // inverted range for y
   pos.y = (uint16_t)(((SENSOR_MAX - getValue(2) - blipbox.config.touchscreen_y_min) / (float)blipbox.config.touchscreen_y_range)*SENSOR_MAX);
 
-  pos.column = pos.x * GRID_COLS / SENSOR_MAX;
-  if(pos.column >= GRID_COLS)
-    pos.column = GRID_COLS - 1;
-  pos.row = pos.y * GRID_ROWS / SENSOR_MAX;
-  if(pos.row >= GRID_ROWS)
-    pos.row = GRID_ROWS - 1;
+  pos.setColumn(min(GRID_COLS - 1, pos.x * GRID_COLS / SENSOR_MAX));
+  pos.setRow(min(GRID_ROWS - 1, pos.y * GRID_ROWS / SENSOR_MAX));
 }

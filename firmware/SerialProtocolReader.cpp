@@ -5,8 +5,6 @@
 #include "Command.h"
 #include "MidiPresetReader.h"
 
-#define RX_BUFFER_SIZE 3
-
 #define FILL_MESSAGE              0x10
 #define SET_LED_MESSAGE           0x20 // sets 1 led - 3 byte message
 // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
@@ -26,38 +24,34 @@
 #define PARAMETER_ID_MASK         0x3c
 #define PARAMETER_VALUE_MASK      0x03
 
-unsigned char rx_buffer[RX_BUFFER_SIZE];
-uint8_t rx_buffer_head = 0;
-bool autoflip = 0;
-
 // #define MESSAGE_TYPE
-uint8_t getMessageType(){
+uint8_t SerialProtocolReader::getMessageType(){
   return rx_buffer[0] & MESSAGE_ID_MASK;
 }
 
 /* extract 12 bits of data from the first two message bytes */
-uint16_t getTwelveBitValue(){
+uint16_t SerialProtocolReader::getTwelveBitValue(){
   return ((rx_buffer[0] & MESSAGE_VALUE_MASK) << 8) | rx_buffer[1];
 }
 
 /* extract 10 bits of data from the first two message bytes */
-uint16_t getTenBitValue(){
+uint16_t SerialProtocolReader::getTenBitValue(){
   return ((rx_buffer[0] & PARAMETER_VALUE_MASK) << 8) | rx_buffer[1];
 }
 
 // #define FOUR_BIT_VALUE rx_buffer[0] & MESSAGE_VALUE_MASK;
-uint8_t getFourBitValue(){
+uint8_t SerialProtocolReader::getFourBitValue(){
   return rx_buffer[0] & MESSAGE_VALUE_MASK;
 }
 
-void handleMidiPresetCommand(){
+void SerialProtocolReader::handleMidiPresetCommand(){
   blipbox.setSerialReader(new MidiPresetReader());
   blipbox.leds.clear();
   if(autoflip)
     blipbox.leds.flip();
 }
 
-void handleSetLedMessage(){
+void SerialProtocolReader::handleSetLedMessage(){
   rx_buffer_head = 0;
   // set led: 4 bits marker type, 8 bits led index, 8 bits brightness
   // 1000mmmm llllllll bbbbbbbb
@@ -66,7 +60,7 @@ void handleSetLedMessage(){
     blipbox.leds.flip();
 }
 
-void handleSetLedRowMessage(){  
+void SerialProtocolReader::handleSetLedRowMessage(){  
   rx_buffer_head = 0;
   for(uint8_t i=0; i<8; ++i)
     blipbox.leds.setLed(i, getFourBitValue(),
@@ -75,7 +69,7 @@ void handleSetLedRowMessage(){
     blipbox.leds.flip();
 }
 
-void handleSetLedColumnMessage(){
+void SerialProtocolReader::handleSetLedColumnMessage(){
   rx_buffer_head = 0;
   for(uint8_t i=0; i<8; ++i)
     blipbox.leds.setLed(getFourBitValue(), i, 
@@ -84,7 +78,7 @@ void handleSetLedColumnMessage(){
     blipbox.leds.flip();
 }
 
-void handleWriteCharacterMessage(){
+void SerialProtocolReader::handleWriteCharacterMessage(){
   rx_buffer_head = 0;
   blipbox.display.printCharacter(rx_buffer[1], getFourBitValue(), 0, blipbox.config.brightness);
   if(autoflip)
@@ -94,24 +88,24 @@ void handleWriteCharacterMessage(){
 //   blipbox.display.printCharacter(data, getFourBitValue(), 0, blipbox.config.brightness);
 }
 
-void handleSetParameterMessage(){
+void SerialProtocolReader::handleSetParameterMessage(){
   rx_buffer_head = 0;
   setParameter(rx_buffer[0] & PARAMETER_ID_MASK, getTenBitValue());
 }
 
-void handleFillMessage(){
+void SerialProtocolReader::handleFillMessage(){
   rx_buffer_head = 0;
   blipbox.leds.fill(getFourBitValue() * 0x11);
   if(autoflip)
     blipbox.leds.flip();
 }
 
-void handleShiftLedsMessage(){
+void SerialProtocolReader::handleShiftLedsMessage(){
   rx_buffer_head = 0;
   blipbox.display.shift(getFourBitValue());
 }
 
-void handleCommandMessage(){
+void SerialProtocolReader::handleCommandMessage(){
   rx_buffer_head = 0;
   switch(getFourBitValue()){
   case TOGGLE: // toggle / xor

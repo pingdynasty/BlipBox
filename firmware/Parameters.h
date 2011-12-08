@@ -9,7 +9,7 @@
 #define SENSITIVITY_PARAMETER_ID      (0x02 << 2)
 #define TLC_GSCLK_PERIOD_PARAMETER_ID (0x03 << 2)
 #define SERIAL_SPEED_PARAMETER_ID     (0x04 << 2)
-#define FOLLOW_MODE_PARAMETER_ID      (0x05 << 2)
+#define PRESET_PARAMETER_ID           (0x05 << 2)
 #define MIDI_ZONE_PARAMETER_ID        (0x06 << 2)
 #define X_MIN_PARAMETER_ID            (0x07 << 2)
 #define X_RANGE_PARAMETER_ID          (0x08 << 2)

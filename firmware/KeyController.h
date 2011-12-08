@@ -5,24 +5,23 @@
 #include "TouchController.h"
 #include "Position.h"
 
-/* enum KeyState { */
-/*   PRESSED, DRAGGED, RELEASED, UNCHANGED, DISENGAGED */
-/* }; */
-
 class KeyController : public TouchController {
 
 public:
   Position pos;
-  KeyController() : pressed(false) {}
+  KeyController();
   void keyscan();
-
   inline bool isPressed(){
     return pressed;
   }
-
 private:
   void update();
   bool pressed;
+  Coordinate    firstpos;
+  Coordinate    lastpos;
+  unsigned long lastpressed;
+  unsigned long lasttapped;
+  unsigned long lastreleased;
 };
 
 #endif /* _KEYCONTROLLER_H_ */

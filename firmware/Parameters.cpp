@@ -17,8 +17,8 @@ void setParameter(uint8_t pid, uint16_t value){
     blipbox.config.serialSpeed = value == 0 ?
       31250L : value * 9600;
     break;
-  case FOLLOW_MODE_PARAMETER_ID:
-    blipbox.setFollowMode((uint8_t)value);
+  case PRESET_PARAMETER_ID:
+    blipbox.loadPreset((uint8_t)value);
     break;
   case X_MIN_PARAMETER_ID:
     blipbox.config.touchscreen_x_min = value;
@@ -53,8 +53,8 @@ uint16_t getParameter(uint8_t pid){
     data = blipbox.config.serialSpeed == 0 ?
       31250L : blipbox.config.serialSpeed / 9600;
     break;
-  case FOLLOW_MODE_PARAMETER_ID:
-    data = blipbox.config.followMode;
+  case PRESET_PARAMETER_ID:
+    data = blipbox.config.preset;
     break;
   default:
     blipbox.message(MESSAGE_WRITE_ERROR);

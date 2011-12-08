@@ -8,10 +8,9 @@
 #include "KeyController.h"
 #include "Animator.h"
 #include "Configuration.h"
-#include "MessageDispatcher.h"
 #include "SerialReader.h"
 #include "SerialProtocolReader.h"
-#include "MidiZoneEventHandler.h"
+#include "Preset.h"
 
 // error codes
 // the code corresponds to the number of blinks emmitted to signal the error
@@ -29,14 +28,12 @@ public:
   KeyController keys;
   SignalAnimator signal;
   Configuration config;
-  MessageDispatcher sender;
-  MidiZoneEventHandler midizones;
+  Preset preset;
   SerialReader* receiver;
   EventHandler* eventhandler;
   Animator* animator;
   void init();
   void message(MessageType code);
-  void setFollowMode(uint8_t mode);
   void sendConfigurationParameters();
   void sendMidiZones();
   void setSerialReader(SerialReader* handler);
@@ -45,6 +42,7 @@ public:
   void resetEventHandler();
   void setEditMode(bool edit);
   void setMidiMode(bool midi);
+  void loadPreset(uint8_t preset);
   SerialProtocolReader defaultreceiver;
   DefaultEventHandler defaulthandler;
 private:

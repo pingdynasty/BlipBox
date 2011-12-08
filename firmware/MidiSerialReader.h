@@ -23,6 +23,9 @@ public:
     MidiEvent event(reader.status, data1, data2);
     blipbox.preset.handle(event);
   }
+  void pitchBend(uint16_t value){
+    handle(value & 0x7f, value>>7);
+  }
   void controlChange(uint8_t cc, uint8_t value){
     handle(cc, value);
   }
@@ -31,6 +34,12 @@ public:
   }
   void noteOn(uint8_t note, uint8_t velocity){
     handle(note, velocity);
+  }
+  void channelPressure(uint8_t value){
+    handle(value, 0);
+  }
+  void programChange(uint8_t pg){
+    handle(pg, 0);
   }
 };
 

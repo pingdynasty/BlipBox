@@ -27,6 +27,8 @@ void eeprom_read_block (void *pointer_ram,
 			size_t size){
   printf("eeprom read [%d] %d bytes\n", (long)pointer_eeprom, size);
   memcpy(pointer_ram, eeprom+(long)pointer_eeprom, size);
+/*   for(int i=0; i<size; ++i) */
+/*     printf("[%d]:\t[%d]\n", i, *((uint8_t*)pointer_ram+i)); */
 }
 
 void eeprom_write_byte (uint8_t *addr, uint8_t value){
@@ -46,4 +48,6 @@ void eeprom_write_block (const void *pointer_ram,
 			 size_t size){
   printf("eeprom write [%d] %d bytes\n", (long)pointer_eeprom, size);
   memcpy(eeprom+(long)pointer_eeprom, pointer_ram, size);
+/*   for(int i=0; i<size; ++i) */
+/*     printf("[%d]:\t[%d]\n", i, *((uint8_t*)pointer_ram+i)); */
 }

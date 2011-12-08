@@ -2,28 +2,64 @@
 #include "Event.h"
 
 #include "defs.h"
+#include "globals.h"
 #include <stddef.h>
+#include <string.h>
 #include <avr/eeprom.h>
 
-void Preset::handle(Event& event){
-  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i)
-    if(event.getPosition() == NULL || zones[i].match(event.getPosition()))
-      zones[i].handle(event);
+#define MIDI_PRESET_HEADER 0
+uint16_t getAddress(uint8_t index){
+  return MIDI_PRESET_OFFSET + MIDI_PRESET_HEADER +
+    index * MIDI_ZONES_IN_PRESET * MIDI_ZONE_PRESET_SIZE;
 }
 
-#define MIDI_PRESET_HEADER 0
-void Preset::loadPreset(uint8_t index){
-  uint16_t offset = MIDI_PRESET_OFFSET + MIDI_PRESET_HEADER +
-    index * MIDI_ZONES_IN_PRESET * MIDI_ZONE_PRESET_SIZE;
+void Preset::load(uint8_t index){
+  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
+  uint16_t offset = getAddress(index);
   for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i){
-    uint8_t buf[MIDI_ZONE_PRESET_SIZE];
+    memset(buf, 0, sizeof(buf));
     eeprom_read_block(buf, (uint8_t*)offset, sizeof(buf));
-    zones[index].read(buf);
-    offset += MIDI_ZONE_PRESET_SIZE;
+    uint8_t bts = zones[i].read(buf);
+    offset += bts;
+//     offset += MIDI_ZONE_PRESET_SIZE;
   }
 }
 
-void Preset::tick(uint16_t counter){
+void Preset::save(uint8_t index){
+  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
+  uint16_t offset = getAddress(index);
+  for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i){
+    memset(buf, 0, sizeof(buf));
+    uint8_t bts = zones[i].write(buf);
+    eeprom_write_block(buf, (uint8_t*)offset, bts);
+    offset += bts;
+//     offset += MIDI_ZONE_PRESET_SIZE;
+  }
+}
+
+void Preset::handle(MidiEvent& event){
+  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i){
+    // todo: remove this check when zones are guaranteed to have actions
+//     if(zones[i].action != NULL && 
+//        zones[i].action->getType() == event.getStatus())
+    if(zones[i].action != NULL)
+      zones[i].action->handle(event);
+  }
+}
+
+void Preset::handle(TouchEvent& event){
   for(int i=0; i<MAX_ZONES_IN_PRESET; ++i)
-    zones[i].draw();
+    if(event.getPosition() == NULL || zones[i].match(event.getPosition()))
+      // todo: remove this check when zones are guaranteed to have actions
+      if(zones[i].action != NULL)
+	zones[i].handle(event);
+}
+
+void Preset::tick(uint16_t counter){
+  blipbox.leds.shiftright();
+  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i)
+    // todo: remove this check when zones are guaranteed to have actions
+    if(zones[i].action != NULL)
+      zones[i].draw();
+  blipbox.leds.flip();
 }

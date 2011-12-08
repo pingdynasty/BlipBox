@@ -13,8 +13,10 @@ private:
   Zone zones[MAX_ZONES_IN_PRESET];
 
 public:
-  void handle(Event& event);
-  void loadPreset(uint8_t index);
+  void handle(TouchEvent& event);
+  void handle(MidiEvent& event);
+  void load(uint8_t index);
+  void save(uint8_t index);
 /*   void configure(uint8_t* data); */
   void tick(uint16_t counter);
   Zone* getZone(uint8_t index){

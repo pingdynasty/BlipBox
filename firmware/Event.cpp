@@ -2,9 +2,9 @@
 
 #include "globals.h"
 
-Position* Event::getPosition(){
-  if(isTouch())
-    return &blipbox.keys.pos;
-  else
-    return NULL;
-}
+// Position* Event::getPosition(){
+//   if(isTouch())
+//     return &blipbox.keys.pos;
+//   else
+//     return NULL;
+// }

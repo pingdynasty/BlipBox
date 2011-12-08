@@ -1,22 +1,17 @@
-#include <stdint.h>
 #include "globals.h"
 #include "EventHandler.h"
+#include "SerialProtocol.h"
 
-void DefaultEventHandler::press(Position& pos){
-  blipbox.sender.release.reset();
-  blipbox.sender.position.update(pos);
+void DefaultEventHandler::handle(TouchEvent& event){
+  if(event.isTouch()){
+    if(event.isPress() || event.isDrag()){
+      sendPositionMessage(event.getPosition()->x, event.getPosition()->y);
+    }else if(event.isRelease()){
+      sendReleaseMessage();
+    }else if(event.isTapTap()){
+      if(event.getPosition()->getColumn() == 0 && event.getPosition()->getRow() == 0)
+	blipbox.setEditMode(true);
+    }
+  }
 }
 
-void DefaultEventHandler::release(Position& pos){
-  blipbox.sender.position.reset();
-  blipbox.sender.release.update();
-}
-
-void DefaultEventHandler::drag(Position& pos){
-  blipbox.sender.position.update(pos);
-}
-
-void DefaultEventHandler::taptap(Position& pos){
-  if(blipbox.keys.pos.column == 0 && blipbox.keys.pos.row == 0)
-    blipbox.setEditMode(true);
-}

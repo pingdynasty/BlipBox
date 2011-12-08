@@ -19,4 +19,30 @@
 #define MIDI_PITCH_BEND               0xE0
 #define MIDI_SYSTEM_MESSAGE           0xF0
 
+#define MIDI_SYSEX_START              0xF0
+#define MIDI_TIME_CODE                0xF1
+#define MIDI_SONG_POSITION            0xF2
+#define MIDI_SONG_SELECT              0xF3
+#define MIDI_TUNE_REQUEST             0xF6
+#define MIDI_SYSEX_END                0xF7
+#define MIDI_TIMING_CLOCK             0xF8
+#define MIDI_TICK                     0xF9
+#define MIDI_START_SONG               0xFA
+#define MIDI_CONTINUE_SONG            0xFB
+#define MIDI_STOP_SONG                0xFC
+#define MIDI_ACTIVE_SENSING           0xFE
+#define MIDI_SYSTEM_RESET             0xFF
+
+#define MIDI_CC_BANK_SELECT 0
+#define MIDI_CC_MOD_WHEEL   1
+#define MIDI_CC_BREATH      2
+#define MIDI_CC_FOOT_PEDAL  4
+#define MIDI_CC_PORTAMENTO  5
+#define MIDI_CC_VOLUME      7
+#define MIDI_CC_BALANCE     8
+#define MIDI_CC_PAN        10
+#define MIDI_CC_EXPRESSION 11
+#define MIDI_CC_EFFECT1    12
+#define MIDI_CC_EFFECT2    13
+
 #endif /* _MIDICONSTANTS_H_ */

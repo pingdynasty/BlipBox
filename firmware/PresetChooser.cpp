@@ -4,10 +4,7 @@
 #include "defs.h"
 
 void PresetChooser::init(){
-  if(blipbox.eventhandler == &blipbox.midizones)
-    preset = 0;
-  else
-    preset = blipbox.midizones.preset+1;
+  preset = blipbox.config.preset;
   printPreset();
 }
 
@@ -33,49 +30,41 @@ void PresetChooser::printPreset(){
 }
 
 void PresetChooser::press(Position& pos){
-  origin = pos.column;
-  column = pos.column;
+  origin = pos.getColumn();
+  column = pos.getColumn();
 }
 
 void PresetChooser::drag(Position& pos){
-  if(pos.row < 2)
+  if(pos.getRow() < 2)
     return;
   blipbox.leds.setLed(1, 0, 0);
   blipbox.leds.setLed(0, 1, 0);
   blipbox.leds.setLed(0, 0, 0);
-  if(pos.column > column && preset)
+  if(pos.getColumn() > column && preset)
     blipbox.display.shift(SHIFT_RIGHT);
-  else if(pos.column < column && preset < MIDI_ZONE_PRESETS)
+  else if(pos.getColumn() < column && preset < MIDI_ZONE_PRESETS)
     blipbox.display.shift(SHIFT_LEFT);
-  column = pos.column;
+  column = pos.getColumn();
 }
 
 void PresetChooser::release(Position& pos){
-  if(pos.column > origin && preset)
+  if(pos.getColumn() > origin && preset)
     preset--;
-  else if(pos.column < origin && preset < MIDI_ZONE_PRESETS)
+  else if(pos.getColumn() < origin && preset < MIDI_ZONE_PRESETS)
     preset++;
   blipbox.leds.clear();
   printPreset();
 }
 
 void PresetChooser::taptap(Position& pos){
-  if(pos.column < 2 && pos.row < 2){
+  Coordinate ref(2, 2);
+  if(pos < ref){
     blipbox.setEditMode(false);
-    if(preset){
-      // load preset, set midi zone mode
-      blipbox.midizones.loadPreset(preset-1);
-      blipbox.setMidiMode(true);
-    }else{
-      // set usb mode
-      blipbox.setMidiMode(false);
-    }
+    blipbox.loadPreset(preset);
   }
 }
 
 void PresetChooser::tick(uint16_t counter){
-//   uint8_t brightness = ((counter >> 3) % blipbox.config.brightness);
-//   blipbox.leds.setLed(0, 0, blipbox.config.brightness-brightness);
   blipbox.leds.setLed(0, 0, blipbox.leds.getLed(0, 0)-6);
   blipbox.leds.flip();
 }

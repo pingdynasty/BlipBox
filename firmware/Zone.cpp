@@ -3,26 +3,22 @@
 #include "globals.h"
 #include <stddef.h>
 
-#define ACTION_TYPE_MASK 0x0f
-#define ZONE_TYPE_MASK   0xf0
-#define MIDI_ACTION_TYPE 0x01
+#define SENSOR_RANGE 1023.0
+#define COLUMN_RANGE   10.0
+#define ROW_RANGE       8.0
 
-#define HORIZONTAL_SLIDER_ZONE_TYPE 0x01
-#define VERTICAL_SLIDER_ZONE_TYPE   0x03
-#define MOMENTARY_BUTTON_ZONE_TYPE  0x02
-#define TOGGLE_BUTTON_ZONE_TYPE     0x04
-
-// see http://en.wikipedia.org/wiki/Placement_syntax
-void * operator new (size_t, void * p); // defined in operators.cpp
+Zone::Zone() : action(NULL) {}
 
 class MomentaryButtonZone : public Zone {
-  // momentary button
 public:
-  void handle(Event& event){
-    if(event.isRelease())
-      action->setValue(MIN_DATA_VALUE);
-    else
-      action->setValue(MAX_DATA_VALUE);
+  uint8_t getType(){
+    return MOMENTARY_BUTTON_ZONE_TYPE;
+  }
+  void handle(TouchEvent& event){
+    if(event.isPress())
+      action->on(MAX_DATA_VALUE);
+    else if(event.isRelease())
+      action->on(MIN_DATA_VALUE);
   }
   void draw(){
     if(action->getValue() != MIN_DATA_VALUE){
@@ -33,23 +29,27 @@ public:
 };
 
 class ToggleButtonZone : public MomentaryButtonZone {
-  // toggle button
 public:
-  virtual void handle(Event& event){
-    if(action->getValue() != MIN_DATA_VALUE)
-      action->setValue(MIN_DATA_VALUE);
-    else
-      action->setValue(MAX_DATA_VALUE);
+  uint8_t getType(){
+    return TOGGLE_BUTTON_ZONE_TYPE;
+  }
+  virtual void handle(TouchEvent& event){
+    if(event.isPress()){
+      if(action->getValue() != MIN_DATA_VALUE)
+	action->on(MIN_DATA_VALUE);
+      else
+	action->on(MAX_DATA_VALUE);
+    }
   }
 };
 
 class SliderZone : public Zone {
 public:
-  virtual void handle(Event& event){
+  void handle(TouchEvent& event){
     if(event.isDrag())
-      action->setValue(scaleToFloat(event.getPosition()));
+      action->on(scaleToFloat(event.getPosition()));
     else if(event.isRelease())
-      action->setValue(MIN_DATA_VALUE);
+      action->off();
   }
   virtual float scaleToFloat(Position* pos){
     return 0;
@@ -58,74 +58,47 @@ public:
 
 class HorizontalSliderZone : public SliderZone {
 public:
+  uint8_t getType(){
+    return HORIZONTAL_SLIDER_ZONE_TYPE;
+  }
   float scaleToFloat(Position* pos){
-    return ((pos->x-(from.getColumn()*MAX_DATA_VALUE/10.0))/
-	    ((to.getColumn()-from.getColumn())*MAX_DATA_VALUE/10.0));
+    return ((pos->x/SENSOR_RANGE-(from.getColumn()/COLUMN_RANGE))/
+	    ((to.getColumn()-from.getColumn())/COLUMN_RANGE));
   }
   void draw(){
-    uint8_t col = (uint8_t)(action->getValue()/MAX_DATA_VALUE*(to.getColumn()-from.getColumn()))+from.getColumn();
+    uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn();
     blipbox.display.line(col, from.getRow(), col, to.getRow()-1, blipbox.config.brightness);
   }
 };
 
 class VerticalSliderZone : public SliderZone {
 public:
+  uint8_t getType(){
+    return VERTICAL_SLIDER_ZONE_TYPE;
+  }
   float scaleToFloat(Position* pos){
-    return ((pos->y-(from.getColumn()*MAX_DATA_VALUE/8.0))/
-	    ((to.getColumn()-from.getColumn())*MAX_DATA_VALUE/8.0));
+    return ((pos->y/SENSOR_RANGE-(from.getRow()/ROW_RANGE))/
+	    ((to.getRow()-from.getRow())/ROW_RANGE));
   }
   void draw(){
-    uint8_t row = (uint8_t)(action->getValue()/MAX_DATA_VALUE*(to.getRow()-from.getRow()))+from.getRow();
+    uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow();
     blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, blipbox.config.brightness);
   }
 };
 
-void Zone::write(uint8_t* data){
-//   data[0] = _type;
-//   data[1] = _data1;
-//   data[2] = _status;
-//   data[3] = _min;
-//   data[4] = _max;
-  data[5] = from.getValue();
-  data[6] = to.getValue();
+uint8_t Zone::write(uint8_t* data){
+  data[0] = getType();
+  data[1] = from.getValue();
+  data[2] = to.getValue();
+  if(action == NULL)
+    return 3;
+  return 3+action->write(data);
 }
 
-void Zone::read(const uint8_t* data){
-  uint8_t type   = data[0];
-  uint8_t data1  = data[1];
-  uint8_t status = data[2];
-  uint8_t min    = data[3];
-  uint8_t max    = data[4];
-  uint8_t from_column = data[5] >> 4;
-  uint8_t from_row    = data[5] & 0x0f;
-  uint8_t to_column   = data[6] >> 4;
-  uint8_t to_row      = data[6] & 0x0f;
+// see http://en.wikipedia.org/wiki/Placement_syntax
+void * operator new (size_t, void * p); // defined in operators.cpp
 
-  int8_t data2  = 0;
-  /*     setControlValue(_data2, -1); */
-
-  if(type & ACTION_TYPE_MASK == MIDI_ACTION_TYPE){
-    switch(status & MIDI_STATUS_MASK){
-    case MIDI_AFTERTOUCH:
-    case MIDI_CONTROL_CHANGE:
-      action = new MidiControllerAction(status, min, max, data1, data2);
-      break;
-    case MIDI_NOTE_ON:
-    case MIDI_NOTE_OFF:
-//       action = new MidiNoteAction(status, data1);
-      break;
-    case MIDI_PROGRAM_CHANGE:
-      break;
-    case MIDI_CHANNEL_PRESSURE:
-      break;
-    case MIDI_PITCH_BEND:
-//       action = new MidiPitchBendAction(status);
-      break;
-    case MIDI_SYSTEM_MESSAGE:
-      break;
-    }
-  }
-
+void Zone::setType(uint8_t type){
   switch(type & ZONE_TYPE_MASK){
   case HORIZONTAL_SLIDER_ZONE_TYPE:
     new(this)HorizontalSliderZone();
@@ -134,7 +107,7 @@ void Zone::read(const uint8_t* data){
     new(this)VerticalSliderZone();
     break;
   case MOMENTARY_BUTTON_ZONE_TYPE:
-    new(this)ToggleButtonZone();
+    new(this)MomentaryButtonZone();
     break;
   case TOGGLE_BUTTON_ZONE_TYPE:
     new(this)ToggleButtonZone();
@@ -142,4 +115,15 @@ void Zone::read(const uint8_t* data){
   default:
     new(this)Zone();
   }
+}
+
+uint8_t Zone::read(const uint8_t* data){
+  setType(data[0]);
+  from.setValue(data[1]);
+  to.setValue(data[2]);
+  delete action;
+  action = Action::createAction(data[3]);
+  if(action == NULL)
+    return 3;
+  return 3+action->read(data);
 }

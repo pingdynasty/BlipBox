@@ -28,7 +28,7 @@ public:
     }else if(command == REQUEST_PRESET_COMMAND){
       blipbox.resetSerialReader();
       if(c == 0){
-	blipbox.midizones.loadPreset(preset);
+	blipbox.loadPreset(preset);
 	blipbox.sendMidiZones();
 	blipbox.message(ALERT);
       }else{

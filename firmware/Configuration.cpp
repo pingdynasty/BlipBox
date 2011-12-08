@@ -8,7 +8,7 @@
 #define DEFAULT_SERIAL_SPEED 57600L
 #define DEFAULT_SENSITIVITY  80   // the higher the value, the more sensitive
 #define DEFAULT_BRIGHTNESS   0xff
-#define DEFAULT_FOLLOW_MODE  0x00
+#define DEFAULT_PRESET       0x00
 #define DEFAULT_X_MIN        220
 #define DEFAULT_X_RANGE      760 - DEFAULT_X_MIN
 #define DEFAULT_Y_MIN        215
@@ -28,6 +28,7 @@ void Configuration::reset(){
   sensitivity         = DEFAULT_SENSITIVITY;
   tlc_gsclk_period    = DEFAULT_GSCLK_PERIOD;
   serialSpeed         = DEFAULT_SERIAL_SPEED;
+  preset              = DEFAULT_PRESET;
   touchscreen_x_min   = DEFAULT_X_MIN;
   touchscreen_x_range = DEFAULT_X_RANGE;
   touchscreen_y_min   = DEFAULT_Y_MIN;
