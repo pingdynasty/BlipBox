@@ -7,32 +7,42 @@
 #define COLUMN_RANGE   10.0
 #define ROW_RANGE       8.0
 
-Zone::Zone() : action(NULL) {}
+// Zone::Zone() : action(NULL) {}
+Zone::Zone() {}
 
 class MomentaryButtonZone : public Zone {
 public:
-  uint8_t getType(){
-    return MOMENTARY_BUTTON_ZONE_TYPE;
-  }
+//   uint8_t getType(){
+//     return MOMENTARY_BUTTON_ZONE_TYPE;
+//   }
   void handle(TouchEvent& event){
     if(event.isPress())
       action->on(MAX_DATA_VALUE);
     else if(event.isRelease())
       action->on(MIN_DATA_VALUE);
   }
-  void draw(){
+  void fill(){
     if(action->getValue() != MIN_DATA_VALUE){
       blipbox.display.fill(from.getColumn(), from.getRow(), 
 			   to.getColumn(), to.getRow(), blipbox.config.brightness);
+    }
+  }
+  void line(){
+    if(action->getValue() == MIN_DATA_VALUE){
+      blipbox.display.line(from.getColumn(), from.getRow(),
+			   to.getColumn()-1, to.getRow()-1, blipbox.config.brightness);
+    }else{
+      blipbox.display.line(from.getColumn(), to.getRow()-1,
+			   to.getColumn()-1, from.getRow(), blipbox.config.brightness);
     }
   }
 };
 
 class ToggleButtonZone : public MomentaryButtonZone {
 public:
-  uint8_t getType(){
-    return TOGGLE_BUTTON_ZONE_TYPE;
-  }
+//   uint8_t getType(){
+//     return TOGGLE_BUTTON_ZONE_TYPE;
+//   }
   virtual void handle(TouchEvent& event){
     if(event.isPress()){
       if(action->getValue() != MIN_DATA_VALUE)
@@ -58,14 +68,18 @@ public:
 
 class HorizontalSliderZone : public SliderZone {
 public:
-  uint8_t getType(){
-    return HORIZONTAL_SLIDER_ZONE_TYPE;
-  }
+//   uint8_t getType(){
+//     return HORIZONTAL_SLIDER_ZONE_TYPE;
+//   }
   float scaleToFloat(Position* pos){
     return ((pos->x/SENSOR_RANGE-(from.getColumn()/COLUMN_RANGE))/
 	    ((to.getColumn()-from.getColumn())/COLUMN_RANGE));
   }
-  void draw(){
+  void fill(){
+    uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn()+1;
+    blipbox.display.fill(from.getColumn(), from.getRow(), col, to.getRow(), blipbox.config.brightness);
+  }
+  void line(){
     uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn();
     blipbox.display.line(col, from.getRow(), col, to.getRow()-1, blipbox.config.brightness);
   }
@@ -73,14 +87,18 @@ public:
 
 class VerticalSliderZone : public SliderZone {
 public:
-  uint8_t getType(){
-    return VERTICAL_SLIDER_ZONE_TYPE;
-  }
+//   uint8_t getType(){
+//     return VERTICAL_SLIDER_ZONE_TYPE;
+//   }
   float scaleToFloat(Position* pos){
     return ((pos->y/SENSOR_RANGE-(from.getRow()/ROW_RANGE))/
 	    ((to.getRow()-from.getRow())/ROW_RANGE));
   }
-  void draw(){
+  void fill(){
+    uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow()+1;
+    blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row, blipbox.config.brightness);
+  }
+  void line(){
     uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow();
     blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, blipbox.config.brightness);
   }
@@ -98,7 +116,8 @@ uint8_t Zone::write(uint8_t* data){
 // see http://en.wikipedia.org/wiki/Placement_syntax
 void * operator new (size_t, void * p); // defined in operators.cpp
 
-void Zone::setType(uint8_t type){
+void Zone::setType(uint8_t value){
+  type = (ZONE_TYPE_MASK & value) | (DISPLAY_TYPE_MASK & type);
   switch(type & ZONE_TYPE_MASK){
   case HORIZONTAL_SLIDER_ZONE_TYPE:
     new(this)HorizontalSliderZone();

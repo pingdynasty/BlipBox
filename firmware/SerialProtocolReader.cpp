@@ -1,3 +1,4 @@
+#include "SerialProtocolReader.h"
 #include "globals.h"
 #include "Greeting.h"
 #include "Characters.h"

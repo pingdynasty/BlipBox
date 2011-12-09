@@ -1,6 +1,7 @@
 #ifndef _SERIALPROTOCOLREADER_H_
 #define _SERIALPROTOCOLREADER_H_
 
+#include <inttypes.h>
 #include "SerialReader.h"
 
 #define SERIAL_RX_BUFFER_SIZE 3

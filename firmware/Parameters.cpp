@@ -2,6 +2,9 @@
 #include <inttypes.h>
 #include "Parameters.h"
 
+// void setControlVoltage(uint8_t cv, uint16_t value){
+// }
+
 void setParameter(uint8_t pid, uint16_t value){
   switch(pid){
   case SENSITIVITY_PARAMETER_ID:
@@ -32,6 +35,20 @@ void setParameter(uint8_t pid, uint16_t value){
   case Y_RANGE_PARAMETER_ID:
     blipbox.config.touchscreen_y_range = value;
     break;
+//   case CV1_PARAMETER_ID:
+//     setControlVoltage(0, value);
+//     break;
+//   case CV2_PARAMETER_ID:
+//     setControlVoltage(0, value);
+//     break;
+//   case CV3_PARAMETER_ID:
+//     setControlVoltage(0, value);
+//     break;
+//   case CV4_PARAMETER_ID:
+//     setControlVoltage(0, value);
+//     break;
+  case VERSION_PARAMETER_ID:
+    break;
   default:
     blipbox.message(MESSAGE_READ_ERROR);
   }
@@ -55,6 +72,9 @@ uint16_t getParameter(uint8_t pid){
     break;
   case PRESET_PARAMETER_ID:
     data = blipbox.config.preset;
+    break;
+  case VERSION_PARAMETER_ID:
+    data = BLIPBOX_VERSION_ID;
     break;
   default:
     blipbox.message(MESSAGE_WRITE_ERROR);

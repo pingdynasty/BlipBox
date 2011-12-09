@@ -81,7 +81,7 @@ public:
     return type & MIDI_CHANNEL_MASK;
   }
   uint16_t getData(){
-    return (data2<<7) & data1;
+    return (data2<<7) | data1;
   }
   uint8_t getData1(){
     return data1;

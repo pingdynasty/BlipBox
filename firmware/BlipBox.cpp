@@ -8,33 +8,35 @@
 #include "Parameters.h"
 #include "SerialProtocol.h"
 #include "MidiSerialReader.h"
-
-unsigned long previousMillis;        // will store last time write was done
-uint16_t counter;
+#include "SerialProtocolReader.h"
 
 void setup() {
   blipbox.config.init();
   blipbox.init();
-  blipbox.receiver = &blipbox.defaultreceiver;
-  blipbox.eventhandler = &blipbox.defaulthandler;
   beginSerial(blipbox.config.serialSpeed);
   blipbox.message(ALERT);
-  blipbox.animator = NULL;
 }
 
 void loop() {
+  blipbox.loop();
+}
+
+void BlipBox::loop() {
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
-    blipbox.keys.keyscan(); // triggers eventhandler
+    keys.keyscan(); // triggers eventhandler
     previousMillis = millis();   // remember the last time we did this
     // counter overflows at 65536
-    blipbox.signal.tick(++counter);
-    if(blipbox.animator != NULL)
-      blipbox.animator->tick(counter);
+    signal.tick(++counter);
+    if(animator != NULL)
+      animator->tick(counter);
   }
 }
 
 void BlipBox::init() {
   cli(); // disable interrupts
+  receiver = new SerialProtocolReader();
+  eventhandler = new DefaultEventHandler();
+  animator = NULL;
   keys.init();
   leds.init();
 #ifdef CV_DAC_HACK
@@ -46,41 +48,29 @@ void BlipBox::init() {
 }
 
 void BlipBox::setSerialReader(SerialReader* handler){
-  SerialReader* p = receiver;
+  delete receiver;
   receiver = handler;
-  if(p != &defaultreceiver && p != receiver)
-    free(p);
 }
 
 void BlipBox::resetSerialReader(){
-  SerialReader* p = receiver;
-  receiver = &defaultreceiver;
-  if(p != &defaultreceiver)
-    free(p);
+  delete receiver;
+  receiver = new SerialProtocolReader();
 }
 
 void BlipBox::setEventHandler(EventHandler* handler){
-  EventHandler* p = eventhandler;
+  delete eventhandler;
   eventhandler = handler;
-  if(p != &defaulthandler && p != handler)
-    free(p);
-//   eventhandler->init();
 }
 
 void BlipBox::resetEventHandler(){
-  EventHandler* p = eventhandler;
-  eventhandler = &defaulthandler;
-  if(p != &defaulthandler)
-    free(p);
+  delete eventhandler;
+  eventhandler = new DefaultEventHandler();
 }
 
 void BlipBox::setMidiMode(bool midi){
   if(midi){
     beginSerial(MIDI_SERIAL_SPEED);
-//     setSerialReader(new SerialReader());
     setSerialReader(new MidiSerialReader());
-//     eventhandler = &midizones;
-//     animator = &midizones;
   }else{
     beginSerial(blipbox.config.serialSpeed);
 //     resetSerialReader(); // done by setEditMode(false)
@@ -93,8 +83,8 @@ void BlipBox::setEditMode(bool edit){
   if(edit){
     PresetChooser* presetshandler = new PresetChooser();
     setEventHandler(presetshandler);
-    setSerialReader(new SerialReader());
     animator = presetshandler;
+    setSerialReader(new SerialReader());
   }else{
     resetEventHandler();
     resetSerialReader();
@@ -111,7 +101,7 @@ void BlipBox::loadPreset(uint8_t index){
   preset.load(index);
 }
 
-void sendParameter(uint8_t pid){
+void BlipBox::sendParameter(uint8_t pid){
   sendParameterMessage(pid, getParameter(pid));
 }
 
@@ -119,22 +109,21 @@ void BlipBox::sendConfigurationParameters(){
   message(ALERT);
   sendParameter(SENSITIVITY_PARAMETER_ID);
   sendParameter(BRIGHTNESS_PARAMETER_ID);
-  sendParameter(TLC_GSCLK_PERIOD_PARAMETER_ID);
   sendParameter(SERIAL_SPEED_PARAMETER_ID);
   sendParameter(PRESET_PARAMETER_ID);
+  sendParameter(VERSION_PARAMETER_ID);
 }
 
-void BlipBox::sendMidiZones(){
-//   blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, midizones.preset);
-//   blipbox.sender.parameter.send();
-//   uint8_t buf[MIDI_ZONE_PRESET_SIZE];
-//   for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
-//     midizones.getZone(i).write(buf);
-//     for(int j=0; j<MIDI_ZONE_PRESET_SIZE; ++j){
-//       blipbox.sender.parameter.update(MIDI_ZONE_PARAMETER_ID, buf[j]);
-//       blipbox.sender.parameter.send();
-//     }
-//   }
+void BlipBox::sendPreset(){
+  sendParameterMessage(MIDI_ZONE_PARAMETER_ID, config.preset);
+  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
+  for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
+    memset(buf, 0, sizeof(buf));
+    preset.getZone(i)->write(buf);
+    for(int j=0; j<MIDI_ZONE_PRESET_SIZE; ++j){
+      sendParameterMessage(MIDI_ZONE_PARAMETER_ID, buf[j]);
+    }
+  }
 }
 
 // Interrupt routines

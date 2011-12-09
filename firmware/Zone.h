@@ -5,9 +5,12 @@
 #include "Event.h"
 #include "Action.h"
 
-#define ACTION_TYPE_MASK 0x0f
-#define ZONE_TYPE_MASK   0xf0
-#define MIDI_ACTION_TYPE 0x01
+#define ZONE_TYPE_MASK              0xf0
+#define DISPLAY_TYPE_MASK           0x0f
+
+#define NONE_DISPLAY_TYPE           0x00
+#define FILL_DISPLAY_TYPE           0x01
+#define LINE_DISPLAY_TYPE           0x02
 
 #define HORIZONTAL_SLIDER_ZONE_TYPE 0x10
 #define VERTICAL_SLIDER_ZONE_TYPE   0x30
@@ -15,6 +18,8 @@
 #define TOGGLE_BUTTON_ZONE_TYPE     0x40
 
 class Zone {
+private:
+  uint8_t type;
 public:
   Action* action;
   Coordinate from;
@@ -26,9 +31,16 @@ public:
     return *pos < to && from <= *pos;
   }
   void setType(uint8_t type);
-  virtual uint8_t getType() { return 0; }
+  uint8_t getDisplayType(){
+    return type & DISPLAY_TYPE_MASK;
+  }
+  void setDisplayType(uint8_t value){
+    type = (ZONE_TYPE_MASK & type) | (DISPLAY_TYPE_MASK & value);
+  }
+  uint8_t getType() { return type; }
   virtual void handle(TouchEvent& event){}
-  virtual void draw(){}
+  virtual void line(){}
+  virtual void fill(){}
 };
 
 #endif /* _ZONE_H_ */

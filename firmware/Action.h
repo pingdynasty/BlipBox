@@ -33,13 +33,15 @@ public:
   uint8_t minimum;
   uint8_t maximum;
   AbstractAction(uint8_t astatus) :
-    status(astatus), minimum(0), maximum(127) {}
+    status(astatus), minimum(0), maximum(128) {}
   float scaleToFloat(int8_t value){
     return ((float)value-minimum)/(maximum-minimum);
   }
   float scaleToFloat(int16_t value){
     return ((float)value-minimum*0x7f)/((maximum-minimum)*0x7f);
   }
+  int16_t constrain(int16_t value);
+  int8_t constrain(int8_t value);
   int8_t scaleTo7(float value){
     return (int8_t)(value*(maximum-minimum))+minimum;
   }
@@ -48,6 +50,18 @@ public:
   }
   uint8_t getType() { 
     return status;
+  }
+  void setStatus(uint8_t value){
+    status = (value & MIDI_STATUS_MASK) | (status & MIDI_CHANNEL_MASK);
+  }
+  uint8_t getStatus(){
+    return (status & MIDI_STATUS_MASK);
+  }
+  void setChannel(uint8_t value){
+    status = (status & MIDI_STATUS_MASK) | (value & MIDI_CHANNEL_MASK);
+  }
+  uint8_t getChannel(){
+    return (status & MIDI_CHANNEL_MASK);
   }
   virtual uint8_t read(const uint8_t* data){
     status  = data[3];
@@ -67,18 +81,6 @@ class MidiAction : public AbstractAction {
 public:
   MidiAction(uint8_t status) :
     AbstractAction(status) {}
-  void setStatus(uint8_t value){
-    status = (value & MIDI_STATUS_MASK) | (status & MIDI_CHANNEL_MASK);
-  }
-  uint8_t getStatus(){
-    return (status & MIDI_STATUS_MASK);
-  }
-  void setChannel(uint8_t value){
-    status = (status & MIDI_STATUS_MASK) | (value & MIDI_CHANNEL_MASK);
-  }
-  uint8_t getChannel(){
-    return (status & MIDI_CHANNEL_MASK);
-  }
   void sendMessage(uint8_t data1, int8_t data2);
   void sendMessage(int16_t data);
   void sendMessage(int8_t data);
@@ -117,7 +119,7 @@ public:
   }
   void handle(MidiEvent& event){
     if(event.getType() == status && event.getData1() == data1)
-      data2 = event.getData2();
+      data2 = constrain((int8_t)event.getData2());
   }
 };
 
@@ -149,7 +151,7 @@ public:
 	if(event.getData2() == 0){
 	  pitch = -1;
 	}else{
-	  pitch = event.getData1();
+	  pitch = constrain((int8_t)event.getData1());
 	}
       }else if(event.isNoteOff()){
 	pitch = -1;
@@ -174,7 +176,7 @@ public:
   }
   void handle(MidiEvent& event){
     if(event.getType() == status)
-      data = event.getData();
+      data = constrain((int16_t)event.getData());
   }
 };
 
@@ -191,30 +193,6 @@ public:
   }
   float getValue(){
     return scaleToFloat(data);
-  }
-};
-
-class ControlVoltageAction : public AbstractAction {
-  uint8_t channel;
-  uint8_t cc;
-  int16_t data;
-public:
-  ControlVoltageAction();
-  void on(float f);
-  float getValue(){ 
-    return scaleToFloat((int16_t)(data << 2));
-  }
-  uint8_t read(const uint8_t* data){
-    cc = data[6];
-    return AbstractAction::read(data)+1;
-  }
-  uint8_t write(uint8_t* data){
-    data[6] = cc;
-    return AbstractAction::write(data)+1;
-  }
-  void handle(MidiEvent& event){
-    if(event.getChannel() == channel && event.getData1() == cc)
-      data = event.getData2() * 0x7f;
   }
 };
 

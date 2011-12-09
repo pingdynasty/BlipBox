@@ -15,6 +15,11 @@
 #define X_RANGE_PARAMETER_ID          (0x08 << 2)
 #define Y_MIN_PARAMETER_ID            (0x09 << 2)
 #define Y_RANGE_PARAMETER_ID          (0x0a << 2)
+#define CV1_PARAMETER_ID              (0x0b << 2)
+#define CV2_PARAMETER_ID              (0x0c << 2)
+#define CV3_PARAMETER_ID              (0x0d << 2)
+#define CV4_PARAMETER_ID              (0x0e << 2)
+#define VERSION_PARAMETER_ID          (0x0f << 2)
 
 void setParameter(uint8_t pid, uint16_t value);
 uint16_t getParameter(uint8_t pid);

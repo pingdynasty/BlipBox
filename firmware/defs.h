@@ -8,6 +8,8 @@
 /* #define BLIPBOX_P4 */
 /* #define MONOTAR_P1 */
 
+#define BLIPBOX_VERSION_ID 2
+
 #define MIDI_SERIAL_SPEED 31250L
 /* #define MIDI_SERIAL_SPEED 57600L */
 

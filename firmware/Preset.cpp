@@ -56,10 +56,21 @@ void Preset::handle(TouchEvent& event){
 }
 
 void Preset::tick(uint16_t counter){
-  blipbox.leds.shiftright();
-  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i)
+  blipbox.leds.bitshiftright();
+  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i){
     // todo: remove this check when zones are guaranteed to have actions
-    if(zones[i].action != NULL)
-      zones[i].draw();
+    if(zones[i].action != NULL){
+      switch(zones[i].getDisplayType()){
+      case FILL_DISPLAY_TYPE:
+	zones[i].fill();
+	break;
+      case LINE_DISPLAY_TYPE:
+	zones[i].line();
+	break;
+//       case NONE_DISPLAY_TYPE:
+//       default:
+      }
+    }
+  }
   blipbox.leds.flip();
 }

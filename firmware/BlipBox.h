@@ -9,8 +9,12 @@
 #include "Animator.h"
 #include "Configuration.h"
 #include "SerialReader.h"
-#include "SerialProtocolReader.h"
 #include "Preset.h"
+
+// #define nullptr NULL
+// #define noexcept
+// #define jassert(expression)      {}
+// #include "juce_ScopedPointer.h"
 
 // error codes
 // the code corresponds to the number of blinks emmitted to signal the error
@@ -29,13 +33,17 @@ public:
   SignalAnimator signal;
   Configuration config;
   Preset preset;
+//   ScopedPointer<SerialReader> receiver;
+//   ScopedPointer<EventHandler> eventhandler;
+//   ScopedPointer<Animator> animator;
   SerialReader* receiver;
   EventHandler* eventhandler;
   Animator* animator;
   void init();
   void message(MessageType code);
+  void sendParameter(uint8_t pid);
   void sendConfigurationParameters();
-  void sendMidiZones();
+  void sendPreset();
   void setSerialReader(SerialReader* handler);
   void resetSerialReader();
   void setEventHandler(EventHandler* handler);
@@ -43,9 +51,10 @@ public:
   void setEditMode(bool edit);
   void setMidiMode(bool midi);
   void loadPreset(uint8_t preset);
-  SerialProtocolReader defaultreceiver;
-  DefaultEventHandler defaulthandler;
+  void loop();
 private:
+  unsigned long previousMillis;        // will store last time write was done
+  uint16_t counter;
 };
 
 #endif /* _BLIPBOX_H_ */

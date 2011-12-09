@@ -1,6 +1,16 @@
 #include "Action.h"
+#include "ControlVoltageAction.h"
 #include "serial.h"
+#include "macros.h"
 #include <stddef.h>
+
+int16_t AbstractAction::constrain(int16_t value){
+  return min(max(value, minimum*0x7f), maximum*0x7f);
+}
+
+int8_t AbstractAction::constrain(int8_t value){
+  return min(max(value, minimum), maximum);
+}
 
 void MidiAction::sendMessage(uint8_t data1, int8_t data2){
   serialWrite(status);
