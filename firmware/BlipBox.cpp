@@ -151,11 +151,11 @@ void BlipBox::setControlVoltage(uint8_t channel, uint16_t value){
 
 // Interrupt routines
 
-#if defined(__AVR_ATmega168__)
-SIGNAL(SIG_USART_RECV){
+#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__)
+ISR(USART_RX_vect){
   unsigned char c = UDR0;
 #else
-SIGNAL(SIG_UART_RECV){
+ISR(SIG_UART_RECV){
   unsigned char c = UDR;
 #endif
   blipbox.receiver->serialInput(c);

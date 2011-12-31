@@ -22,9 +22,9 @@
 #define SPI_SCK_PORT  PORTC
 #define SPI_SDI_PORT  PORTB
 #define SPI_CS_PORT   PORTB
-#define SPI_SCK_PIN   PC5
-#define SPI_SDI_PIN   PB0
-#define SPI_CS_PIN    PB4
+#define SPI_SCK_PIN   PORTC5
+#define SPI_SDI_PIN   PORTB0
+#define SPI_CS_PIN    PORTB4
 
 void spi_init() {
   SPI_CS_DDR |= _BV(SPI_CS_PIN);

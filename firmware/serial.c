@@ -27,11 +27,6 @@
 
 typedef void (*voidFuncPtr)(void);
 
-#ifndef __AVR_ATmega168__
-#error "__AVR_ATmega168__ not defined!"
-#define __AVR_ATmega168__
-#endif
-
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
@@ -41,7 +36,7 @@ typedef void (*voidFuncPtr)(void);
 
 void beginSerial(long baud)
 {
-#if defined(__AVR_ATmega168__)
+#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__)
 	UBRR0H = ((F_CPU / 16 + baud / 2) / baud - 1) >> 8;
 	UBRR0L = ((F_CPU / 16 + baud / 2) / baud - 1);
 	
@@ -68,7 +63,7 @@ void beginSerial(long baud)
 
 void serialWrite(unsigned char c)
 {
-#if defined(__AVR_ATmega168__)
+#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__)
 	while (!(UCSR0A & (1 << UDRE0)))
 		;
 

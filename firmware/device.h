@@ -2,6 +2,7 @@
 #define _DEVICE_H_
 
 #include "defs.h"
+#include <avr/io.h>
 
 /* Header file containing device-specific defines */
 
@@ -9,19 +10,19 @@
 
 #define TLC_SCLK_DDR   DDRB
 #define TLC_SCLK_PORT  PORTB
-#define TLC_SCLK_PIN   PB0
+#define TLC_SCLK_PIN   PORTB0
 
 #define TLC_XLAT_DDR   DDRB
 #define TLC_XLAT_PORT  PORTB
-#define TLC_XLAT_PIN   PB1
+#define TLC_XLAT_PIN   PORTB1
 
 #define TLC_BLANK_DDR  DDRB
 #define TLC_BLANK_PORT PORTB
-#define TLC_BLANK_PIN  PB2
+#define TLC_BLANK_PIN  PORTB2
 
 #define TLC_GSCLK_DDR  DDRB
 #define TLC_GSCLK_PORT PORTB
-#define TLC_GSCLK_PIN  PB3
+#define TLC_GSCLK_PIN  PORTB3
 
 /* #define TLC_VPRG_DDR   DDRB */
 /* #define TLC_VPRG_PORT  PORTB */
@@ -29,7 +30,7 @@
 
 #define TLC_SIN_DDR    DDRB
 #define TLC_SIN_PORT   PORTB
-#define TLC_SIN_PIN    PB5
+#define TLC_SIN_PIN    PORTB5
 
 #define TLC_GSCLK_OC   COM2A0
 
@@ -39,23 +40,23 @@
 #define LED_ROW_4      5
 #define LED_ROW_5      4
 
-#define LED_ROW_1_PIN      PD3
+#define LED_ROW_1_PIN      PORTD3
 #define LED_ROW_1_DDR      DDRD
 #define LED_ROW_1_PORT     PORTD
 
-#define LED_ROW_2_PIN      PD7
+#define LED_ROW_2_PIN      PORTD7
 #define LED_ROW_2_DDR      DDRD
 #define LED_ROW_2_PORT     PORTD
 
-#define LED_ROW_3_PIN      PD6
+#define LED_ROW_3_PIN      PORTD6
 #define LED_ROW_3_DDR      DDRD
 #define LED_ROW_3_PORT     PORTD
 
-#define LED_ROW_4_PIN      PD5
+#define LED_ROW_4_PIN      PORTD5
 #define LED_ROW_4_DDR      DDRD
 #define LED_ROW_4_PORT     PORTD
 
-#define LED_ROW_5_PIN      PD4
+#define LED_ROW_5_PIN      PORTD4
 #define LED_ROW_5_DDR      DDRD
 #define LED_ROW_5_PORT     PORTD
 
@@ -77,23 +78,23 @@
 
 #define TLC_SCLK_DDR   DDRB
 #define TLC_SCLK_PORT  PORTB
-#define TLC_SCLK_PIN   PB5
+#define TLC_SCLK_PIN   PORTB5
 
 #define TLC_XLAT_DDR   DDRB
 #define TLC_XLAT_PORT  PORTB
-#define TLC_XLAT_PIN   PB1
+#define TLC_XLAT_PIN   PORTB1
 
 #define TLC_BLANK_DDR  DDRB
 #define TLC_BLANK_PORT PORTB
-#define TLC_BLANK_PIN  PB2
+#define TLC_BLANK_PIN  PORTB2
 
 #define TLC_SIN_DDR    DDRB
 #define TLC_SIN_PORT   PORTB
-#define TLC_SIN_PIN    PB3
+#define TLC_SIN_PIN    PORTB3
 
 #define TLC_GSCLK_DDR  DDRD
 #define TLC_GSCLK_PORT PORTD
-#define TLC_GSCLK_PIN  PD3
+#define TLC_GSCLK_PIN  PORTD3
 
 #define TLC_GSCLK_OC   COM2B0
 
@@ -103,23 +104,23 @@
 #define LED_ROW_4      7
 #define LED_ROW_5      4
 
-#define LED_ROW_1_PIN      PD2
+#define LED_ROW_1_PIN      PORTD2
 #define LED_ROW_1_PORT     PORTD
 #define LED_ROW_1_DDR      DDRD
 
-#define LED_ROW_2_PIN      PB4
+#define LED_ROW_2_PIN      PORTB4
 #define LED_ROW_2_PORT     PORTB
 #define LED_ROW_2_DDR      DDRB
 
-#define LED_ROW_3_PIN      PB0
+#define LED_ROW_3_PIN      PORTB0
 #define LED_ROW_3_PORT     PORTB
 #define LED_ROW_3_DDR      DDRB
 
-#define LED_ROW_4_PIN      PD7
+#define LED_ROW_4_PIN      PORTD7
 #define LED_ROW_4_PORT     PORTD
 #define LED_ROW_4_DDR      DDRD
 
-#define LED_ROW_5_PIN      PD4
+#define LED_ROW_5_PIN      PORTD4
 #define LED_ROW_5_PORT     PORTD
 #define LED_ROW_5_DDR      DDRD
 
@@ -131,7 +132,7 @@
 
 // external connections
 #define POT_PIN     5 // PC5 // arduino analog pin
-#define BUTTON1_PIN 5 // PD5 // arduino digital pin
+#define BUTTON1_PIN 5 // PORTD5 // arduino digital pin
 #define BUTTON2_PIN 5 // PD5 // arduino digital pin
 
 #elif defined BLIPBOX_V8
@@ -142,30 +143,30 @@
 
 #define TLC_SCLK_DDR   DDRB
 #define TLC_SCLK_PORT  PORTB
-#define TLC_SCLK_PIN   PB5
+#define TLC_SCLK_PIN   PORTB5
 
 #define TLC_XLAT_DDR   DDRB
 #define TLC_XLAT_PORT  PORTB
-#define TLC_XLAT_PIN   PB1
+#define TLC_XLAT_PIN   PORTB1
 
 #define TLC_BLANK_DDR  DDRB
 #define TLC_BLANK_PORT PORTB
-#define TLC_BLANK_PIN  PB2
+#define TLC_BLANK_PIN  PORTB2
 
 #define TLC_SIN_DDR    DDRB
 #define TLC_SIN_PORT   PORTB
-#define TLC_SIN_PIN    PB3
+#define TLC_SIN_PIN    PORTB3
 
 #define TLC_GSCLK_DDR  DDRD
 #define TLC_GSCLK_PORT PORTD
-#define TLC_GSCLK_PIN  PD3
+#define TLC_GSCLK_PIN  PORTD3
 
 #define TLC_GSCLK_OC   COM2B0
 
-#define MIC_DATA_PIN   PD2
+#define MIC_DATA_PIN   PORTD2
 #define MIC_DATA_DDR   DDRD
 #define MIC_DATA_PORT  PORTD
-#define MIC_CLOCK_PIN  PD4
+#define MIC_CLOCK_PIN  PORTD4
 #define MIC_CLOCK_DDR  DDRD
 #define MIC_CLOCK_PORT PORTD
 
@@ -188,31 +189,31 @@
 
 #define TLC_DCPRG_DDR  DDRB
 #define TLC_DCPRG_PORT PORTB
-#define TLC_DCPRG_PIN  PB4
+#define TLC_DCPRG_PIN  PORTB4
 
 #define TLC_VPRG_DDR   DDRB
 #define TLC_VPRG_PORT  PORTB
-#define TLC_VPRG_PIN   PB0
+#define TLC_VPRG_PIN   PORTB0
 
 #define TLC_SCLK_DDR   DDRB
 #define TLC_SCLK_PORT  PORTB
-#define TLC_SCLK_PIN   PB5
+#define TLC_SCLK_PIN   PORTB5
 
 #define TLC_XLAT_DDR   DDRB
 #define TLC_XLAT_PORT  PORTB
-#define TLC_XLAT_PIN   PB1
+#define TLC_XLAT_PIN   PORTB1
 
 #define TLC_BLANK_DDR  DDRB
 #define TLC_BLANK_PORT PORTB
-#define TLC_BLANK_PIN  PB2
+#define TLC_BLANK_PIN  PORTB2
 
 #define TLC_SIN_DDR    DDRB
 #define TLC_SIN_PORT   PORTB
-#define TLC_SIN_PIN    PB3
+#define TLC_SIN_PIN    PORTB3
 
 #define TLC_GSCLK_DDR  DDRD
 #define TLC_GSCLK_PORT PORTD
-#define TLC_GSCLK_PIN  PD3
+#define TLC_GSCLK_PIN  PORTD3
 
 #define TLC_GSCLK_OC   COM2B0
 
@@ -222,23 +223,23 @@
 #define LED_ROW_4      6
 #define LED_ROW_5      5
 
-#define LED_ROW_1_PIN      PD2
+#define LED_ROW_1_PIN      PORTD2
 #define LED_ROW_1_PORT     PORTD
 #define LED_ROW_1_DDR      DDRD
 
-#define LED_ROW_2_PIN      PD7
+#define LED_ROW_2_PIN      PORTD7
 #define LED_ROW_2_PORT     PORTD
 #define LED_ROW_2_DDR      DDRD
 
-#define LED_ROW_3_PIN      PD6
+#define LED_ROW_3_PIN      PORTD6
 #define LED_ROW_3_PORT     PORTD
 #define LED_ROW_3_DDR      DDRD
 
-#define LED_ROW_4_PIN      PD5
+#define LED_ROW_4_PIN      PORTD5
 #define LED_ROW_4_PORT     PORTD
 #define LED_ROW_4_DDR      DDRD
 
-#define LED_ROW_5_PIN      PD4
+#define LED_ROW_5_PIN      PORTD4
 #define LED_ROW_5_PORT     PORTD
 #define LED_ROW_5_DDR      DDRD
 
