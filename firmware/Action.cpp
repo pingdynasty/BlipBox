@@ -1,7 +1,10 @@
 #include "Action.h"
-#include "ControlVoltageAction.h"
 #include "serial.h"
+#include "defs.h"
 #include "macros.h"
+#ifdef BLIPBOX_CV4
+#include "ControlVoltageAction.h"
+#endif /* BLIPBOX_CV4 */
 #include <stddef.h>
 
 int16_t AbstractAction::constrain(int16_t value){
@@ -32,9 +35,11 @@ void MidiAction::sendMessage(int8_t data){
 Action* Action::createAction(uint8_t type){
   Action* action = NULL;
   switch(type & MIDI_STATUS_MASK){
+#ifdef BLIPBOX_CV4
   case CONTROL_VOLTAGE_ACTION_TYPE:
     action = new ControlVoltageAction();
     break;
+#endif /* BLIPBOX_CV4 */
   case MIDI_AFTERTOUCH:
   case MIDI_CONTROL_CHANGE:
     action = new MidiControllerAction();

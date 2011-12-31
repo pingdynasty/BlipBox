@@ -6,9 +6,13 @@
 #include "globals.h"
 #include "BlipBox.h"
 #include "Parameters.h"
+#include "PresetChooser.h"
 #include "SerialProtocol.h"
 #include "MidiSerialReader.h"
 #include "SerialProtocolReader.h"
+#ifdef BLIPBOX_CV4
+#include "spi.h"
+#endif /* BLIPBOX_CV4 */
 
 void setup() {
   blipbox.config.init();
@@ -21,6 +25,20 @@ void loop() {
   blipbox.loop();
 }
 
+void BlipBox::init() {
+  cli(); // disable interrupts
+  receiver = new SerialProtocolReader();
+  eventhandler = new DefaultEventHandler();
+  animator = NULL;
+  keys.init();
+  leds.init();
+#ifdef BLIPBOX_CV4
+  spi_init();
+#endif /* BLIPBOX_CV4 */
+  sei(); // enable interrupts
+  loadPreset(config.preset);
+}
+
 void BlipBox::loop() {
   if(millis() - previousMillis > SERIAL_WRITE_INTERVAL){
     keys.keyscan(); // triggers eventhandler
@@ -30,21 +48,6 @@ void BlipBox::loop() {
     if(animator != NULL)
       animator->tick(counter);
   }
-}
-
-void BlipBox::init() {
-  cli(); // disable interrupts
-  receiver = new SerialProtocolReader();
-  eventhandler = new DefaultEventHandler();
-  animator = NULL;
-  keys.init();
-  leds.init();
-#ifdef CV_DAC_HACK
-//   spi_init();
-//   midizones.init();
-#endif
-  sei(); // enable interrupts
-  loadPreset(config.preset);
 }
 
 void BlipBox::setSerialReader(SerialReader* handler){
@@ -125,6 +128,26 @@ void BlipBox::sendPreset(){
     }
   }
 }
+
+#ifdef BLIPBOX_CV4
+uint16_t BlipBox::getControlVoltage(uint8_t channel){
+  return controlvoltages[channel];
+}
+void BlipBox::setControlVoltage(uint8_t channel, uint16_t value){
+  if(controlvoltages[channel] != value){
+    controlvoltages[channel] = value;
+    // send value to dac
+    // first bit of channel is 0 for channels 0 and 2, 1 for channels 1 and 3
+    spi_cs(channel & 0x01); 
+    uint8_t flags = DAC_SHDN_BIT;
+    // second bit of channel is 0 for channels 0 and 1, 1 for channels 2 and 3
+    if(channel & 0x02)
+      flags |= DAC_A_B_BIT;
+    spi_send(flags | ((value >> 8) & 0x0f));
+    spi_send(value & 0xff);
+  }
+}
+#endif /* BLIPBOX_CV4 */
 
 // Interrupt routines
 

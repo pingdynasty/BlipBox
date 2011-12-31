@@ -2,7 +2,6 @@
 #define _BLIPBOX_H_
 
 #include "EventHandler.h"
-#include "PresetChooser.h"
 #include "LedController.h"
 #include "DisplayManager.h"
 #include "KeyController.h"
@@ -10,11 +9,7 @@
 #include "Configuration.h"
 #include "SerialReader.h"
 #include "Preset.h"
-
-// #define nullptr NULL
-// #define noexcept
-// #define jassert(expression)      {}
-// #include "juce_ScopedPointer.h"
+#include "defs.h"
 
 // error codes
 // the code corresponds to the number of blinks emmitted to signal the error
@@ -27,15 +22,17 @@ void loop();
 
 class BlipBox {
 public:
+#ifdef BLIPBOX_CV4
+  uint16_t getControlVoltage(uint8_t value);
+  void setControlVoltage(uint8_t channel, uint16_t value);
+  uint16_t controlvoltages[4];
+#endif /* BLIPBOX_CV4 */
   LedController leds;
   DisplayManager display;
   KeyController keys;
   SignalAnimator signal;
   Configuration config;
   Preset preset;
-//   ScopedPointer<SerialReader> receiver;
-//   ScopedPointer<EventHandler> eventhandler;
-//   ScopedPointer<Animator> animator;
   SerialReader* receiver;
   EventHandler* eventhandler;
   Animator* animator;
@@ -53,7 +50,7 @@ public:
   void loadPreset(uint8_t preset);
   void loop();
 private:
-  unsigned long previousMillis;        // will store last time write was done
+  unsigned long previousMillis;        // will store last time loop was done
   uint16_t counter;
 };
 

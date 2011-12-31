@@ -5,13 +5,10 @@
 
 class ControlVoltageAction : public AbstractAction {
   uint8_t cc;
-  int16_t data;
 public:
   ControlVoltageAction();
   void on(float f);
-  float getValue(){ 
-    return scaleToFloat((int16_t)(data << 2));
-  }
+  float getValue();
   uint8_t read(const uint8_t* data){
     cc = data[6];
     return AbstractAction::read(data)+1;

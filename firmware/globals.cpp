@@ -4,10 +4,6 @@
 
 BlipBox blipbox;
 
-#ifndef __AVR_ATmega168__
-#error "__AVR_ATmega168__ not defined!"
-#endif
-
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
@@ -17,7 +13,7 @@ BlipBox blipbox;
 
 volatile unsigned long timer0_overflow_count;
 
-SIGNAL(SIG_OVERFLOW0){
+ISR(TIMER0_OVF_vect){
   timer0_overflow_count++;
 }
 
