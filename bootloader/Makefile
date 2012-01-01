@@ -16,12 +16,15 @@
 # make ng_isp
 # etc...
 
+INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java/
+AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
+
 # program name should not be changed...
 PROGRAM    = ATmegaBOOT_168
 
 # enter the parameters for the avrdude isp tool
 ISPTOOL	   = stk500v2
-ISPPORT	   = usb
+ISPPORT	   = /dev/tty.usbserial-A9003Tc5
 ISPSPEED   = -b 115200
 
 MCU_TARGET = atmega168
@@ -38,7 +41,7 @@ LDSECTION  = --section-start=.text=0x3800
 # unused, avrdude would get confused.
 
 ISPFUSES    = avrdude -c $(ISPTOOL) -p $(MCU_TARGET) -P $(ISPPORT) $(ISPSPEED) \
--e -u -U lock:w:0x3f:m -U efuse:w:0x$(EFUSE):m -U hfuse:w:0x$(HFUSE):m -U lfuse:w:0x$(LFUSE):m
+-e -u -U lock:w:0x3f:m -U efuse:w:0x$(EFUSE):m -U hfuse:w:0x$(HFUSE):m -U lfuse:w:0x$(LFUSE):m 
 ISPFLASH    = avrdude -c $(ISPTOOL) -p $(MCU_TARGET) -P $(ISPPORT) $(ISPSPEED) \
 -U flash:w:$(PROGRAM)_$(TARGET).hex -U lock:w:0x0f:m
 
@@ -54,7 +57,7 @@ OPTIMIZE   = -O2
 DEFS       = 
 LIBS       =
 
-CC         = avr-gcc
+CC         = $(AVR_TOOLS_PATH)/avr-gcc
 
 # Override is only needed by avr-lib build system.
 
@@ -62,8 +65,8 @@ override CFLAGS        = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) -DF_CPU=$(AVR_
 override LDFLAGS       = -Wl,$(LDSECTION)
 #override LDFLAGS       = -Wl,-Map,$(PROGRAM).map,$(LDSECTION)
 
-OBJCOPY        = avr-objcopy
-OBJDUMP        = avr-objdump
+OBJCOPY        = $(AVR_TOOLS_PATH)/avr-objcopy
+OBJDUMP        = $(AVR_TOOLS_PATH)/avr-objdump
 
 all:
 
