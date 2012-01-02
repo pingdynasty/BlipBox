@@ -3,6 +3,9 @@
 #include "globals.h"
 #include "serial.h"
 
+int8_t getControlValue(uint8_t index);
+void setControlValue(uint8_t index, int8_t value);
+
 bool MidiZone::doDrag(){
   return !(_type & BUTTON_SLIDER_ZONE_BIT);
 }
@@ -19,7 +22,7 @@ bool MidiZone::doRelease(){
 bool MidiZone::doTick(){
   return (_type & DISPLAY_TYPE_MASK) != NO_DISPLAY_TYPE &&
     _from_column != _to_column && _from_row != _to_row &&
-    _data2 != -1;
+    getControlValue(_data2) != -1;
 }
 
 float MidiZone::scale(Position& pos){
@@ -44,27 +47,27 @@ uint16_t MidiZone::scale14(Position& pos) {
 void MidiZone::drag(Position& pos){
   // only called by slider zones
   uint8_t data = scale7(pos);
-  if(data != _data2){
-    _data2 = data;
-    sendMessage(_data1, _data2);
+  if(data != getControlValue(_data2)){
+    setControlValue(_data2, data);
+    sendMessage(_data1, getControlValue(_data2));
   }
 }
 
 void MidiZone::press(Position& pos){
   // only called by button zones
   if(_type & MOMENTARY_TOGGLE_ZONE_BIT){
-    _data2 = _max;
-    sendMessage(_data1, _data2);
+    setControlValue(_data2, _max);
+    sendMessage(_data1, getControlValue(_data2));
   }else{
-    _data2 = _data2 == _min ? _max : _min;
-    sendMessage(_data1, _data2);
+    setControlValue(_data2, getControlValue(_data2) == _min ? _max : _min);
+    sendMessage(_data1, getControlValue(_data2));
   }
 }
 
 void MidiZone::release(Position& pos){
   // only called by momentary button zones
-  _data2 = _min;
-  sendMessage(_data1, _data2);
+  setControlValue(_data2, _min);
+  sendMessage(_data1, getControlValue(_data2));
 }
 
 void MidiZone::sendMessage(uint8_t data1, uint8_t data2){
@@ -80,8 +83,8 @@ class PitchBendZone : public MidiZone {
     uint16_t data = scale14(pos);
     if(((uint8_t)data & 0x7f) != _data1){
       _data1 = data & 0x7f; // LSB 
-      _data2 = (data>>7) & 0x7f; // MSB
-      sendMessage(_data1, _data2);
+      setControlValue(_data2, (data>>7) & 0x7f); // MSB
+      sendMessage(_data1, getControlValue(_data2));
     }
   }
 };
@@ -90,9 +93,9 @@ class NRPNZone : public MidiZone {
   // _data1 is used to store parameter LSB
   void drag(Position& pos){
     uint16_t data = scale14(pos);
-    if((((data>>7) & 0x7f)) != _data2){ // comparing MSB only
-      _data2 = (data>>7) & 0x7f; // MSB
-      sendMessage(_data2, 0);
+    if((((data>>7) & 0x7f)) != getControlValue(_data2)){ // comparing MSB only
+      setControlValue(_data2, (data>>7) & 0x7f); // MSB
+      sendMessage(getControlValue(_data2), 0);
 //       sendMessage(_data2, data & 0x7f);
     }
   }
@@ -105,17 +108,17 @@ class NRPNZone : public MidiZone {
   }
   void press(Position& pos){
     if(_type & MOMENTARY_TOGGLE_ZONE_BIT){
-      _data2 = _max;
-      sendMessage(_data2, 0);
+      setControlValue(_data2, _max);
+      sendMessage(getControlValue(_data2), 0);
     }else{
-      _data2 = _data2 == _min ? _max : _min;
-      sendMessage(_data2, 0);
+      setControlValue(_data2, getControlValue(_data2) == _min ? _max : _min);
+      sendMessage(getControlValue(_data2), 0);
     }
   }
   void release(Position& pos){
     if((_type & MOMENTARY_TOGGLE_ZONE_BIT)){
-      _data2 = _min;
-      sendMessage(_data2, _min);
+      setControlValue(_data2, _min);
+      sendMessage(getControlValue(_data2), _min);
     }
   }
 };
@@ -157,22 +160,22 @@ class NoteZone : public MidiZone {
   void release(Position& pos){
     if(_type & BUTTON_SLIDER_ZONE_BIT){
       if((_type & MOMENTARY_TOGGLE_ZONE_BIT) && _data1 != 0){
-	_data2 = 0;
+	setControlValue(_data2, 0);
 	sendMessage(_data1, 0);
       }
-    }else if(_data2 != -1){
-      sendMessage(_data2, 0);
-      _data2 = -1;
+    }else if(getControlValue(_data2) != -1){
+      sendMessage(getControlValue(_data2), 0);
+      setControlValue(_data2, -1);
     }
   }
   void drag(Position& pos){
     uint8_t data = scale7(pos);
-    if(data != _data2){
+    if(data != getControlValue(_data2)){
       // turn previous note off
-      if(_data2 != -1)
-	sendMessage(_data2, 0);
-      _data2 = data;
-      sendMessage(_data2, _data1);
+      if(getControlValue(_data2) != -1)
+	sendMessage(getControlValue(_data2), 0);
+      setControlValue(_data2, data);
+      sendMessage(getControlValue(_data2), _data1);
     }
   }
 };
@@ -192,8 +195,8 @@ class CV_DAC_HACK_Zone : public MidiZone {
     uint16_t data = scale14(pos);
     if(((uint8_t)data & 0x7f) != _data1){
       _data1 = data & 0x7f; // LSB 
-      _data2 = (data>>7) & 0x7f; // MSB
-      sendMessage(_data1, _data2);
+      setControlValue(_data2, (data>>7) & 0x7f); // MSB
+      sendMessage(_data1, getControlValue(_data2));
     }
   }
   void press(Position& pos){
@@ -233,7 +236,7 @@ void MidiZone::read(const uint8_t* data){
   _from_row    = data[5] & 0x0f;
   _to_column   = data[6] >> 4;
   _to_row      = data[6] & 0x0f;
-  _data2 = -1;
+  setControlValue(_data2, -1);
 
 #ifdef CV_DAC_HACK
   new(this)CV_DAC_HACK_Zone();
@@ -243,7 +246,7 @@ void MidiZone::read(const uint8_t* data){
   switch(_type & ZONE_TYPE_MASK){
   case SELECTOR_ZONE_TYPE:
     new(this)SelectorZone();
-    _data2 = blipbox.midizones.preset == _data1 ? _max : _min;
+    setControlValue(_data2, blipbox.midizones.preset == _data1 ? _max : _min);
     break;
   case NRPN_ZONE_TYPE:
     new(this)NRPNZone();
@@ -303,7 +306,7 @@ uint8_t MidiZone::getx(){
 //   if(_data2 < _min || _max == _min)
 //     return _min;
 //   uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
-  uint8_t d = _data2;
+  uint8_t d = getControlValue(_data2);
   d = (d-_min)*(_to_column-_from_column)/(_max-_min)+_from_column;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_column-d-1;
@@ -314,7 +317,7 @@ uint8_t MidiZone::gety(){
 //   if(_data2 < _min || _max == _min)
 //     return _min;
 //   uint8_t d = _data2 > _min ? _data2 : _min; // in case _data2 == -1
-  uint8_t d = _data2;
+  uint8_t d = getControlValue(_data2);
   d = (d-_min)*(_to_row-_from_row)/(_max-_min)+_from_row;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_row-d-1;
@@ -364,7 +367,7 @@ void MidiZone::tick(){
 	  ty = gety()+1;
       }
       blipbox.display.fill(fx, fy, tx, ty, brightness);
-    }else if(_data2 != _min){
+    }else if(getControlValue(_data2) != _min){
       blipbox.display.fill(_from_column, _from_row, _to_column, _to_row, brightness);
     }
     break;
