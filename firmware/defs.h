@@ -6,7 +6,7 @@
 /* #define BLIPBOX_P4 */
 /* #define MONOTAR_P1 */
 
-/* #define BLIPBOX_CV4 */
+#define BLIPBOX_CV4
 
 #define BLIPBOX_VERSION_ID 2
 
