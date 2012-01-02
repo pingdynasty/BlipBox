@@ -4,6 +4,9 @@ import java.io.IOException;
 import processing.core.*;
 import org.blipbox.*;
 
+import processing.core.*;
+import java.awt.*;
+
 public class ProcessingBlipBox extends BlipBox {
 
     private PApplet parent;
@@ -45,4 +48,17 @@ public class ProcessingBlipBox extends BlipBox {
     public void dispose() {
         closeSerialPort();
     }
+
+    public Frame createSimulator(){
+	PApplet embedded = new BlipSim(this);
+	Frame frame = new Frame("BlipBox Sim");
+	frame.setLayout(new BorderLayout());
+	frame.setResizable(true);
+	frame.add(embedded, BorderLayout.CENTER);
+	frame.setSize(600, 400);
+	embedded.init();
+	frame.show();
+	return frame;
+    }
+
 }

@@ -21,7 +21,7 @@ public class BlipBoxDataReceiver extends SerialDataHandler {
     private static final int SENSOR_VALUE_MASK  = 0x3;
 //     private static final int SENSOR_FILTER_MASK = 0x03fe; // cut off last bit
     private static final int SENSOR_FILTER_MASK = 0x03ff; // 10 bit value
-    private static final int MAX_SENSOR_VALUE = 1023;
+    public static final int MAX_SENSOR_VALUE = 1023;
 
     private int[] data = new int[3]; // length of longest message: 3 bytes
     private List<BlipBoxInput> inputhandlers = new ArrayList<BlipBoxInput>();

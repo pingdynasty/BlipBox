@@ -18,28 +18,14 @@ public class BlipSim extends PApplet {
     int lastx = -1;
     int lasty = -1;
     int brightness = 0xff;
-    int ratiox, ratioy;
     boolean draw = false;
 
     public BlipSim(ProcessingBlipBox blipbox){
 	this.blipbox = blipbox;
     }
 
-    public static Frame createSimulator(ProcessingBlipBox blipbox){
-	PApplet embedded = new BlipSim(blipbox);
-	Frame frame = new Frame("BlipBox Sim");
-	frame.setLayout(new BorderLayout());
-	frame.setResizable(true);
-	frame.add(embedded, BorderLayout.CENTER);
-	embedded.init();
-	frame.show();
-	return frame;
-    }
-
     public void setup() {
-	size(800, 640);
-	ratiox = width/9;
-	ratioy = height/7;
+	size(600, 400);
     }
 
     public void mousePressed(){
@@ -47,11 +33,13 @@ public class BlipSim extends PApplet {
     }
 
     private static final double MAX_SENSOR_VALUE = 1023.0;
-
     public void mouseDragged(){
-//         BlipSensor sensor = blipbox.getBlipSensor(SensorType.X_SENSOR);
-	double bx = mouseX * MAX_SENSOR_VALUE / width;
+// 	double bx =  (mouseX - width*0.1) * MAX_SENSOR_VALUE / (width*0.8);
+// 	double by = MAX_SENSOR_VALUE - (mouseY - height*0.1) * MAX_SENSOR_VALUE / (height*0.8);
+	double bx =  mouseX * MAX_SENSOR_VALUE / width;
 	double by = MAX_SENSOR_VALUE - mouseY * MAX_SENSOR_VALUE / height;
+	bx = Math.min(MAX_SENSOR_VALUE, Math.max(0, bx));
+	by = Math.min(MAX_SENSOR_VALUE, Math.max(0, by));
 	blipbox.simulateTouch((int)bx, (int)by);
     }
 
@@ -59,12 +47,13 @@ public class BlipSim extends PApplet {
 	blipbox.simulateRelease();
     }
 
-
-    public void draw() {
-	background(0xff);
+    public void draw(){
+	background(0x00);
 	fill(0x0);
-	rect(0, 0, width, height);
 	stroke(126);
+	double ratiox = (width*0.88)/9;
+	double ratioy = (height*0.88)/7;
+	int radius = (int)(Math.min(ratiox, ratioy)*0.8);
 	if(blipbox.isScreenPressed()){
 	    line(blipbox.getX(0, width), 0, 
 		 blipbox.getX(0, width), height);
@@ -72,13 +61,13 @@ public class BlipSim extends PApplet {
 		 width-20, blipbox.getY(height, 0));
 	}
 	pushMatrix();
-	translate(40, 40);
+	translate((int)ratiox/2, (int)ratioy/2);
 	for(int x=0; x<10; ++x){
 	    for(int y=0; y<8; ++y){
 		fill(204, 102, 0, 127);
-		ellipse(x*ratiox, y*ratioy, 22, 22);
+		ellipse((int)(x*ratiox), (int)(y*ratioy), radius+2, radius+2);
 		fill(blipbox.getLed(x, 7-y), 0, 0);
-		ellipse(x*ratiox, y*ratioy, 20, 20);
+		ellipse((int)(x*ratiox), (int)(y*ratioy), radius, radius);
 	    }
 	}
 	popMatrix();

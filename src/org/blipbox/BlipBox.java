@@ -108,6 +108,9 @@ public class BlipBox extends BlipBoxDataSender
 
     public void sendCommand(Command cmd){
         switch(cmd){
+        case TOGGLE:
+	    toggle();
+	    break;
         case FADE:
             fade();
             break;
@@ -117,6 +120,12 @@ public class BlipBox extends BlipBoxDataSender
         default:
             super.sendCommand(cmd);
         }
+    }
+
+    public void toggle(){
+        super.sendCommand(Command.TOGGLE);
+        for(int i=0; i<leds.length; ++i)
+            leds[i] ^= 0xff;
     }
 
     public void fade(int levels){
@@ -311,6 +320,24 @@ public class BlipBox extends BlipBoxDataSender
 
     public int getZ(int min, int max){
         return getSensorValue(SensorType.Z_SENSOR, min, max);
+    }
+
+    public void simulateTouch(int sx, int sy){
+        BlipSensor sensor = getBlipSensor(SensorType.X_SENSOR);
+        sensor.setValue(sx);
+        receiver.sensorChange(sensor);
+        sensor = getBlipSensor(SensorType.Y_SENSOR);
+        sensor.setValue(sy);
+        receiver.sensorChange(sensor);
+        sensor = getBlipSensor(SensorType.Z_SENSOR);
+        sensor.setValue(receiver.MAX_SENSOR_VALUE);
+        receiver.sensorChange(sensor);
+    }
+
+    public void simulateRelease(){
+	BlipSensor sensor = getBlipSensor(SensorType.Z_SENSOR);
+	sensor.setValue(0);
+	receiver.sensorChange(sensor);
     }
 
 //     public boolean isButtonPressed(int buttonIndex){
