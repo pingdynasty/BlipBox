@@ -5,7 +5,9 @@
 #include <inttypes.h>
 #include "BlipBox.h"
 
+#ifndef _BV
 #define _BV(bit) (1 << (bit))
+#endif
 
 void init(void);
 unsigned long millis(void);
