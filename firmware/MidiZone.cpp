@@ -302,6 +302,13 @@ void MidiZone::load(uint8_t* address){
   read(buf);
 }
 
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
 uint8_t MidiZone::getx(){
 //   if(_data2 < _min || _max == _min)
 //     return _min;
@@ -310,7 +317,7 @@ uint8_t MidiZone::getx(){
   d = (d-_min)*(_to_column-_from_column)/(_max-_min)+_from_column;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_column-d-1;
-  return d;
+  return min(max(d, _from_column), _to_column-1);
 }
 
 uint8_t MidiZone::gety(){
@@ -321,7 +328,7 @@ uint8_t MidiZone::gety(){
   d = (d-_min)*(_to_row-_from_row)/(_max-_min)+_from_row;
   if(_type & INVERTED_ZONE_BIT)
     d = _to_row-d-1;
-  return d;
+  return min(max(d, _from_row), _to_row-1);
 }
 
 void MidiZone::tick(){
