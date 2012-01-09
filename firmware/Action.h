@@ -34,10 +34,10 @@ public:
   uint8_t maximum;
   AbstractAction(uint8_t astatus) :
     status(astatus), minimum(0), maximum(128) {}
-  float scaleToFloat(int8_t value){
+  float scaleFrom7(int8_t value){
     return ((float)value-minimum)/(maximum-minimum);
   }
-  float scaleToFloat(int16_t value){
+  float scaleFrom14(int16_t value){
     return ((float)value-minimum*0x7f)/((maximum-minimum)*0x7f);
   }
   int16_t constrain(int16_t value);
@@ -115,7 +115,7 @@ public:
     }
   }
   float getValue(){
-    return scaleToFloat(data2);
+    return scaleFrom7(data2);
   }
   void handle(MidiEvent& event){
     if(event.getType() == status && event.getData1() == data1)
@@ -143,7 +143,7 @@ public:
     }
   }
   float getValue(){
-    return pitch == -1 ? 0 : scaleToFloat(pitch);
+    return pitch == -1 ? 0 : scaleFrom7(pitch);
   }
   void handle(MidiEvent& event){
     if(event.getChannel() == getChannel()){
@@ -172,7 +172,7 @@ public:
     }
   }
   float getValue(){
-    return scaleToFloat(data);
+    return scaleFrom14(data);
   }
   void handle(MidiEvent& event){
     if(event.getType() == status)
@@ -192,7 +192,7 @@ public:
     }
   }
   float getValue(){
-    return scaleToFloat(data);
+    return scaleFrom7(data);
   }
 };
 

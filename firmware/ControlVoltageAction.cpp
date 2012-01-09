@@ -12,7 +12,7 @@ ControlVoltageAction::ControlVoltageAction()
 // 3	1   1
 
 float ControlVoltageAction::getValue(){ 
-  return scaleToFloat((int16_t)(blipbox.getControlVoltage(getChannel())) << 2);
+  return scaleFrom14(blipbox.getControlVoltage(getChannel()) << 2);
 }
 
 void ControlVoltageAction::on(float f){
