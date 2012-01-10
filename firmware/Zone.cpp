@@ -12,9 +12,6 @@ Zone::Zone() {}
 
 class MomentaryButtonZone : public Zone {
 public:
-//   uint8_t getType(){
-//     return MOMENTARY_BUTTON_ZONE_TYPE;
-//   }
   void handle(TouchEvent& event){
     if(event.isPress())
       action->on(MAX_DATA_VALUE);
@@ -40,9 +37,6 @@ public:
 
 class ToggleButtonZone : public MomentaryButtonZone {
 public:
-//   uint8_t getType(){
-//     return TOGGLE_BUTTON_ZONE_TYPE;
-//   }
   virtual void handle(TouchEvent& event){
     if(event.isPress()){
       if(action->getValue() != MIN_DATA_VALUE)
@@ -68,9 +62,6 @@ public:
 
 class HorizontalSliderZone : public SliderZone {
 public:
-//   uint8_t getType(){
-//     return HORIZONTAL_SLIDER_ZONE_TYPE;
-//   }
   float scaleToFloat(Position* pos){
     return ((pos->x/SENSOR_RANGE-(from.getColumn()/COLUMN_RANGE))/
 	    ((to.getColumn()-from.getColumn())/COLUMN_RANGE));
@@ -87,9 +78,6 @@ public:
 
 class VerticalSliderZone : public SliderZone {
 public:
-//   uint8_t getType(){
-//     return VERTICAL_SLIDER_ZONE_TYPE;
-//   }
   float scaleToFloat(Position* pos){
     return ((pos->y/SENSOR_RANGE-(from.getRow()/ROW_RANGE))/
 	    ((to.getRow()-from.getRow())/ROW_RANGE));
@@ -105,7 +93,7 @@ public:
 };
 
 uint8_t Zone::write(uint8_t* data){
-  data[0] = getType();
+  data[0] = type;
   data[1] = from.getValue();
   data[2] = to.getValue();
   if(action == NULL)
@@ -116,7 +104,7 @@ uint8_t Zone::write(uint8_t* data){
 // see http://en.wikipedia.org/wiki/Placement_syntax
 void * operator new (size_t, void * p); // defined in operators.cpp
 
-void Zone::setType(uint8_t value){
+void Zone::setZoneType(uint8_t value){
   type = (ZONE_TYPE_MASK & value) | (DISPLAY_TYPE_MASK & type);
   switch(type & ZONE_TYPE_MASK){
   case HORIZONTAL_SLIDER_ZONE_TYPE:
@@ -137,7 +125,8 @@ void Zone::setType(uint8_t value){
 }
 
 uint8_t Zone::read(const uint8_t* data){
-  setType(data[0]);
+  setZoneType(data[0]);
+//   setDisplayType(data[0]);
   from.setValue(data[1]);
   to.setValue(data[2]);
   delete action;

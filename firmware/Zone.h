@@ -12,6 +12,7 @@
 #define FILL_DISPLAY_TYPE           0x01
 #define LINE_DISPLAY_TYPE           0x02
 
+#define DISABLED_ZONE_TYPE          0x00
 #define HORIZONTAL_SLIDER_ZONE_TYPE 0x10
 #define VERTICAL_SLIDER_ZONE_TYPE   0x30
 #define MOMENTARY_BUTTON_ZONE_TYPE  0x20
@@ -30,14 +31,14 @@ public:
   bool match(Position* pos){
     return *pos < to && from <= *pos;
   }
-  void setType(uint8_t type);
+  void setZoneType(uint8_t type);
   uint8_t getDisplayType(){
     return type & DISPLAY_TYPE_MASK;
   }
   void setDisplayType(uint8_t value){
     type = (ZONE_TYPE_MASK & type) | (DISPLAY_TYPE_MASK & value);
   }
-  uint8_t getType() { return type; }
+  uint8_t getZoneType() { return ZONE_TYPE_MASK & type; }
   virtual void handle(TouchEvent& event){}
   virtual void line(){}
   virtual void fill(){}
