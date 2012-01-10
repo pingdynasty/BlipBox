@@ -1,4 +1,5 @@
 #include "Action.h"
+#include "globals.h"
 #include "serial.h"
 #include "defs.h"
 #include "macros.h"
@@ -6,6 +7,15 @@
 #include "ControlVoltageAction.h"
 #endif /* BLIPBOX_CV4 */
 #include <stddef.h>
+
+void SelectPresetAction::on(float data){
+  if(data == 1.0f)
+    blipbox.loadPreset(getPresetIndex());
+}
+
+float SelectPresetAction::getValue() { 
+  return getPresetIndex() == blipbox.getPresetIndex() ? 1.0f : 0.0f;
+}
 
 int16_t AbstractAction::constrain(int16_t value){
   return min(max(value, minimum*0x7f), maximum*0x7f);
@@ -40,6 +50,9 @@ Action* Action::createAction(uint8_t type){
     action = new ControlVoltageAction();
     break;
 #endif /* BLIPBOX_CV4 */
+  case SELECT_PRESET_ACTION_TYPE:
+    action = new SelectPresetAction();
+    break;
   case MIDI_AFTERTOUCH:
   case MIDI_CONTROL_CHANGE:
     action = new MidiControllerAction();

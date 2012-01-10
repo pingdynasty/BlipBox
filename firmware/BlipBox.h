@@ -48,6 +48,7 @@ public:
   void setEditMode(bool edit);
   void setMidiMode(bool midi);
   void loadPreset(uint8_t preset);
+  uint8_t getPresetIndex();
   void loop();
 private:
   unsigned long previousMillis;        // will store last time loop was done

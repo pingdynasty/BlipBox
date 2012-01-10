@@ -99,6 +99,10 @@ void BlipBox::message(MessageType code){
   signal.setSignal(code);
 }
 
+uint8_t BlipBox::getPresetIndex(){
+  return config.preset;
+}
+
 void BlipBox::loadPreset(uint8_t index){
   config.preset = index;
   preset.load(index);

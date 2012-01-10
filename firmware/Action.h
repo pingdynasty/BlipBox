@@ -77,6 +77,32 @@ public:
   }
 };
 
+class SelectPresetAction : public Action {
+private:
+  uint8_t status;
+public:
+  SelectPresetAction() : status(SELECT_PRESET_ACTION_TYPE) {}
+  void on(float data);
+  float getValue();
+  uint8_t getType() { 
+    return status & MIDI_STATUS_MASK; 
+  }
+  uint8_t getPresetIndex(){
+    return (status & MIDI_CHANNEL_MASK);
+  }
+  void setPresetIndex(uint8_t value){
+    status = (status & MIDI_STATUS_MASK) | (value & MIDI_CHANNEL_MASK);
+  }
+  uint8_t read(const uint8_t* data){
+    status  = data[3];
+    return 1;
+  }
+  uint8_t write(uint8_t* data){
+    data[3] = status;
+    return 1;
+  }
+};
+
 class MidiAction : public AbstractAction {
 public:
   MidiAction(uint8_t status) :

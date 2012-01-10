@@ -66,12 +66,18 @@ public:
     return ((pos->x/SENSOR_RANGE-(from.getColumn()/COLUMN_RANGE))/
 	    ((to.getColumn()-from.getColumn())/COLUMN_RANGE));
   }
+  uint8_t getColumn(){
+    uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn();
+    return min(max(col, from.getColumn()), to.getColumn()-1);
+  }
   void fill(){
-    uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn()+1;
+    uint8_t col = getColumn() + 1;
+    // it's a bit wierd that the fill range does excludes end point,
+    // while line is inclusive
     blipbox.display.fill(from.getColumn(), from.getRow(), col, to.getRow(), blipbox.config.brightness);
   }
   void line(){
-    uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn();
+    uint8_t col = getColumn();
     blipbox.display.line(col, from.getRow(), col, to.getRow()-1, blipbox.config.brightness);
   }
 };
@@ -82,12 +88,16 @@ public:
     return ((pos->y/SENSOR_RANGE-(from.getRow()/ROW_RANGE))/
 	    ((to.getRow()-from.getRow())/ROW_RANGE));
   }
+  uint8_t getRow(){
+    uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow();
+    return min(max(row, from.getRow()), to.getRow()-1);
+  }
   void fill(){
-    uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow()+1;
+    uint8_t row = getRow() + 1;
     blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row, blipbox.config.brightness);
   }
   void line(){
-    uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow();
+    uint8_t row = getRow();
     blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, blipbox.config.brightness);
   }
 };

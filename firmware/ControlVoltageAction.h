@@ -4,9 +4,9 @@
 #include "Action.h"
 
 class ControlVoltageAction : public AbstractAction {
-  uint8_t cc;
 public:
   ControlVoltageAction();
+  uint8_t cc;
   void on(float f);
   float getValue();
   uint8_t read(const uint8_t* data){
