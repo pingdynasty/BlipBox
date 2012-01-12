@@ -134,6 +134,12 @@ void BlipBox::sendPreset(){
 }
 
 #ifdef BLIPBOX_CV4
+// control voltages are 12 bit integers, channel is 0-3
+// ch	cs  ab
+// 0	0   0
+// 1	1   0
+// 2	0   1
+// 3	1   1
 uint16_t BlipBox::getControlVoltage(uint8_t channel){
   return controlvoltages[channel];
 }

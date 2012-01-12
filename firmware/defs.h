@@ -2,13 +2,12 @@
 #define _DEFS_H_
 
 #define BLIPBOX_V9
+#define BLIPBOX_CV4
+#define BLIPBOX_VERSION_ID 2
+
 /* #define BLIPBOX_V6 */
 /* #define BLIPBOX_P4 */
 /* #define MONOTAR_P1 */
-
-#define BLIPBOX_CV4
-
-#define BLIPBOX_VERSION_ID 2
 
 #define MIDI_SERIAL_SPEED 31250L
 /* #define MIDI_SERIAL_SPEED 57600L */

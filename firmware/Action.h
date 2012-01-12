@@ -12,7 +12,8 @@
 #define NO_ACTION_TYPE                 0x00
 #define SELECT_PRESET_ACTION_TYPE      0x10 // preset number in lower half
 #define MIDI_NRPN_ACTION_TYPE          0x20 // 
-#define CONTROL_VOLTAGE_ACTION_TYPE    0x30 // cv channel in lower half
+#define MIDI_NOTE_RANGE_ACTION_TYPE    0x30 // 
+#define CONTROL_VOLTAGE_ACTION_TYPE    0x70 // cv channel in lower half
 
 class Action {
 public:
@@ -20,19 +21,19 @@ public:
   virtual void on(float data){}
   virtual void off(){}
   virtual float getValue() { return MIN_DATA_VALUE; }
-  virtual uint8_t getType() { return NO_ACTION_TYPE; }
+  virtual uint8_t getActionType() { return NO_ACTION_TYPE; }
   virtual uint8_t read(const uint8_t* data) { return 0; }
   virtual uint8_t write(uint8_t* data) { return 0; }
   virtual void handle(MidiEvent& event) {}
   static Action* createAction(uint8_t type);
 };
 
-class AbstractAction : public Action {
+class MidiAction : public Action {
 public:
   uint8_t status;
   uint8_t minimum;
   uint8_t maximum;
-  AbstractAction(uint8_t astatus) :
+  MidiAction(uint8_t astatus) :
     status(astatus), minimum(0), maximum(128) {}
   float scaleFrom7(int8_t value){
     return ((float)value-minimum)/(maximum-minimum);
@@ -48,9 +49,6 @@ public:
   int16_t scaleTo14(float value){
     return (int16_t)(value*(maximum-minimum)*0x7f)+minimum*0x7f;
   }
-  uint8_t getType() { 
-    return status;
-  }
   void setStatus(uint8_t value){
     status = (value & MIDI_STATUS_MASK) | (status & MIDI_CHANNEL_MASK);
   }
@@ -63,18 +61,24 @@ public:
   uint8_t getChannel(){
     return (status & MIDI_CHANNEL_MASK);
   }
+  virtual uint8_t getActionType() { 
+    return (status & MIDI_STATUS_MASK);
+  }
   virtual uint8_t read(const uint8_t* data){
-    status  = data[3];
+    setChannel(data[3]);
     minimum = data[4];
     maximum = data[5];
     return 3;
   }
   virtual uint8_t write(uint8_t* data){
-    data[3] = status;
+    data[3] = getActionType() | getChannel();
     data[4] = minimum;
     data[5] = maximum;
     return 3;
   }
+  void sendMessage(uint8_t data1, int8_t data2);
+  void sendMessage(int16_t data);
+  void sendMessage(int8_t data);
 };
 
 class SelectPresetAction : public Action {
@@ -84,7 +88,7 @@ public:
   SelectPresetAction() : status(SELECT_PRESET_ACTION_TYPE) {}
   void on(float data);
   float getValue();
-  uint8_t getType() { 
+  uint8_t getActionType() { 
     return status & MIDI_STATUS_MASK; 
   }
   uint8_t getPresetIndex(){
@@ -103,15 +107,6 @@ public:
   }
 };
 
-class MidiAction : public AbstractAction {
-public:
-  MidiAction(uint8_t status) :
-    AbstractAction(status) {}
-  void sendMessage(uint8_t data1, int8_t data2);
-  void sendMessage(int16_t data);
-  void sendMessage(int8_t data);
-};
-
 class AbstractMidiAction : public MidiAction {
 public:
   uint8_t data1;
@@ -119,11 +114,11 @@ public:
     MidiAction(status), data1(d1) {}
   uint8_t read(const uint8_t* data){
     data1   = data[6];
-    return AbstractAction::read(data)+1;
+    return MidiAction::read(data)+1;
   }
   uint8_t write(uint8_t* data){
     data[6] = data1;
-    return AbstractAction::write(data)+1;
+    return MidiAction::write(data)+1;
   }
 };
 
@@ -145,14 +140,55 @@ public:
   }
   void handle(MidiEvent& event){
     if(event.getType() == status && event.getData1() == data1)
+      // value of MidiEvent.getType() contains both status and channel
       data2 = constrain((int8_t)event.getData2());
   }
 };
 
 class MidiNoteAction : public AbstractMidiAction {
+  // sends single notes of variable velocity
+public:
+  int8_t data2;
+  MidiNoteAction() : AbstractMidiAction(MIDI_NOTE_ON, 80), data2(0) {}
+  // data1 is sent as pitch
+  // data2 is sent as velocity
+  void off(){
+    if(data2)
+      sendMessage(data1, 0); // send note off    
+    data2 = 0;
+  }
+  void on(float data){
+    uint8_t value = scaleTo7(data);
+    if(data2 != value){
+//       off(); // send note off
+      data2 = value;
+//       if(data2)
+      sendMessage(data1, data2); // send note on
+    }
+  }
+  float getValue(){
+    return scaleFrom7(data2);
+  }
+  void handle(MidiEvent& event){
+    if(event.getChannel() == getChannel() && event.getData1() == data1){
+      if(event.isNoteOn()){
+	if(event.getData2() == 0){
+	  // same as note off
+	  data2 = 0;
+	}else{
+	  data2 = constrain((int8_t)event.getData2());
+	}
+      }else if(event.isNoteOff()){
+	data2 = 0;
+      }
+    }
+  }
+};
+
+class MidiNoteRangeAction : public AbstractMidiAction {
 public:
   int8_t pitch;
-  MidiNoteAction() : AbstractMidiAction(MIDI_NOTE_ON, 80), pitch(-1) {}
+  MidiNoteRangeAction() : AbstractMidiAction(MIDI_NOTE_ON, 80), pitch(-1) {}
   // pitch is sent as pitch
   // data1 is sent as velocity
   void off(){
@@ -184,6 +220,7 @@ public:
       }
     }
   }
+  uint8_t getActionType() { return MIDI_NOTE_RANGE_ACTION_TYPE; }
 };
 
 class MidiPitchBendAction : public MidiAction {

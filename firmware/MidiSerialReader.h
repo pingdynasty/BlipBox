@@ -1,6 +1,7 @@
 #ifndef _MIDISERIALREADER_H_
 #define _MIDISERIALREADER_H_
 
+#include "SerialReader.h"
 #include "MidiInterface.h"
 #include "MidiReader.h"
 

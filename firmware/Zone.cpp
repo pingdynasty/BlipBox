@@ -20,17 +20,20 @@ public:
   }
   void fill(){
     if(action->getValue() != MIN_DATA_VALUE){
+      uint8_t intensity = action->getValue() * blipbox.config.brightness;
       blipbox.display.fill(from.getColumn(), from.getRow(), 
-			   to.getColumn(), to.getRow(), blipbox.config.brightness);
+			   to.getColumn(), to.getRow(), intensity);
     }
   }
   void line(){
+    // a button in line mode is displayed as a diagonal line
+    uint8_t intensity = action->getValue() * blipbox.config.brightness;
     if(action->getValue() == MIN_DATA_VALUE){
       blipbox.display.line(from.getColumn(), from.getRow(),
-			   to.getColumn()-1, to.getRow()-1, blipbox.config.brightness);
+			   to.getColumn()-1, to.getRow()-1, blipbox.config.brightness / 2);
     }else{
       blipbox.display.line(from.getColumn(), to.getRow()-1,
-			   to.getColumn()-1, from.getRow(), blipbox.config.brightness);
+			   to.getColumn()-1, from.getRow(), intensity);
     }
   }
 };
@@ -72,13 +75,15 @@ public:
   }
   void fill(){
     uint8_t col = getColumn() + 1;
-    // it's a bit wierd that the fill range does excludes end point,
+    // it's a bit weird that the fill range does excludes end point,
     // while line is inclusive
-    blipbox.display.fill(from.getColumn(), from.getRow(), col, to.getRow(), blipbox.config.brightness);
+    uint8_t intensity = action->getValue() * blipbox.config.brightness;
+    blipbox.display.fill(from.getColumn(), from.getRow(), col, to.getRow(), intensity);
   }
   void line(){
     uint8_t col = getColumn();
-    blipbox.display.line(col, from.getRow(), col, to.getRow()-1, blipbox.config.brightness);
+    uint8_t intensity = action->getValue() * blipbox.config.brightness;
+    blipbox.display.line(col, from.getRow(), col, to.getRow()-1, intensity);
   }
 };
 
@@ -94,11 +99,13 @@ public:
   }
   void fill(){
     uint8_t row = getRow() + 1;
-    blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row, blipbox.config.brightness);
+    uint8_t intensity = action->getValue() * blipbox.config.brightness;
+    blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row, intensity);
   }
   void line(){
     uint8_t row = getRow();
-    blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, blipbox.config.brightness);
+    uint8_t intensity = action->getValue() * blipbox.config.brightness;
+    blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, intensity);
   }
 };
 

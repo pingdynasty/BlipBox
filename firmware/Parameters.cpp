@@ -2,9 +2,6 @@
 #include <inttypes.h>
 #include "Parameters.h"
 
-// void setControlVoltage(uint8_t cv, uint16_t value){
-// }
-
 void setParameter(uint8_t pid, uint16_t value){
   switch(pid){
   case SENSITIVITY_PARAMETER_ID:
@@ -35,18 +32,20 @@ void setParameter(uint8_t pid, uint16_t value){
   case Y_RANGE_PARAMETER_ID:
     blipbox.config.touchscreen_y_range = value;
     break;
-//   case CV1_PARAMETER_ID:
-//     setControlVoltage(0, value);
-//     break;
-//   case CV2_PARAMETER_ID:
-//     setControlVoltage(0, value);
-//     break;
-//   case CV3_PARAMETER_ID:
-//     setControlVoltage(0, value);
-//     break;
-//   case CV4_PARAMETER_ID:
-//     setControlVoltage(0, value);
-//     break;
+#ifdef BLIPBOX_CV4
+  case CV1_PARAMETER_ID:
+    blipbox.setControlVoltage(0, value<<2);
+    break;
+  case CV2_PARAMETER_ID:
+    blipbox.setControlVoltage(1, value<<2);
+    break;
+  case CV3_PARAMETER_ID:
+    blipbox.setControlVoltage(2, value<<2);
+    break;
+  case CV4_PARAMETER_ID:
+    blipbox.setControlVoltage(3, value<<2);
+    break;
+#endif /* BLIPBOX_CV4 */
   case VERSION_PARAMETER_ID:
     break;
   default:
@@ -73,6 +72,20 @@ uint16_t getParameter(uint8_t pid){
   case PRESET_PARAMETER_ID:
     data = blipbox.config.preset;
     break;
+#ifdef BLIPBOX_CV4
+  case CV1_PARAMETER_ID:
+    data = blipbox.getControlVoltage(0)>>2;
+    break;
+  case CV2_PARAMETER_ID:
+    data = blipbox.getControlVoltage(1)>>2;
+    break;
+  case CV3_PARAMETER_ID:
+    data = blipbox.getControlVoltage(2)>>2;
+    break;
+  case CV4_PARAMETER_ID:
+    data = blipbox.getControlVoltage(3)>>2;
+    break;
+#endif /* BLIPBOX_CV4 */
   case VERSION_PARAMETER_ID:
     data = BLIPBOX_VERSION_ID;
     break;

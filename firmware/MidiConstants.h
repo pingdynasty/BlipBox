@@ -1,7 +1,6 @@
 #ifndef _MIDICONSTANTS_H_
 #define _MIDICONSTANTS_H_
 
-
 #define NRPN_PARAMETER_MSB_CC         99
 #define NRPN_PARAMETER_LSB_CC         98
 #define NRPN_VALUE_MSB_CC             6

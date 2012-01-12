@@ -17,11 +17,11 @@ float SelectPresetAction::getValue() {
   return getPresetIndex() == blipbox.getPresetIndex() ? 1.0f : 0.0f;
 }
 
-int16_t AbstractAction::constrain(int16_t value){
+int16_t MidiAction::constrain(int16_t value){
   return min(max(value, minimum*0x7f), maximum*0x7f);
 }
 
-int8_t AbstractAction::constrain(int8_t value){
+int8_t MidiAction::constrain(int8_t value){
   return min(max(value, minimum), maximum);
 }
 
@@ -50,6 +50,9 @@ Action* Action::createAction(uint8_t type){
     action = new ControlVoltageAction();
     break;
 #endif /* BLIPBOX_CV4 */
+  case MIDI_NOTE_RANGE_ACTION_TYPE:
+    action = new MidiNoteRangeAction();
+    break;
   case SELECT_PRESET_ACTION_TYPE:
     action = new SelectPresetAction();
     break;

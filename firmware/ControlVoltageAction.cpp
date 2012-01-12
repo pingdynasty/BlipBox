@@ -2,14 +2,8 @@
 #include "globals.h"
 
 ControlVoltageAction::ControlVoltageAction()
-  : AbstractAction(CONTROL_VOLTAGE_ACTION_TYPE), cc(0) {
+  : MidiAction(CONTROL_VOLTAGE_ACTION_TYPE), cc(0) {
 }
-
-// ch	cs  ab
-// 0	0   0
-// 1	1   0
-// 2	0   1
-// 3	1   1
 
 float ControlVoltageAction::getValue(){ 
   return scaleFrom14(blipbox.getControlVoltage(getChannel()) << 2);

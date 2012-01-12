@@ -26,6 +26,10 @@ public:
 /*     reset(); */
 /*   } */
 
+  uint8_t getChannel(){
+    return status & MIDI_CHANNEL_MASK;
+  }
+
   void read(char incomingByte){
     switch(status & MIDI_STATUS_MASK){
     case MIDI_NOTE_ON:
