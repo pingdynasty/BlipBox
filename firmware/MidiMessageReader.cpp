@@ -1,11 +1,10 @@
 #include "MidiMessageReader.h"
-#include "globals.h"
 #include "MidiConstants.h"
 #include "Event.h"
 // #include <string.h>
 
-MidiMessageReader::MidiMessageReader() 
-  : pos(0) {
+MidiMessageReader::MidiMessageReader(EventHandler* h) 
+  : handler(h), pos(0) {
 //   memset(buf, 0, sizeof(buf));
 }
 
@@ -39,7 +38,7 @@ void MidiMessageReader::serialInput(unsigned char c){
       pos = 0;
 //       memset(buf, 0, sizeof(buf));
       MidiEvent event(buf[0], buf[1], buf[2]);
-      blipbox.eventhandler->handle(event);
+      handler->handle(event);
     }
   }
 }

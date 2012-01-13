@@ -12,7 +12,6 @@ public:
   Coordinate(uint8_t x, uint8_t y)
     : value((x << 4) | (y & 0x0f)) {}
 
-
   Coordinate& operator=(const Coordinate& other) {
     value = other.value;
     return *this;

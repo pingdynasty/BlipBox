@@ -1,6 +1,9 @@
 #ifndef _COMMAND_H_
 #define _COMMAND_H_
 
+#define PRESET_REQUEST_COMMAND (1<<4)
+#define PRESET_RECEIVE_COMMAND (2<<4)
+
 enum Command {
   TOGGLE          = 3,  // XOR all LED values
   FADE            = 4,  // Decrease LED brightness

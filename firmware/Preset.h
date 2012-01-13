@@ -11,7 +11,6 @@
 class Preset : public EventHandler, public Animator {
 private:
   Zone zones[MAX_ZONES_IN_PRESET];
-
 public:
   void handle(TouchEvent& event);
   void handle(MidiEvent& event);

@@ -1,3 +1,4 @@
+#include "Protocol.h"
 #include "SerialProtocolReader.h"
 #include "globals.h"
 #include "Greeting.h"
@@ -5,25 +6,6 @@
 #include "Parameters.h"
 #include "Command.h"
 #include "MidiPresetReader.h"
-
-#define FILL_MESSAGE              0x10
-#define SET_LED_MESSAGE           0x20 // sets 1 led - 3 byte message
-// set led: 4 bits marker type, 8 bits led index, 8 bits brightness
-// 1000mmmm llllllll bbbbbbbb
-#define SET_LED_ROW_MESSAGE       0x30 // sets 8 leds - two byte message
-// led row: 0011cccc bbbbbbbb : 4 bit row index i, bit mask b
-#define SET_LED_COL_MESSAGE       0x40 // sets 8 leds - two byte message
-// led column: 0100iiii bbbbbbbb : 4 bit column index i, bit mask b
-#define WRITE_CHARACTER_MESSAGE   0x50
-#define SHIFT_LEDS_MESSAGE        0x60
-#define COMMAND_MESSAGE           0x70
-// command: 0111cccc : 4 bit command index
-#define SET_PARAMETER_MESSAGE     0xc0
-#define MESSAGE_ID_MASK           0xf0
-#define MESSAGE_VALUE_MASK        0x0f
-// set parameter: 11ppppvv vvvvvvvv : 4 bit parameter ID p, 10 bit value v
-#define PARAMETER_ID_MASK         0x3c
-#define PARAMETER_VALUE_MASK      0x03
 
 // #define MESSAGE_TYPE
 uint8_t SerialProtocolReader::getMessageType(){

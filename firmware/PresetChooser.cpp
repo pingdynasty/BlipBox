@@ -3,8 +3,8 @@
 #include "PresetChooser.h"
 #include "defs.h"
 
-void PresetChooser::init(){
-  preset = blipbox.config.preset;
+PresetChooser::PresetChooser(){
+  preset = blipbox.getPresetIndex();
   printPreset();
 }
 
@@ -29,9 +29,26 @@ void PresetChooser::printPreset(){
 //   blipbox.leds.setLed(0, 1, blipbox.config.brightness);
 }
 
+void PresetChooser::handle(TouchEvent& event){
+  switch(event.getType()){
+  case PRESS_EVENT_TYPE:
+    press(*event.getPosition());
+    break;
+  case RELEASE_EVENT_TYPE:
+    release();
+    break;
+  case TAPTAP_EVENT_TYPE:
+    taptap(*event.getPosition());
+    break;
+  case DRAG_EVENT_TYPE:
+    drag(*event.getPosition());
+    break;
+  }
+}
+
 void PresetChooser::press(Position& pos){
   origin = pos.getColumn();
-  column = pos.getColumn();
+  column = origin;
 }
 
 void PresetChooser::drag(Position& pos){
@@ -47,10 +64,10 @@ void PresetChooser::drag(Position& pos){
   column = pos.getColumn();
 }
 
-void PresetChooser::release(Position& pos){
-  if(pos.getColumn() > origin && preset)
+void PresetChooser::release(){
+  if(column > origin && preset)
     preset--;
-  else if(pos.getColumn() < origin && preset < MIDI_ZONE_PRESETS)
+  else if(column < origin && preset < MIDI_ZONE_PRESETS)
     preset++;
   blipbox.leds.clear();
   printPreset();
@@ -58,10 +75,8 @@ void PresetChooser::release(Position& pos){
 
 void PresetChooser::taptap(Position& pos){
   Coordinate ref(2, 2);
-  if(pos < ref){
-    blipbox.setEditMode(false);
+  if(pos < ref)
     blipbox.loadPreset(preset);
-  }
 }
 
 void PresetChooser::tick(uint16_t counter){

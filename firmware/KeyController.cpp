@@ -33,7 +33,7 @@
 #define TAPTAP_THRESHOLD 600 // ms between taps to be considered double-tap
 
 KeyController::KeyController() : 
-  pos(), pressed(false), firstpos(0xf, 0xf), lastpos(0xf, 0xf), 
+  pos(), pressed(false), firstpos(), lastpos(0xf, 0xf), 
   lastpressed(LONG_MAX), lasttapped(LONG_MAX), lastreleased(LONG_MAX) {}
 
 void KeyController::keyscan(){
@@ -50,7 +50,7 @@ void KeyController::keyscan(){
       pressed = true;
       if(lastpos != firstpos)
         lasttapped = LONG_MAX;
-      firstpos = lastpos;
+      firstpos = pos;
       lastpressed = now;
     }else{
       // still pressed
@@ -66,16 +66,17 @@ void KeyController::keyscan(){
     pressed = false;
     if(now - lasttapped < TAPTAP_THRESHOLD && lastpos == firstpos){
       event.type = TAPTAP_EVENT_TYPE;
-      event.pos = &pos;
+      event.pos = &firstpos;
       blipbox.eventhandler->handle(event);
       lasttapped = LONG_MAX;
     }else if(now - lastpressed < TAP_THRESHOLD && lastpos == firstpos){
       event.type = TAP_EVENT_TYPE;
-      event.pos = &pos;
+      event.pos = &firstpos;
       blipbox.eventhandler->handle(event);
       lasttapped = now;
     }
     event.pos = NULL;
+    // release appears not to have a reliable position!
     event.type = RELEASE_EVENT_TYPE;
     blipbox.eventhandler->handle(event);
   }

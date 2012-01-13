@@ -50,9 +50,12 @@ void Preset::handle(MidiEvent& event){
 void Preset::handle(TouchEvent& event){
   for(int i=0; i<MAX_ZONES_IN_PRESET; ++i)
     if(event.getPosition() == NULL || zones[i].match(event.getPosition()))
+      // release events have NULL position
       // todo: remove this check when zones are guaranteed to have actions
       if(zones[i].action != NULL)
 	zones[i].handle(event);
+  if(event.isTapTap() && event.getPosition()->getColumn() == 0 && event.getPosition()->getRow() == 0)
+    blipbox.setMode(EDIT_MODE);
 }
 
 void Preset::tick(uint16_t counter){

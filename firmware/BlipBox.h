@@ -14,11 +14,19 @@
 // error codes
 // the code corresponds to the number of blinks emmitted to signal the error
 enum MessageType {
-  ALERT = 2, MESSAGE_READ_ERROR = 4 , MESSAGE_WRITE_ERROR = 6
+  ALERT = 2, 
+  MESSAGE_READ_ERROR = 4, 
+  MESSAGE_WRITE_ERROR = 6
 };
 
 void setup();
 void loop();
+
+enum BlipBoxMode {
+  EDIT_MODE = 1,
+  MIDI_MODE = 2,
+  BLIP_MODE = 3 // USB serial mode, BlipBox protocol
+};
 
 class BlipBox {
 public:
@@ -40,13 +48,12 @@ public:
   void message(MessageType code);
   void sendParameter(uint8_t pid);
   void sendConfigurationParameters();
-  void sendPreset();
+  void sendPreset(uint8_t index);
   void setSerialReader(SerialReader* handler);
   void resetSerialReader();
   void setEventHandler(EventHandler* handler);
   void resetEventHandler();
-  void setEditMode(bool edit);
-  void setMidiMode(bool midi);
+  void setMode(BlipBoxMode mode);
   void loadPreset(uint8_t preset);
   uint8_t getPresetIndex();
   void loop();

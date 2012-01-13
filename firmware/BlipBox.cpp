@@ -8,11 +8,25 @@
 #include "Parameters.h"
 #include "PresetChooser.h"
 #include "SerialProtocol.h"
-#include "MidiSerialReader.h"
+// #include "MidiSerialReader.h"
+#include "MidiMessageReader.h"
 #include "SerialProtocolReader.h"
 #ifdef BLIPBOX_CV4
 #include "spi.h"
 #endif /* BLIPBOX_CV4 */
+
+class EventHandlerWrapper : public EventHandler {
+private:
+  EventHandler* handler;
+public:
+  EventHandlerWrapper(EventHandler* h) : handler(h) {}
+  void handle(TouchEvent& event){
+    handler->handle(event);
+  }
+  void handle(MidiEvent& event){
+    handler->handle(event);
+  }
+};
 
 void setup() {
   blipbox.config.init();
@@ -70,28 +84,31 @@ void BlipBox::resetEventHandler(){
   eventhandler = new DefaultEventHandler();
 }
 
-void BlipBox::setMidiMode(bool midi){
-  if(midi){
-    beginSerial(MIDI_SERIAL_SPEED);
-    setSerialReader(new MidiSerialReader());
-  }else{
-    beginSerial(blipbox.config.serialSpeed);
-//     resetSerialReader(); // done by setEditMode(false)
-//     resetEventHandler(); // done by setEditMode(false)
-  }
-}
-
-void BlipBox::setEditMode(bool edit){
-  blipbox.leds.clear();
-  if(edit){
-    PresetChooser* presetshandler = new PresetChooser();
-    setEventHandler(presetshandler);
-    animator = presetshandler;
+void BlipBox::setMode(BlipBoxMode mode){
+  leds.clear();
+  switch(mode){
+  case EDIT_MODE: {
+    PresetChooser* chooser = new PresetChooser();
+    animator = chooser;
     setSerialReader(new SerialReader());
-  }else{
-    resetEventHandler();
-    resetSerialReader();
+    setEventHandler(new EventHandlerWrapper(chooser));
+    break;
+  }
+  case MIDI_MODE: {
+    beginSerial(MIDI_SERIAL_SPEED);
+    animator = &preset;
+    setSerialReader(new MidiMessageReader(&preset));
+    setEventHandler(new EventHandlerWrapper(&preset));
+    break;
+  }
+  case BLIP_MODE: {
+    beginSerial(blipbox.config.serialSpeed);
     animator = NULL;
+    resetSerialReader();
+    resetEventHandler();
+//     ^ same as: setSerialReader(new SerialProtocolReader());
+    break;
+  }
   }
 }
 
@@ -99,13 +116,36 @@ void BlipBox::message(MessageType code){
   signal.setSignal(code);
 }
 
+// returns current preset 0-8, where 0 is BLIP mode.
 uint8_t BlipBox::getPresetIndex(){
   return config.preset;
 }
 
+// index should be 0-8, where 0 denotes BLIP mode, USB connection
+// and 1-8 denotes MIDI mode
 void BlipBox::loadPreset(uint8_t index){
   config.preset = index;
+  if(index){
+    preset.load(index-1);
+    setMode(MIDI_MODE);
+  }else{
+    setMode(BLIP_MODE);
+  }
+}
+
+// preset here should be 0-7
+void BlipBox::sendPreset(uint8_t index){
   preset.load(index);
+  sendParameterMessage(MIDI_ZONE_PARAMETER_ID, index);
+  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
+  for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
+    memset(buf, 0, sizeof(buf));
+    preset.getZone(i)->write(buf);
+    for(int j=0; j<MIDI_ZONE_PRESET_SIZE; ++j){
+      sendParameterMessage(MIDI_ZONE_PARAMETER_ID, buf[j]);
+    }
+  }
+  preset.load(config.preset);
 }
 
 void BlipBox::sendParameter(uint8_t pid){
@@ -119,18 +159,6 @@ void BlipBox::sendConfigurationParameters(){
   sendParameter(SERIAL_SPEED_PARAMETER_ID);
   sendParameter(PRESET_PARAMETER_ID);
   sendParameter(VERSION_PARAMETER_ID);
-}
-
-void BlipBox::sendPreset(){
-  sendParameterMessage(MIDI_ZONE_PARAMETER_ID, config.preset);
-  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
-  for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
-    memset(buf, 0, sizeof(buf));
-    preset.getZone(i)->write(buf);
-    for(int j=0; j<MIDI_ZONE_PRESET_SIZE; ++j){
-      sendParameterMessage(MIDI_ZONE_PARAMETER_ID, buf[j]);
-    }
-  }
 }
 
 #ifdef BLIPBOX_CV4

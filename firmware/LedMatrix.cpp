@@ -150,8 +150,20 @@ void LedController::sendBufferData(uint8_t row){
   uint8_t* ptr = flipped ? buf2 : buf1;
   ptr += row * LED_CHANNELS;
 
-  // shift out 24 bits for bytes a and b:
-  // aaaaaaaa 0000bbbb bbbb0000
+  // scale logarithmically to 12-bit, 0-4096 value
+  // to get softer brightness range
+  //  y = (x^2)/16
+//   for(uint8_t i=0;i<LED_CHANNELS;i+=2){
+//     uint16_t a = (ptr[i]*ptr[i])/16;
+//     uint16_t b = (ptr[i+1]*ptr[i+1])/16;
+//     // aaaaaaaa aaaabbbb bbbbbbbb
+//     tlc_shift8(a>>4);
+//     tlc_shift8((a<<4)|((b>>4) & 0x0f));
+//     tlc_shift8(b);
+//   }
+
+//   shift out 24 bits for bytes a and b:
+//   aaaaaaaa 0000bbbb bbbb0000
   for(uint8_t i=0;i<LED_CHANNELS;i++){
     tlc_shift8(ptr[i++]);
     tlc_shift8(ptr[i]>>4);

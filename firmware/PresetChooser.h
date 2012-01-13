@@ -9,16 +9,17 @@
 class PresetChooser : public EventHandler, public Animator {
 private:
   uint8_t preset;
+  uint8_t column, origin;
   void printPreset();
 public:
-  void init();
+  PresetChooser();
   void tick(uint16_t counter);
+  void handle(TouchEvent& event);
   void press(Position& pos);
-  void release(Position& pos);
+  void release();
   void drag(Position& pos);
-/*   void tap(Position& pos); */
   void taptap(Position& pos);
-  uint8_t column, origin;
+
 };
 
 #endif /* _PRESETCHOOSER_H_ */

@@ -17,7 +17,7 @@ public:
 private:
   void update();
   bool pressed;
-  Coordinate    firstpos;
+  Position      firstpos;
   Coordinate    lastpos;
   unsigned long lastpressed;
   unsigned long lasttapped;

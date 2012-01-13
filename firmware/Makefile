@@ -107,7 +107,7 @@ REMOVE = rm -f
 MV = mv -f
 
 # Define all object files.
-OBJ = $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o) 
+OBJ = $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o) $(TARGET).o
 
 # Define all listing files.
 LST = $(ASRC:.S=.lst) $(CXXSRC:.cpp=.lst) $(SRC:.c=.lst)
@@ -194,10 +194,8 @@ extcoff: $(TARGET).elf
 	$(NM) -n $< > $@
 
 # Link: create ELF output file from library.
-# applet/$(TARGET).elf: $(TARGET).pde applet/core.a
-# 	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
-applet/$(TARGET).elf: $(TARGET).cpp applet/core.a
-	$(CC) $(ALL_CFLAGS) -o $@ $(TARGET).cpp -L. applet/core.a $(LDFLAGS)
+applet/$(TARGET).elf: applet/core.a
+	$(CC) $(ALL_CXXFLAGS) -o $@ -L. applet/core.a $(LDFLAGS)
 
 applet/core.a: $(OBJ)
 	@for i in $(OBJ); do echo $(AR) rcs applet/core.a $$i; $(AR) rcs applet/core.a $$i; done
