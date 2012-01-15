@@ -8,15 +8,29 @@
 #define ZONE_TYPE_MASK              0xf0
 #define DISPLAY_TYPE_MASK           0x0f
 
-#define NONE_DISPLAY_TYPE           0x00
-#define FILL_DISPLAY_TYPE           0x01
-#define LINE_DISPLAY_TYPE           0x02
+// #define NONE_DISPLAY_TYPE           0x00
+// #define FILL_DISPLAY_TYPE           0x01
+// #define LINE_DISPLAY_TYPE           0x02
 
-#define DISABLED_ZONE_TYPE          0x00
-#define HORIZONTAL_SLIDER_ZONE_TYPE 0x10
-#define VERTICAL_SLIDER_ZONE_TYPE   0x30
-#define MOMENTARY_BUTTON_ZONE_TYPE  0x20
-#define TOGGLE_BUTTON_ZONE_TYPE     0x40
+// #define DISABLED_ZONE_TYPE          0x00
+// #define HORIZONTAL_SLIDER_ZONE_TYPE 0x10
+// #define VERTICAL_SLIDER_ZONE_TYPE   0x30
+// #define MOMENTARY_BUTTON_ZONE_TYPE  0x20
+// #define TOGGLE_BUTTON_ZONE_TYPE     0x40
+
+enum ZoneType {
+   DISABLED_ZONE_TYPE         =  0x00,
+   HORIZONTAL_SLIDER_ZONE_TYPE=  0x10,
+   VERTICAL_SLIDER_ZONE_TYPE  =  0x30,
+   MOMENTARY_BUTTON_ZONE_TYPE =  0x20,
+   TOGGLE_BUTTON_ZONE_TYPE    =  0x40,
+};
+
+enum DisplayType {
+  NONE_DISPLAY_TYPE          =  0x00,
+  FILL_DISPLAY_TYPE          =  0x01,
+  LINE_DISPLAY_TYPE          =  0x02
+ };
 
 class Zone {
 private:
@@ -31,14 +45,14 @@ public:
   bool match(Position* pos){
     return *pos < to && from <= *pos;
   }
-  void setZoneType(uint8_t type);
-  uint8_t getDisplayType(){
-    return type & DISPLAY_TYPE_MASK;
+  void setZoneType(ZoneType type);
+  DisplayType getDisplayType(){
+    return (DisplayType)(type & DISPLAY_TYPE_MASK);
   }
-  void setDisplayType(uint8_t value){
-    type = (ZONE_TYPE_MASK & type) | (DISPLAY_TYPE_MASK & value);
+  void setDisplayType(DisplayType value){
+    type = (DisplayType)((ZONE_TYPE_MASK & type) | (DISPLAY_TYPE_MASK & value));
   }
-  uint8_t getZoneType() { return ZONE_TYPE_MASK & type; }
+  ZoneType getZoneType() { return (ZoneType)(ZONE_TYPE_MASK & type); }
   virtual void handle(TouchEvent& event){}
   virtual void line(){}
   virtual void fill(){}

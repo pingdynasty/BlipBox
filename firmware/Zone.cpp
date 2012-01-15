@@ -121,9 +121,9 @@ uint8_t Zone::write(uint8_t* data){
 // see http://en.wikipedia.org/wiki/Placement_syntax
 void * operator new (size_t, void * p); // defined in operators.cpp
 
-void Zone::setZoneType(uint8_t value){
+void Zone::setZoneType(ZoneType value){
   type = (ZONE_TYPE_MASK & value) | (DISPLAY_TYPE_MASK & type);
-  switch(type & ZONE_TYPE_MASK){
+  switch(type){
   case HORIZONTAL_SLIDER_ZONE_TYPE:
     new(this)HorizontalSliderZone();
     break;
@@ -142,8 +142,9 @@ void Zone::setZoneType(uint8_t value){
 }
 
 uint8_t Zone::read(const uint8_t* data){
-  setZoneType(data[0]);
-//   setDisplayType(data[0]);
+  setZoneType((ZoneType)(ZONE_TYPE_MASK & data[0]));
+  setDisplayType((DisplayType)(DISPLAY_TYPE_MASK & data[0]));
+//   type = data[0];
   from.setValue(data[1]);
   to.setValue(data[2]);
   delete action;
