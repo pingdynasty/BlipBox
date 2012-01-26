@@ -140,10 +140,9 @@ void BlipBox::sendPreset(uint8_t index){
   uint8_t buf[MIDI_ZONE_PRESET_SIZE];
   for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
     memset(buf, 0, sizeof(buf));
-    preset.getZone(i)->write(buf);
-    for(int j=0; j<MIDI_ZONE_PRESET_SIZE; ++j){
+    uint8_t cnt = preset.writeZone(buf, i);
+    for(int j=0; j<cnt; ++j)
       sendParameterMessage(MIDI_ZONE_PARAMETER_ID, buf[j]);
-    }
   }
   preset.load(config.preset);
 }

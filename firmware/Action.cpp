@@ -42,6 +42,7 @@ void MidiAction::sendMessage(int8_t data){
   serialWrite(data & 0x7f);
 }
 
+// static method
 Action* Action::createAction(uint8_t type){
   Action* action = NULL;
   switch(type & MIDI_STATUS_MASK){

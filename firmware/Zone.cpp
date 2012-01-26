@@ -7,8 +7,11 @@
 #define COLUMN_RANGE   10.0
 #define ROW_RANGE       8.0
 
-// Zone::Zone() : action(NULL) {}
-Zone::Zone() {}
+Zone::Zone() : action(NULL) {}
+
+Zone::~Zone() {
+  delete action;
+}
 
 class MomentaryButtonZone : public Zone {
 public:
@@ -118,33 +121,30 @@ uint8_t Zone::write(uint8_t* data){
   return 3+action->write(data);
 }
 
-// see http://en.wikipedia.org/wiki/Placement_syntax
-void * operator new (size_t, void * p); // defined in operators.cpp
-
-void Zone::setZoneType(ZoneType value){
-  type = (ZONE_TYPE_MASK & value) | (DISPLAY_TYPE_MASK & type);
-  switch(type){
-  case HORIZONTAL_SLIDER_ZONE_TYPE:
-    new(this)HorizontalSliderZone();
-    break;
-  case VERTICAL_SLIDER_ZONE_TYPE:
-    new(this)VerticalSliderZone();
-    break;
-  case MOMENTARY_BUTTON_ZONE_TYPE:
-    new(this)MomentaryButtonZone();
-    break;
-  case TOGGLE_BUTTON_ZONE_TYPE:
-    new(this)ToggleButtonZone();
-    break;
-  default:
-    new(this)Zone();
-  }
-}
+// void Zone::setZoneType(ZoneType value){
+//   type = (ZONE_TYPE_MASK & value) | (DISPLAY_TYPE_MASK & type);
+//   switch(type & ZONE_TYPE_MASK){
+//   case HORIZONTAL_SLIDER_ZONE_TYPE:
+//     new(this)HorizontalSliderZone();
+//     break;
+//   case VERTICAL_SLIDER_ZONE_TYPE:
+//     new(this)VerticalSliderZone();
+//     break;
+//   case MOMENTARY_BUTTON_ZONE_TYPE:
+//     new(this)MomentaryButtonZone();
+//     break;
+//   case TOGGLE_BUTTON_ZONE_TYPE:
+//     new(this)ToggleButtonZone();
+//     break;
+//   default:
+//     new(this)Zone();
+//   }
+// }
 
 uint8_t Zone::read(const uint8_t* data){
-  setZoneType((ZoneType)(ZONE_TYPE_MASK & data[0]));
-  setDisplayType((DisplayType)(DISPLAY_TYPE_MASK & data[0]));
-//   type = data[0];
+//   setZoneType((ZoneType)(ZONE_TYPE_MASK & data[0]));
+//   setDisplayType((DisplayType)(DISPLAY_TYPE_MASK & data[0]));
+  type = data[0];
   from.setValue(data[1]);
   to.setValue(data[2]);
   delete action;
@@ -152,4 +152,26 @@ uint8_t Zone::read(const uint8_t* data){
   if(action == NULL)
     return 3;
   return 3+action->read(data);
+}
+
+// static method
+Zone* Zone::createZone(uint8_t type){
+  Zone* zone = NULL;
+  switch(type & ZONE_TYPE_MASK){
+  case HORIZONTAL_SLIDER_ZONE_TYPE:
+    zone = new HorizontalSliderZone();
+    break;
+  case VERTICAL_SLIDER_ZONE_TYPE:
+    zone = new VerticalSliderZone();
+    break;
+  case MOMENTARY_BUTTON_ZONE_TYPE:
+    zone = new MomentaryButtonZone();
+    break;
+  case TOGGLE_BUTTON_ZONE_TYPE:
+    zone = new ToggleButtonZone();
+    break;
+  default:
+    zone = new Zone();
+  }
+  return zone;
 }

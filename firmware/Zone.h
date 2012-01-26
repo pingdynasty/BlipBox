@@ -23,7 +23,7 @@ enum ZoneType {
    HORIZONTAL_SLIDER_ZONE_TYPE=  0x10,
    VERTICAL_SLIDER_ZONE_TYPE  =  0x30,
    MOMENTARY_BUTTON_ZONE_TYPE =  0x20,
-   TOGGLE_BUTTON_ZONE_TYPE    =  0x40,
+   TOGGLE_BUTTON_ZONE_TYPE    =  0x40
 };
 
 enum DisplayType {
@@ -40,12 +40,12 @@ public:
   Coordinate from;
   Coordinate to;
   Zone();
+  ~Zone();
   uint8_t read(const uint8_t* data);
   uint8_t write(uint8_t* data);
   bool match(Position* pos){
     return *pos < to && from <= *pos;
   }
-  void setZoneType(ZoneType type);
   DisplayType getDisplayType(){
     return (DisplayType)(type & DISPLAY_TYPE_MASK);
   }
@@ -53,9 +53,11 @@ public:
     type = (DisplayType)((ZONE_TYPE_MASK & type) | (DISPLAY_TYPE_MASK & value));
   }
   ZoneType getZoneType() { return (ZoneType)(ZONE_TYPE_MASK & type); }
+//   void setZoneType(ZoneType type);
   virtual void handle(TouchEvent& event){}
   virtual void line(){}
   virtual void fill(){}
+  static Zone* createZone(uint8_t type);
 };
 
 #endif /* _ZONE_H_ */

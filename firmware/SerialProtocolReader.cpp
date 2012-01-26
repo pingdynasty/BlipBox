@@ -5,7 +5,7 @@
 #include "Characters.h"
 #include "Parameters.h"
 #include "Command.h"
-#include "MidiPresetReader.h"
+#include "PresetReader.h"
 
 // #define MESSAGE_TYPE
 uint8_t SerialProtocolReader::getMessageType(){
@@ -28,7 +28,7 @@ uint8_t SerialProtocolReader::getFourBitValue(){
 }
 
 void SerialProtocolReader::handleMidiPresetCommand(){
-  blipbox.setSerialReader(new MidiPresetReader());
+  blipbox.setSerialReader(new PresetReader(&blipbox.preset));
   blipbox.leds.clear();
   if(autoflip)
     blipbox.leds.flip();
