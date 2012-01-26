@@ -42,7 +42,7 @@ MCU = atmega328p
 # MCU = atmega168
 F_CPU = 16000000
 
-CPP_SRC = FiveWireTouchController.cpp Configuration.cpp KeyController.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp PresetChooser.cpp SerialProtocol.cpp BlipBox.cpp main.cpp Zone.cpp Action.cpp Event.cpp operators.cpp Preset.cpp MidiPresetReader.cpp MidiMessageReader.cpp ControlVoltageAction.cpp spi_bitbang.cpp 
+CPP_SRC = FiveWireTouchController.cpp Configuration.cpp KeyController.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp PresetChooser.cpp SerialProtocol.cpp BlipBox.cpp main.cpp Zone.cpp Action.cpp Event.cpp operators.cpp Preset.cpp PresetReader.cpp MidiMessageReader.cpp ControlVoltageAction.cpp spi_bitbang.cpp 
 
 ############################################################################
 
@@ -86,10 +86,9 @@ CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
 LDFLAGS = -lm
 
-
 # Programming support using avrdude. Settings and variables.
 AVRDUDE_PORT = $(PORT)
-AVRDUDE_WRITE_FLASH = -U flash:w:applet/$(TARGET).hex
+AVRDUDE_WRITE_FLASH = -U flash:w:build/$(TARGET).hex
 AVRDUDE_FLAGS = -F -V -C $(INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf \
 -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
 -b $(UPLOAD_RATE)
@@ -120,44 +119,29 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: build sizeafter
-# all: applet_files build sizeafter
+all: compile sizeafter
 
-build: elf hex
-# build: elf hex eep
+compile: elf hex
+# compile: elf hex eep
 
-applet_files: $(TARGET).pde
-	# Here is the "preprocessing".
-	# It creates a .cpp file based with the same name as the .pde file.
-	# On top of the new .cpp file comes the WProgram.h header.
-	# At the end there is a generic main() function attached.
-	# Then the .cpp file will be compiled. Errors during compile will
-	# refer to this new, automatically generated, file. 
-	# Not the original .pde file you actually edit...
-	test -d applet || mkdir applet
-	echo '#include "WProgram.h"' > applet/$(TARGET).cpp
-	cat $(TARGET).pde >> applet/$(TARGET).cpp
-	cat $(ARDUINO)/main.cxx >> applet/$(TARGET).cpp
-
-elf: applet/$(TARGET).elf
-hex: applet/$(TARGET).hex
-eep: applet/$(TARGET).eep
-lss: applet/$(TARGET).lss 
-sym: applet/$(TARGET).sym
+elf: build/$(TARGET).elf
+hex: build/$(TARGET).hex
+eep: build/$(TARGET).eep
+lss: build/$(TARGET).lss 
+sym: build/$(TARGET).sym
 
 # Program the device.  
-upload: applet/$(TARGET).hex
+upload: build/$(TARGET).hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
-
 # Display size of file.
-HEXSIZE = $(SIZE) --target=$(FORMAT) applet/$(TARGET).hex
-ELFSIZE = $(SIZE)  applet/$(TARGET).elf
+HEXSIZE = $(SIZE) --target=$(FORMAT) build/$(TARGET).hex
+ELFSIZE = $(SIZE)  build/$(TARGET).elf
 sizebefore:
-	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
+	@if [ -f build/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
 
 sizeafter:
-	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(HEXSIZE); echo; fi
+	@if [ -f build/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(HEXSIZE); echo; fi
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
@@ -168,12 +152,12 @@ COFFCONVERT=$(OBJCOPY) --debugging \
 --change-section-address .eeprom-0x810000 
 
 
-coff: applet/$(TARGET).elf
-	$(COFFCONVERT) -O coff-avr applet/$(TARGET).elf $(TARGET).cof
+coff: build/$(TARGET).elf
+	$(COFFCONVERT) -O coff-avr build/$(TARGET).elf $(TARGET).cof
 
 
 extcoff: $(TARGET).elf
-	$(COFFCONVERT) -O coff-ext-avr applet/$(TARGET).elf $(TARGET).cof
+	$(COFFCONVERT) -O coff-ext-avr build/$(TARGET).elf $(TARGET).cof
 
 
 .SUFFIXES: .elf .hex .eep .lss .sym
@@ -194,13 +178,11 @@ extcoff: $(TARGET).elf
 	$(NM) -n $< > $@
 
 # Link: create ELF output file from library.
-# applet/$(TARGET).elf: $(TARGET).pde applet/core.a
-# 	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
-applet/$(TARGET).elf: $(TARGET).cpp applet/core.a
-	$(CC) $(ALL_CFLAGS) -o $@ $(TARGET).cpp -L. applet/core.a $(LDFLAGS)
+build/$(TARGET).elf: build/core.a
+	$(CC) $(ALL_CXXFLAGS) -o $@ -L. build/core.a $(LDFLAGS)
 
-applet/core.a: $(OBJ)
-	@for i in $(OBJ); do echo $(AR) rcs applet/core.a $$i; $(AR) rcs applet/core.a $$i; done
+build/core.a: $(OBJ)
+	@for i in $(OBJ); do echo $(AR) rcs build/core.a $$i; $(AR) rcs build/core.a $$i; done
 
 
 
@@ -226,8 +208,8 @@ applet/core.a: $(OBJ)
 
 # Target: clean project.
 clean:
-	$(REMOVE) applet/$(TARGET).hex applet/$(TARGET).eep applet/$(TARGET).cof applet/$(TARGET).elf \
-	applet/$(TARGET).map applet/$(TARGET).sym applet/$(TARGET).lss applet/core.a \
+	$(REMOVE) build/$(TARGET).hex build/$(TARGET).eep build/$(TARGET).cof build/$(TARGET).elf \
+	build/$(TARGET).map build/$(TARGET).sym build/$(TARGET).lss build/core.a \
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 
 depend:
@@ -241,4 +223,4 @@ depend:
 		>> $(MAKEFILE); \
 	$(CC) -M -mmcu=$(MCU) $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE)
 
-.PHONY:	all build elf hex eep lss sym program coff extcoff clean depend applet_files sizebefore sizeafter
+.PHONY:	all compile elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter
