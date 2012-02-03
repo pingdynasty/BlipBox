@@ -21,16 +21,14 @@ public:
     else if(event.isRelease())
       action->on(MIN_DATA_VALUE);
   }
-  void fill(){
-    if(action->getValue() != MIN_DATA_VALUE){
-      uint8_t intensity = action->getValue() * blipbox.config.brightness;
+  void fill(uint8_t intensity){
+    if(action->getValue() != MIN_DATA_VALUE){      
       blipbox.display.fill(from.getColumn(), from.getRow(), 
 			   to.getColumn(), to.getRow(), intensity);
     }
   }
-  void line(){
+  void line(uint8_t intensity){
     // a button in line mode is displayed as a diagonal line
-    uint8_t intensity = action->getValue() * blipbox.config.brightness;
     if(action->getValue() == MIN_DATA_VALUE){
       blipbox.display.line(from.getColumn(), from.getRow(),
 			   to.getColumn()-1, to.getRow()-1, blipbox.config.brightness / 2);
@@ -76,16 +74,14 @@ public:
     uint8_t col = (uint8_t)(action->getValue()*(to.getColumn()-from.getColumn()))+from.getColumn();
     return min(max(col, from.getColumn()), to.getColumn()-1);
   }
-  void fill(){
+  void fill(uint8_t intensity){
     uint8_t col = getColumn() + 1;
     // it's a bit weird that the fill range does excludes end point,
     // while line is inclusive
-    uint8_t intensity = action->getValue() * blipbox.config.brightness;
     blipbox.display.fill(from.getColumn(), from.getRow(), col, to.getRow(), intensity);
   }
-  void line(){
+  void line(uint8_t intensity){
     uint8_t col = getColumn();
-    uint8_t intensity = action->getValue() * blipbox.config.brightness;
     blipbox.display.line(col, from.getRow(), col, to.getRow()-1, intensity);
   }
 };
@@ -100,14 +96,12 @@ public:
     uint8_t row = (uint8_t)(action->getValue()*(to.getRow()-from.getRow()))+from.getRow();
     return min(max(row, from.getRow()), to.getRow()-1);
   }
-  void fill(){
+  void fill(uint8_t intensity){
     uint8_t row = getRow() + 1;
-    uint8_t intensity = action->getValue() * blipbox.config.brightness;
     blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row, intensity);
   }
-  void line(){
+  void line(uint8_t intensity){
     uint8_t row = getRow();
-    uint8_t intensity = action->getValue() * blipbox.config.brightness;
     blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, intensity);
   }
 };
@@ -120,26 +114,6 @@ uint8_t Zone::write(uint8_t* data){
     return 3;
   return 3+action->write(data);
 }
-
-// void Zone::setZoneType(ZoneType value){
-//   type = (ZONE_TYPE_MASK & value) | (DISPLAY_TYPE_MASK & type);
-//   switch(type & ZONE_TYPE_MASK){
-//   case HORIZONTAL_SLIDER_ZONE_TYPE:
-//     new(this)HorizontalSliderZone();
-//     break;
-//   case VERTICAL_SLIDER_ZONE_TYPE:
-//     new(this)VerticalSliderZone();
-//     break;
-//   case MOMENTARY_BUTTON_ZONE_TYPE:
-//     new(this)MomentaryButtonZone();
-//     break;
-//   case TOGGLE_BUTTON_ZONE_TYPE:
-//     new(this)ToggleButtonZone();
-//     break;
-//   default:
-//     new(this)Zone();
-//   }
-// }
 
 uint8_t Zone::read(const uint8_t* data){
 //   setZoneType((ZoneType)(ZONE_TYPE_MASK & data[0]));
@@ -173,5 +147,6 @@ Zone* Zone::createZone(uint8_t type){
   default:
     zone = new Zone();
   }
+  zone->type = type;
   return zone;
 }

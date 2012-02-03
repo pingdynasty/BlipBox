@@ -64,10 +64,16 @@ void Preset::tick(uint16_t counter){
     if(zones[i] != NULL && zones[i]->action != NULL){
       switch(zones[i]->getDisplayType()){
       case FILL_DISPLAY_TYPE:
-	zones[i]->fill();
+	zones[i]->fill(blipbox.config.brightness);
 	break;
       case LINE_DISPLAY_TYPE:
-	zones[i]->line();
+	zones[i]->line(blipbox.config.brightness);
+	break;
+      case GRADED_FILL_DISPLAY_TYPE:
+	zones[i]->fill(zones[i]->action->getValue() * blipbox.config.brightness);
+	break;
+      case GRADED_LINE_DISPLAY_TYPE:
+	zones[i]->line(zones[i]->action->getValue() * blipbox.config.brightness);
 	break;
 //       case NONE_DISPLAY_TYPE:
 //       default:

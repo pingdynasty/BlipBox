@@ -29,7 +29,9 @@ enum ZoneType {
 enum DisplayType {
   NONE_DISPLAY_TYPE          =  0x00,
   FILL_DISPLAY_TYPE          =  0x01,
-  LINE_DISPLAY_TYPE          =  0x02
+  LINE_DISPLAY_TYPE          =  0x02,
+  GRADED_FILL_DISPLAY_TYPE   =  0x03,
+  GRADED_LINE_DISPLAY_TYPE   =  0x04
  };
 
 class Zone {
@@ -55,8 +57,8 @@ public:
   ZoneType getZoneType() { return (ZoneType)(ZONE_TYPE_MASK & type); }
 //   void setZoneType(ZoneType type);
   virtual void handle(TouchEvent& event){}
-  virtual void line(){}
-  virtual void fill(){}
+  virtual void line(uint8_t intensity){}
+  virtual void fill(uint8_t intensity){}
   static Zone* createZone(uint8_t type);
 };
 
