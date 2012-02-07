@@ -11,25 +11,42 @@
 class Preset : public EventHandler, public Animator {
 private:
   Zone* zones[MAX_ZONES_IN_PRESET];
+  uint8_t size;
 public:
   Preset();
   void handle(TouchEvent& event);
   void handle(MidiEvent& event);
 /*   void configure(uint8_t* data); */
   void tick(uint16_t counter);
+  void clear(){
+    while(size)
+      delete zones[--size];
+  }
   Zone* getZone(uint8_t index){
-    if(index < MAX_ZONES_IN_PRESET)
-      return zones[index];
-    return NULL;
+    if(index >= size)
+      return NULL;
+    return zones[index];
   }
-  void setZone(uint8_t index, Zone* zone){
-    delete zones[index];
-    zones[index] = zone;
+  Zone* removeZone(uint8_t index){
+    if(index >= size)
+      return NULL;
+    Zone* zone = zones[index];    
+    --size;
+    for(; index<size; index++)
+      zones[index] = zones[index+1];
+    zones[size] = NULL;
+    return zone;
   }
+  void addZone(Zone* zone){
+    if(size < MAX_ZONES_IN_PRESET)
+      zones[size++] = zone;
+  }
+/*   void setZone(uint8_t index, Zone* zone){ */
+/*     delete zones[index]; */
+/*     zones[index] = zone; */
+/*   } */
   uint8_t getNumberOfZones(){
-    int i=0;
-    for(;i<MAX_ZONES_IN_PRESET && zones[i] != NULL; ++i);
-    return i;
+    return size;
   }
   void load(uint8_t index);
   void save(uint8_t index);

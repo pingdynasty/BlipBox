@@ -7,7 +7,7 @@
 #include <string.h>
 #include <avr/eeprom.h>
 
-Preset::Preset(){
+Preset::Preset() : size(0){
   memset(zones, 0, sizeof(zones));
 }
 
@@ -39,16 +39,16 @@ void Preset::save(uint8_t index){
 }
 
 void Preset::handle(MidiEvent& event){
-  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i){
+  for(uint8_t i=0; i<size; ++i){
     // todo: remove this check when zones are guaranteed to have actions
-    if(zones[i] != NULL && zones[i]->action != NULL)
+    if(zones[i]->action != NULL)
       zones[i]->action->handle(event);
   }
 }
 
 void Preset::handle(TouchEvent& event){
-  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i)
-    if(zones[i] != NULL && (event.getPosition() == NULL || zones[i]->match(event.getPosition())))
+  for(uint8_t i=0; i<size; ++i)
+    if(event.getPosition() == NULL || zones[i]->match(event.getPosition()))
       // release events have NULL position
       // todo: remove this check when zones are guaranteed to have actions
       if(zones[i]->action != NULL)
@@ -59,9 +59,9 @@ void Preset::handle(TouchEvent& event){
 
 void Preset::tick(uint16_t counter){
   blipbox.leds.bitshiftright();
-  for(int i=0; i<MAX_ZONES_IN_PRESET; ++i){
+  for(uint8_t i=0; i<size; ++i){
     // todo: remove action check when zones are guaranteed to have actions
-    if(zones[i] != NULL && zones[i]->action != NULL){
+    if(zones[i]->action != NULL){
       switch(zones[i]->getDisplayType()){
       case FILL_DISPLAY_TYPE:
 	zones[i]->fill(blipbox.config.brightness);
