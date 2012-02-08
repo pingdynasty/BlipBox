@@ -7,7 +7,8 @@
 #define COLUMN_RANGE   10.0
 #define ROW_RANGE       8.0
 
-Zone::Zone() : action(NULL) {}
+Zone::Zone() : type(DISABLED_ZONE_TYPE|LINE_DISPLAY_TYPE), 
+	       action(NULL), from(0,0), to(10, 8) {}
 
 Zone::~Zone() {
   delete action;
@@ -22,7 +23,7 @@ public:
       action->on(MIN_DATA_VALUE);
   }
   void fill(uint8_t intensity){
-    if(action->getValue() != MIN_DATA_VALUE){      
+    if(action->getValue() != MIN_DATA_VALUE){
       blipbox.display.fill(from.getColumn(), from.getRow(), 
 			   to.getColumn(), to.getRow(), intensity);
     }
@@ -31,7 +32,7 @@ public:
     // a button in line mode is displayed as a diagonal line
     if(action->getValue() == MIN_DATA_VALUE){
       blipbox.display.line(from.getColumn(), from.getRow(),
-			   to.getColumn()-1, to.getRow()-1, blipbox.config.brightness / 2);
+			   to.getColumn()-1, to.getRow()-1, intensity / 2);
     }else{
       blipbox.display.line(from.getColumn(), to.getRow()-1,
 			   to.getColumn()-1, from.getRow(), intensity);
@@ -75,10 +76,13 @@ public:
     return min(max(col, from.getColumn()), to.getColumn()-1);
   }
   void fill(uint8_t intensity){
-    uint8_t col = getColumn() + 1;
+    uint8_t col = getColumn();
     // it's a bit weird that the fill range does excludes end point,
     // while line is inclusive
-    blipbox.display.fill(from.getColumn(), from.getRow(), col, to.getRow(), intensity);
+    if(isInverted())
+      blipbox.display.fill(col, from.getRow(), to.getColumn(), to.getRow(), intensity);
+    else
+      blipbox.display.fill(from.getColumn(), from.getRow(), col+1, to.getRow(), intensity);
   }
   void line(uint8_t intensity){
     uint8_t col = getColumn();
@@ -97,11 +101,15 @@ public:
     return min(max(row, from.getRow()), to.getRow()-1);
   }
   void fill(uint8_t intensity){
-    uint8_t row = getRow() + 1;
-    blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row, intensity);
+    uint8_t row = getRow();
+    if(isInverted())
+      blipbox.display.fill(from.getColumn(), row, to.getColumn(), to.getRow(), intensity);
+    else
+      blipbox.display.fill(from.getColumn(), from.getRow(), to.getColumn(), row+1, intensity);
   }
   void line(uint8_t intensity){
     uint8_t row = getRow();
+    blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, intensity);
     blipbox.display.line(from.getColumn(), row, to.getColumn()-1, row, intensity);
   }
 };

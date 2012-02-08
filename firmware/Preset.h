@@ -19,8 +19,10 @@ public:
 /*   void configure(uint8_t* data); */
   void tick(uint16_t counter);
   void clear(){
-    while(size)
+    while(size){
       delete zones[--size];
+      zones[size] = NULL;
+    }
   }
   Zone* getZone(uint8_t index){
     if(index >= size)
