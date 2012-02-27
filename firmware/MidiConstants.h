@@ -10,6 +10,8 @@
 #define MIDI_CHANNEL_MASK             0x0f
 #define MIDI_VALUE_MASK               0x7f
 
+#define MIDI_PITCHBEND_NO_BEND        0x2000
+
 #define MIDI_NOTE_OFF                 0x80
 #define MIDI_NOTE_ON                  0x90
 #define MIDI_AFTERTOUCH               0xA0
