@@ -36,13 +36,14 @@
 TARGET = BlipBox
 INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java/
 PORT = /dev/tty.usb*
-UPLOAD_RATE = 57600
 AVRDUDE_PROGRAMMER = stk500v1
-MCU = atmega328p
-# MCU = atmega168
 F_CPU = 16000000
+# MCU = atmega168
+# UPLOAD_RATE = 19200
+MCU = atmega328p
+UPLOAD_RATE = 57600
 
-CPP_SRC = FiveWireTouchController.cpp Configuration.cpp KeyController.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp PresetChooser.cpp SerialProtocol.cpp BlipBox.cpp main.cpp Zone.cpp Action.cpp Event.cpp operators.cpp Preset.cpp PresetReader.cpp MidiMessageReader.cpp ControlVoltageAction.cpp spi_bitbang.cpp 
+CPP_SRC = FiveWireTouchController.cpp Configuration.cpp KeyController.cpp Characters.cpp globals.cpp DirectCounter.cpp SerialProtocolReader.cpp LedMatrix.cpp DisplayManager.cpp Parameters.cpp Animator.cpp EventHandler.cpp PresetChooser.cpp SerialProtocol.cpp BlipBox.cpp main.cpp Zone.cpp Action.cpp Event.cpp operators.cpp Preset.cpp PresetCommandReader.cpp MidiMessageReader.cpp ControlVoltageAction.cpp spi_bitbang.cpp 
 
 ############################################################################
 

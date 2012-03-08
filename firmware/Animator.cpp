@@ -10,6 +10,21 @@ void SignalAnimator::tick(uint16_t counter){
   }
 }
 
+void GreetingAnimator::tick(uint16_t counter){
+  if(counter >= 3000){
+    blipbox.animator = NULL;
+    blipbox.leds.clear();
+    blipbox.leds.flip();
+    delete this;
+  }else if(counter % 100 == 0){
+    blipbox.display.line(0, 0, counter / 7 % 10, counter / 7 % 8, 0xff);
+    blipbox.leds.flip();
+  }else if(counter % 10 == 0){
+    blipbox.display.line(0, 0, counter / 7 % 10, counter / 7 % 8, 0xff);
+    blipbox.leds.flip();
+  }
+}
+
 // void FadeAnimator::tick(uint16_t counter){
 //   if(counter % prescaler == 0)
 //     blipbox.leds.sub(1);

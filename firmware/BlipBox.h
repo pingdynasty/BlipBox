@@ -31,7 +31,7 @@ enum BlipBoxMode {
 class BlipBox {
 public:
 #ifdef BLIPBOX_CV4
-  uint16_t getControlVoltage(uint8_t value);
+  uint16_t getControlVoltage(uint8_t channel);
   void setControlVoltage(uint8_t channel, uint16_t value);
   uint16_t controlvoltages[4];
 #endif /* BLIPBOX_CV4 */
@@ -49,6 +49,7 @@ public:
   void sendParameter(uint8_t pid);
   void sendConfigurationParameters();
   void sendPreset(uint8_t index);
+  void receivePreset(uint8_t index);
   void setSerialReader(SerialReader* handler);
   void resetSerialReader();
   void setEventHandler(EventHandler* handler);

@@ -11,6 +11,7 @@
 // #include "MidiSerialReader.h"
 #include "MidiMessageReader.h"
 #include "SerialProtocolReader.h"
+#include "PresetSerialiser.h"
 #ifdef BLIPBOX_CV4
 #include "spi.h"
 #endif /* BLIPBOX_CV4 */
@@ -32,6 +33,8 @@ void setup() {
   blipbox.config.init();
   blipbox.init();
   beginSerial(blipbox.config.serialSpeed);
+  blipbox.animator = NULL;
+//   blipbox.animator = new GreetingAnimator();
   blipbox.message(ALERT);
 }
 
@@ -133,17 +136,59 @@ void BlipBox::loadPreset(uint8_t index){
   }
 }
 
+class PresetReceiver : public PresetLoader {
+private:
+  uint8_t index;
+public:
+  PresetReceiver(uint8_t i) : index(i) {}
+  void done(Preset* preset){
+    preset->save(index);
+    close();
+  }
+  void fail(){
+    blipbox.message(MESSAGE_READ_ERROR);
+    close();
+  }
+  void close(){
+    blipbox.leds.clear();
+    blipbox.leds.flip();
+    blipbox.animator = NULL;
+    blipbox.resetSerialReader();
+  }
+};
+
+// preset here should be 0-7
+void BlipBox::receivePreset(uint8_t index){
+//   PresetSerializer serialiser = new PresetSerializer();
+//   setSerialReader(serialiser);
+//   animator = serialiser;
+  PresetLoader* loader = new PresetReceiver(index);
+  setSerialReader(loader);
+  animator = loader;
+//   sei(); // re-enable interrupts to capture more serial data
+//   leds.clear();
+//   leds.flip();
+//   if(loader->read(&preset))
+//     preset.save(index);
+//   else
+//     message(MESSAGE_READ_ERROR);
+//   animator = NULL;
+//   resetSerialReader();
+}
+
+class PresetSender : public PresetSerialiser {
+  void writeBlock(uint8_t* data, uint8_t size){
+    for(int i=0; i<size; ++i)
+      sendParameterMessage(MIDI_ZONE_PARAMETER_ID, data[i]);
+  }
+};
+
 // preset here should be 0-7
 void BlipBox::sendPreset(uint8_t index){
   preset.load(index);
   sendParameterMessage(MIDI_ZONE_PARAMETER_ID, index);
-  uint8_t buf[MIDI_ZONE_PRESET_SIZE];
-  for(int i=0; i<MIDI_ZONES_IN_PRESET; ++i){
-    memset(buf, 0, sizeof(buf));
-    uint8_t cnt = preset.writeZone(buf, i);
-    for(int j=0; j<cnt; ++j)
-      sendParameterMessage(MIDI_ZONE_PARAMETER_ID, buf[j]);
-  }
+  PresetSender sender;
+  sender.write(&preset);
   preset.load(config.preset);
 }
 

@@ -5,7 +5,8 @@
 
 class Animator {
 public:
-  virtual void tick(uint16_t counter){}; // default implementation adds 6 bytes to program
+  // default implementation adds 6 bytes to program
+  virtual void tick(uint16_t counter){}
 };
 
 class SignalAnimator : public Animator {
@@ -17,6 +18,11 @@ class SignalAnimator : public Animator {
   }
  private:
   uint8_t signals;
+};
+
+class GreetingAnimator : public Animator {
+ public:
+  void tick(uint16_t counter);
 };
 
 /* class FadeAnimator : public Animator { */

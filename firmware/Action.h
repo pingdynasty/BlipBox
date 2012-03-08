@@ -295,7 +295,7 @@ public:
 /* First, controller 99 - NRPN Most Significant Bit (MSB) - followed by 98 - NRPN Least Significant Bit (LSB) sent as a pair specify the parameter to be changed. Controller 6 then sets the value of the parameter in question. Controller 38 may optionally then be sent as a fine adjustment to the value set by controller 6. */
   int16_t data1;
   int16_t data2;
-  MidiNRPNAction() : MidiAction(MIDI_CONTROL_CHANGE) {}
+  MidiNRPNAction() : MidiAction(MIDI_CONTROL_CHANGE), data1(0), data2(0) {}
   void on(float f){
     int16_t value = scaleTo14(f);
     if(data2 != value){
