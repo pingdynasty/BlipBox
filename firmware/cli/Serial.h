@@ -21,7 +21,7 @@ protected:
 
 public:
   Serial();
-  Serial(const std::string& aport, int aspeed, bool averbose = false);
+  Serial(const std::string& aport, int aspeed, bool averbose = true);
   virtual ~Serial();
   const std::string& getPort();
   void setPort(const std::string& aport);
