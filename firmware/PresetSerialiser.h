@@ -60,7 +60,7 @@ public:
   }
 };
 
-class PresetLoader : public PresetSerialiser, public Animator, public BufferedSerialReader<128> {
+class PresetLoader : public PresetSerialiser, public Animator, public BufferedSerialReader<32> {
 public:
   virtual void tick(uint16_t counter){
     // would be nice to show an animation here until the preset is actually loaded.
