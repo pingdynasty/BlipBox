@@ -1,6 +1,6 @@
 TARGET = blipcli
 CSRC = 
-CPPSRC = blipcli.cpp Serial.cpp AsioSerial.cpp
+CPPSRC = BlipCLI.cpp Serial.cpp AsioSerial.cpp
 LDFLAGS = -L/opt/local/lib -framework IOKit -framework CoreFoundation -lboost_system 
 CPPFLAGS = -I/opt/local/include
 

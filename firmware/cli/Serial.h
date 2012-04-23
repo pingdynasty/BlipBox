@@ -33,6 +33,7 @@ public:
   virtual bool isConnected();
   virtual void run();
   virtual int connect() = 0;
+  virtual int connect(int fd) = 0;
   virtual int disconnect() = 0;
   virtual size_t readSerial(unsigned char* data, size_t len) = 0;
   virtual size_t writeSerial(unsigned char* data, size_t len) = 0;

@@ -14,10 +14,13 @@ public:
    : Serial(){
   }
   int connect();
+  int connect(int fd);
   int disconnect();
   bool isConnected();
   size_t readSerial(unsigned char* data, size_t len);
   size_t writeSerial(unsigned char* data, size_t len);
+private:
+  void configure();
 };
 
 #endif  // __ASIOSERIAL_H__

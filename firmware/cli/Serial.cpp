@@ -9,7 +9,7 @@ Serial::Serial(const std::string& aport, int aspeed, bool averbose)
 }
 
 Serial::Serial() :
-  port(), speed(-1), verbose(false),
+  port(), speed(-1), verbose(true),
   callback(NULL), connected(false), running(false) {
 }
 
