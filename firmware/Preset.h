@@ -50,6 +50,12 @@ public:
   uint8_t getNumberOfZones(){
     return size;
   }
+/*   uint8_t getTotalSize(){ */
+/*     int length = 0; */
+/*     for(uint8_t i=0; i<size; ++i) */
+/*       length += zone[i].write(); */
+/*     return length; */
+/*   } */
   void load(uint8_t index);
   void save(uint8_t index);
   uint8_t readZone(const uint8_t* data, uint8_t index);
