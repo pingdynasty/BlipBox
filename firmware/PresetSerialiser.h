@@ -38,9 +38,10 @@ public:
   void write(Preset* preset){
     uint8_t checksum = 0;
     uint8_t buf[PRESET_SERIALISER_BUFFER_SIZE];
-    buf[0] = preset->getNumberOfZones();
+    uint8_t size = preset->getNumberOfZones();
+    buf[0] = size;
     writeBlock(buf, 1);
-    for(int i=0; i<preset->getNumberOfZones(); ++i){
+    for(int i=0; i<size; ++i){
       uint8_t sz = preset->writeZone(buf+1, i);
       buf[0] = sz;
       writeBlock(buf, sz+1);
@@ -60,7 +61,8 @@ public:
   }
 };
 
-class PresetLoader : public PresetSerialiser, public Animator, public BufferedSerialReader<32> {
+#define BUFFER_SIZE 32
+class PresetLoader : public PresetSerialiser, public Animator, public BufferedSerialReader<BUFFER_SIZE> {
 public:
   virtual void tick(uint16_t counter){
     // would be nice to show an animation here until the preset is actually loaded.
