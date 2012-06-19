@@ -27,6 +27,9 @@ public:
 		rx_buffer_head = i;
 	}
   }
+  void flush(){
+    rx_buffer_head = rx_buffer_tail;
+  }
   unsigned char volatile rx_buffer[RX_BUFFER_SIZE];
   volatile int rx_buffer_head;
   volatile int rx_buffer_tail;
