@@ -165,13 +165,13 @@ void BlipBox::receivePreset(uint8_t index){
   PresetLoader* loader = new PresetReceiver(index);
   setSerialReader(loader);
   animator = loader;
-//   sei(); // re-enable interrupts to capture more serial data
-//   leds.clear();
-//   leds.flip();
-//   if(loader->read(&preset))
-//     preset.save(index);
-//   else
-//     message(MESSAGE_READ_ERROR);
+  sei(); // re-enable interrupts to capture more serial data
+  leds.clear();
+  leds.flip();
+  if(loader->read(&preset))
+    preset.save(index);
+  else
+    message(MESSAGE_READ_ERROR);
 //   animator = NULL;
 //   resetSerialReader();
 }
@@ -215,6 +215,7 @@ void BlipBox::sendConfigurationParameters(){
 uint16_t BlipBox::getControlVoltage(uint8_t channel){
   return controlvoltages[channel];
 }
+
 void BlipBox::setControlVoltage(uint8_t channel, uint16_t value){
   if(controlvoltages[channel] != value){
     controlvoltages[channel] = value;
