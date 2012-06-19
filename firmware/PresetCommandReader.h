@@ -8,10 +8,10 @@
 
 class PresetCommandReader : public SerialReader {
 private:
-  int8_t command;
-  uint8_t index;
+/*   int8_t command; */
+/*   uint8_t index; */
 public:
-  PresetCommandReader();
+/*   PresetCommandReader(); */
   void serialInput(unsigned char c);
 };
 
