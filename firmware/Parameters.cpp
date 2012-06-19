@@ -1,5 +1,6 @@
 #include <avr/eeprom.h>
 #include <inttypes.h>
+#include "defs.h"
 #include "Parameters.h"
 
 void setParameter(uint8_t pid, uint16_t value){
@@ -14,8 +15,8 @@ void setParameter(uint8_t pid, uint16_t value){
     blipbox.config.tlc_gsclk_period = value;
     break;
   case SERIAL_SPEED_PARAMETER_ID:
-    blipbox.config.serialSpeed = value == 0 ?
-      31250L : value * 9600;
+    blipbox.config.serialSpeed = 
+      value == 0 ? 31250L : value * 9600;
     break;
   case PRESET_PARAMETER_ID:
     blipbox.loadPreset((uint8_t)value);
