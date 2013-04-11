@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <avr/io.h>
 
-#define __AVR_ATmega168__
+//#define __AVR_ATmega168__
 
 #ifdef __cplusplus
 extern "C" {
