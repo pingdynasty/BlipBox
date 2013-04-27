@@ -11,30 +11,29 @@ Preset::Preset() : size(0){
   memset(zones, 0, sizeof(zones));
 }
 
-uint8_t* getAddress(uint8_t index){
-  return (uint8_t*)(MIDI_PRESET_OFFSET +
-		    index * MIDI_ZONES_IN_PRESET * MIDI_ZONE_PRESET_SIZE);
+#define MIDI_PRESET_HEADER 0
+uint16_t getAddress(uint8_t index){
+  return MIDI_PRESET_OFFSET + MIDI_PRESET_HEADER +
+    index * MIDI_ZONES_IN_PRESET * MIDI_ZONE_PRESET_SIZE;
 }
 
 void Preset::load(uint8_t index){
   uint8_t buf[MIDI_ZONE_PRESET_SIZE];
-  uint8_t* offset = getAddress(index);
-  // get the number of zones
-  size = eeprom_read_byte(offset++);
-  for(uint8_t i=0; i<size; ++i){
+  uint16_t offset = getAddress(index);
+  for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i){
     memset(buf, 0, sizeof(buf));
-    eeprom_read_block(buf, offset, sizeof(buf));
+    eeprom_read_block(buf, (uint8_t*)offset, sizeof(buf));
+//     offset += zones[i].read(buf);
     offset += readZone(buf, i);
   }
 }
 
 void Preset::save(uint8_t index){
   uint8_t buf[MIDI_ZONE_PRESET_SIZE];
-  uint8_t* offset = getAddress(index);
-  eeprom_write_byte(offset++, size);
-  for(uint8_t i=0; i<size; ++i){
+  uint16_t offset = getAddress(index);
+  for(uint8_t i=0; i<MIDI_ZONES_IN_PRESET; ++i){
     uint8_t bts = writeZone(buf, i);
-    eeprom_write_block(buf, offset, bts);
+    eeprom_write_block(buf, (uint8_t*)offset, bts);
     offset += bts;
   }
 }

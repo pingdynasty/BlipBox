@@ -8,7 +8,6 @@
 
 #define MIDI_STATUS_MASK              0xf0
 #define MIDI_CHANNEL_MASK             0x0f
-#define MIDI_VALUE_MASK               0x7f
 
 #define MIDI_PITCHBEND_NO_BEND        0x2000
 

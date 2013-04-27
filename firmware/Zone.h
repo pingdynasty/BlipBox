@@ -6,9 +6,7 @@
 #include "Action.h"
 
 #define ZONE_TYPE_MASK              0xf0
-#define DISPLAY_TYPE_MASK           0x07
-#define INVERTED_TYPE_MASK          0x08
-#define INVERTED_ZONE_TYPE          0x08
+#define DISPLAY_TYPE_MASK           0x0f
 
 // #define NONE_DISPLAY_TYPE           0x00
 // #define FILL_DISPLAY_TYPE           0x01
@@ -54,19 +52,7 @@ public:
     return (DisplayType)(type & DISPLAY_TYPE_MASK);
   }
   void setDisplayType(DisplayType value){
-    type = (~DISPLAY_TYPE_MASK & type) |
-//       (ZONE_TYPE_MASK & type) |
-//       (INVERTED_TYPE_MASK & type) |
-      (DISPLAY_TYPE_MASK & value);
-  }
-  bool isInverted(){
-    return type & INVERTED_TYPE_MASK;
-  }
-  void setInverted(bool invert){
-    if(invert)
-      type |= INVERTED_ZONE_TYPE;
-    else
-      type &= ~INVERTED_ZONE_TYPE;
+    type = (DisplayType)((ZONE_TYPE_MASK & type) | (DISPLAY_TYPE_MASK & value));
   }
   ZoneType getZoneType() { return (ZoneType)(ZONE_TYPE_MASK & type); }
 //   void setZoneType(ZoneType type);
