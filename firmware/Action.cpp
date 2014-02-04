@@ -51,9 +51,6 @@ Action* Action::createAction(uint8_t type){
     action = new ControlVoltageAction();
     break;
 #endif /* BLIPBOX_CV4 */
-  case MIDI_NRPN_ACTION_TYPE:
-    action = new MidiNRPNAction();
-    break;
   case MIDI_NOTE_RANGE_ACTION_TYPE:
     action = new MidiNoteRangeAction();
     break;
@@ -61,8 +58,6 @@ Action* Action::createAction(uint8_t type){
     action = new SelectPresetAction();
     break;
   case MIDI_AFTERTOUCH:
-    action = new MidiAftertouchAction();
-    break;
   case MIDI_CONTROL_CHANGE:
     action = new MidiControllerAction();
     break;
@@ -70,9 +65,8 @@ Action* Action::createAction(uint8_t type){
   case MIDI_NOTE_OFF:
       action = new MidiNoteAction();
     break;
-  case MIDI_PROGRAM_CHANGE:
-      action = new MidiProgramChangeAction();
-    break;
+//   case MIDI_PROGRAM_CHANGE:
+//     break;
   case MIDI_CHANNEL_PRESSURE:
     action = new MidiChannelPressureAction();
     break;
